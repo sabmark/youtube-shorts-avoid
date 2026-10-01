@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Shorts Avoid",
+  "version": "0.1.0",
+  "description": "Request video and channel recommendation feedback for a Short with one click.",
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["src/youtube.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
