@@ -14,7 +14,7 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Download [youtube-shorts-avoid-0.1.2.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.2/youtube-shorts-avoid-0.1.2.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
+Download [youtube-shorts-avoid-0.1.3.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.3/youtube-shorts-avoid-0.1.3.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
@@ -25,20 +25,20 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** only on a video and channel you want to dismiss. Each click processes one Short. The status message reports confirmed actions and any reason the sequence stopped. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** only on a video and channel you want to dismiss. Each click processes one Short. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
-If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button. "Feedback sent" means both feedback actions were confirmed.
+If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
 ## Limits and verification
 
 - During this activation's Not interested step, an opened reason dialog selects **Other** if available, otherwise the first supported choice, then submits if needed. Optional Tell us why links are left alone. A pre-existing or later dialog, unsupported choice or request for extra typed input stops automation.
 - Missing options, unconfirmed feedback or a changed Short stop the sequence. If YouTube advances after the first action, the extension stops before applying channel feedback to the next video.
-- A timeout can mean YouTube received feedback without showing a recognized confirmation. Check the result before trying again.
+- If the button becomes enabled without advancing, YouTube may have received feedback without showing a recognized confirmation. Check YouTube's native feedback notices and the current Short before trying again.
 - After both confirmations, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
 - Feedback influences recommendations; it cannot guarantee that similar videos will never appear.
 - The installed extension passed a signed-in Chrome test: Other was selected, both feedback actions were confirmed and YouTube advanced once. The owner then tested Chrome and Opera and reported both working. See [the verification record](docs/testing.md).
 
-For the first local check, pick a Short you actually want to dismiss. Confirm both feedback options exist, click Avoid, check the status and verify that the next Short appears once. If the extension stops, report its exact message and which browser you used.
+For the first local check, pick a Short you actually want to dismiss. Confirm both feedback options exist, click Avoid, check YouTube's feedback notices and verify that the next Short appears once. If the extension stops, report what happened and which browser you used.
 
 ## Remove or update
 
@@ -56,7 +56,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.2.zip` containing the nine runtime files and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.3.zip` containing the nine runtime files and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

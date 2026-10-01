@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Remove all extension progress, completion and error notifications, including "Feedback sent."
+- Keep the Avoid button disabled while feedback is pending and preserve YouTube feedback confirmation checks.
+
 ## 0.1.2
 
 - Recognize YouTube's contextual Tell us why reason sheet and automatically select Other when available.

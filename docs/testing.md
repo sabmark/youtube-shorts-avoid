@@ -2,7 +2,7 @@
 
 ## Automated tests
 
-The public version 0.1.2 suite contains 48 tests, including a check that the installable package retains the repository MIT license notice. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The version 0.1.2 suite contained 48 tests, including a check that the installable package retains the repository MIT license notice. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
@@ -61,3 +61,17 @@ The successful checks do not establish compatibility with every YouTube account 
 Choose a Short and channel the viewer actually wants to dismiss. Verify that both feedback options exist, each action produces confirmation, reasons follow the chosen policy, and advancement happens once. If YouTube advances after the first action, the extension must stop without dismissing the newly displayed Short.
 
 Automated fixtures and source-preview layout checks do not replace those runtime checks.
+
+## Version 0.1.3 notification removal
+
+On 2026-10-02 (Asia/Singapore), the owner requested removal of extension notifications and approved browser UI/UX verification. All 48 automated tests pass. Updated content-script tests cover no extension notifications during pending feedback, completion, missing options, partial completion and renderer replacement. Feedback ordering, duplicate-click prevention and successor protection remain covered.
+
+A live YouTube source preview showed one 48 by 48 pixel Avoid button and no extension notification host. At 1441 by 861 in the light theme and 1024 by 768 in the dark theme, the button stayed inside the viewport. Keyboard traversal returned focus to the button with its 3-pixel outline in both themes.
+
+A Chromium fixture ran the real content scripts against synthetic visible YouTube controls. The button was disabled during feedback, Not interested and Don't recommend channel ran in order, navigation reached the next Short once, and the button became enabled again. No extension notification host appeared during the operation. The native feedback notice remained visible.
+
+These checks used source previews, not an installed version 0.1.3 extension. No feedback was submitted to a live YouTube account. The earlier installed Chrome and owner Chrome/Opera results apply to version 0.1.2; installed version 0.1.3 account behavior still needs an owner check after reloading the extension.
+
+## Version 0.1.3 owner confirmation in Chrome and Opera
+
+On 2026-10-02 (Asia/Singapore), the owner confirmed the notification-removal update: "Confirmed and works well on chrome and opera." This records owner-tested success in both browsers and supersedes the pending owner check above. Browser versions and detailed test steps were not supplied.
