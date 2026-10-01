@@ -67,6 +67,8 @@ Interface: python3 scripts/package.py [--output PATH] produces a ZIP with manife
 
 ## Execution and evidence
 
+Update on 2026-10-01 after the initial package: the viewer reported a reason dialog during signed-in use and now requests automatic choice and submission, preferring Other but allowing another available reason. This replaces the initial skip/stop policy for dialogs opened by the current activation. Pre-existing prompts and identity changes still stop. The viewer also requested a logo; version 0.1.1 adds manifest icons at 16, 32, 48 and 128 pixels.
+
 Recommended execution: implement inline in this session, with one independent review at the end. The three tickets share the same adapter/workflow interface, so a single implementer avoids repeated context setup.
 
 The viewer approved this plan and inline execution on 2026-10-01. Relayframe has reserved a clean feature branch in the new source repository. Its workspace ownership takes precedence over creating an additional unmanaged worktree.

@@ -18,14 +18,20 @@ test('package contains declared runtime files only, excluding development and se
   const packed = spawnSync('python3', [join(fixture, 'scripts', 'package.py'), '--output', output], { encoding: 'utf8' });
   assert.equal(packed.status, 0, packed.stderr);
   const checked = spawnSync('python3', ['-c', `
-import json, sys, zipfile
+import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
-    expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js'}
+    expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
+                'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png'}
     assert set(archive.namelist()) == expected, archive.namelist()
     manifest = json.loads(archive.read('manifest.json'))
     for entry in manifest['content_scripts']:
         for path in entry['js'] + entry['css']:
             assert path in archive.namelist(), path
+    for size in (16, 32, 48, 128):
+        path = manifest['icons'][str(size)]
+        png = archive.read(path)
+        assert png[:8] == bytes((137, 80, 78, 71, 13, 10, 26, 10)), path
+        assert struct.unpack('>II', png[16:24]) == (size, size), path
     assert archive.testzip() is None
 `, output], { encoding: 'utf8' });
   assert.equal(checked.status, 0, checked.stderr);

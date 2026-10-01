@@ -8,7 +8,9 @@ YouTube owns the recommendation system and can change Shorts menus independently
 
 ## Decision
 
-Use Manifest V3 isolated-world content scripts and interact with visible page controls. Separate the workflow from the DOM adapter. Keep the requested action order and confirm each action through a fresh visible notice. Bind each operation to the starting Short and stop on a changed identity, unavailable option, required reason or timeout.
+Use Manifest V3 isolated-world content scripts and interact with visible page controls. Separate the workflow from the DOM adapter. Keep the requested action order and confirm each action through a fresh visible notice. Bind each operation to the starting Short and stop on a changed identity, unavailable option, unsupported reason prompt or timeout.
+
+On 2026-10-01, after testing locally while signed in, the viewer changed the reason policy: select any reason, preferably Other. Answer only one dialog during this activation's Not interested feedback attempt, stay scoped to that dialog and Short, submit once when needed and wait for closure. Authorization ends when that attempt finishes. Do not answer a pre-existing or later reason prompt or submit a dialog asking for additional text. The earlier required-reason stop policy is superseded by this instruction.
 
 Use a shadow root to contain the extension's button styling. Match the YouTube origin broadly enough to observe navigation into Shorts, but mount and operate only on Shorts routes. Use no private APIs, backend, telemetry or production dependencies.
 

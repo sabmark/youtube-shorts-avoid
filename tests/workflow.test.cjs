@@ -120,7 +120,7 @@ test('a second activation is ignored while feedback is pending', async t => {
   assert.equal(env.flow.busy, false);
 });
 
-test('required reasons stop the workflow without selecting an answer', async t => {
+test('unsupported reasons stop the workflow without selecting an answer', async t => {
   let w;
   const env = setup(t, { onFeedback: () => {
     const dialog = w.document.createElement('div');
@@ -145,7 +145,7 @@ test('unconfirmed feedback is reported honestly without continuing', async t => 
   assert.equal(env.advances(), 0);
 });
 
-test('a required reason appearing while the second menu opens blocks channel feedback', async t => {
+test('an unsupported reason appearing while the second menu opens blocks channel feedback', async t => {
   const sent = [];
   const env = setup(t, { onFeedback: label => {
     sent.push(label);

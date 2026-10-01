@@ -24,6 +24,7 @@
       this.document = window.document;
       this.timeoutMs = timeoutMs;
       this.openedMenu = null;
+      this.reasonOwner = null;
     }
 
     current() {
@@ -66,10 +67,59 @@
       if (this.reason()) throw problem('required-reason', 'Choose a reason in YouTube to continue.');
     }
 
+    assertNoTextInput(dialog) {
+      const textInput = [...dialog.querySelectorAll('input, textarea, [contenteditable]')]
+        .find(element => visible(this.window, element) && !element.disabled && !element.readOnly
+          && !element.closest('[aria-disabled="true"], [disabled]')
+          && (element.tagName !== 'INPUT' || !['radio', 'checkbox', 'hidden', 'submit', 'button', 'reset'].includes(element.type))
+          && element.getAttribute('contenteditable') !== 'false');
+      if (textInput) throw problem('required-reason', 'This reason asks for typed details. Complete the YouTube dialog manually.');
+    }
+
+    async resolveReason(target) {
+      const dialog = this.reason();
+      if (!dialog) return;
+      this.assertCurrent(target);
+      // Only answer a prompt following this activation's Not interested click.
+      if (this.reasonOwner !== target) this.assertNoReason();
+      this.reasonOwner = null;
+      this.assertNoTextInput(dialog);
+      const enabled = element => visible(this.window, element) && !element.disabled
+        && !element.closest('[aria-disabled="true"], [disabled]');
+      const name = element => normalize(element.getAttribute('aria-label') || element.textContent
+        || [...(element.labels || [])].map(label => label.textContent).join(' '));
+      let choices = [...dialog.querySelectorAll('[role="radio"], [role="checkbox"], tp-yt-paper-radio-button, tp-yt-paper-checkbox, label, input[type="radio"], input[type="checkbox"]')]
+        .filter(element => enabled(element) && name(element)
+          && (element.tagName !== 'LABEL' || element.control?.matches('input[type="radio"], input[type="checkbox"]')));
+      // Some Shorts variants use action buttons instead of radio controls.
+      if (!choices.length) choices = [...dialog.querySelectorAll('button, [role="button"]')]
+        .filter(element => enabled(element) && name(element)
+          && !/^(cancel|close|dismiss|submit|send|done|ok|confirm|next|back|learn more|send feedback|submit feedback)$/.test(name(element)));
+      const choice = choices.find(element => /^other(?: reason)?$/.test(name(element))) || choices[0];
+      if (!choice) throw problem('required-reason', 'YouTube needs a reason, but no supported choice is available. Choose it manually.');
+      this.assertCurrent(target);
+      if (!choice.checked && !choice.control?.checked && choice.getAttribute('aria-checked') !== 'true') choice.click();
+      const submit = await this.wait(() => {
+        this.assertCurrent(target);
+        if (!visible(this.window, dialog)) return true;
+        this.assertNoTextInput(dialog);
+        return [...dialog.querySelectorAll('button, [role="button"], input[type="submit"]')]
+          .find(element => enabled(element) && /^(submit|send|done|ok|confirm|send feedback|submit feedback)$/.test(name(element) || normalize(element.value)));
+      }, 'The selected reason needs additional input or YouTube did not enable submission. Check the dialog.');
+      if (submit === true) return;
+      this.assertCurrent(target);
+      this.assertNoTextInput(dialog);
+      submit.click();
+      await this.wait(() => {
+        this.assertCurrent(target);
+        return !visible(this.window, dialog);
+      }, 'YouTube did not close the reason dialog. The reason may have been sent; check before trying again.');
+    }
+
     async wait(check, message) {
       const start = Date.now();
       do {
-        const result = check();
+        const result = await check();
         if (result) return result;
         await new Promise(resolve => this.window.setTimeout(resolve, 25));
       } while (Date.now() - start < this.timeoutMs);
@@ -78,16 +128,18 @@
 
     async menu(target) {
       this.assertCurrent(target);
-      this.assertNoReason();
+      await this.resolveReason(target);
+      this.assertCurrent(target);
       if (this.openedMenu?.target === target && visible(this.window, this.openedMenu.element)) return this.openedMenu.element;
       if (this.menus().length) throw problem('menu-open', 'Close the open YouTube menu, then try again.');
       const button = [...target.element.querySelectorAll('#menu-button button, button[aria-label="More actions"]')]
         .find(element => visible(this.window, element) && !element.disabled && element.getAttribute('aria-label') === 'More actions');
       if (!button) throw problem('missing-menu', 'This Short does not offer the required feedback menu.');
       button.click();
-      const menu = await this.wait(() => {
+      const menu = await this.wait(async () => {
         this.assertCurrent(target);
-        this.assertNoReason();
+        await this.resolveReason(target);
+        this.assertCurrent(target);
         const menus = this.menus();
         if (menus.length > 1) throw problem('ambiguous-menu', 'More than one YouTube menu is open. Close them and try again.');
         return menus[0];
@@ -119,23 +171,28 @@
       const item = this.item(menu, kind);
       if (!item) throw problem('missing-options', 'The remaining feedback option is unavailable for this Short.');
       const before = new Map(this.notices().map(element => [element, normalize(element.textContent)]));
+      await this.resolveReason(target);
       this.assertCurrent(target);
-      this.assertNoReason();
-      item.click();
-      this.openedMenu = null;
-      await this.wait(() => {
-        this.assertNoReason();
-        const confirmed = this.notices().some(element => {
-          const text = normalize(element.textContent);
-          if (before.get(element) === text) return false;
-          return kind === 'not-interested'
-            ? /video removed|we'll tune your recommendations|got it|won't see this video/.test(text)
-            : /won't recommend.*channel|will not recommend.*channel|channel.*won't.*recommend/.test(text);
-        });
-        if (confirmed) return true;
-        this.assertCurrent(target);
-        return false;
-      }, 'YouTube did not confirm the feedback. It may have been sent; check before trying again.');
+      if (kind === 'not-interested') this.reasonOwner = target;
+      try {
+        item.click();
+        this.openedMenu = null;
+        await this.wait(async () => {
+          await this.resolveReason(target);
+          const confirmed = this.notices().some(element => {
+            const text = normalize(element.textContent);
+            if (before.get(element) === text) return false;
+            return kind === 'not-interested'
+              ? /video removed|we'll tune your recommendations|got it|won't see this video/.test(text)
+              : /won't recommend.*channel|will not recommend.*channel|channel.*won't.*recommend/.test(text);
+          });
+          if (confirmed) return true;
+          this.assertCurrent(target);
+          return false;
+        }, 'YouTube did not confirm the feedback. It may have been sent; check before trying again.');
+      } finally {
+        if (kind === 'not-interested') this.reasonOwner = null;
+      }
     }
 
     async next(target) {
@@ -143,8 +200,8 @@
       // Feedback confirmation can precede YouTube's queued native navigation.
       // Give that navigation the same bounded observation window as feedback.
       try {
-        await this.wait(() => {
-          this.assertNoReason();
+        await this.wait(async () => {
+          await this.resolveReason(target);
           const current = this.current();
           if (!current) throw problem('changed-short', 'You left the Shorts player.');
           if (current.id !== target.id) return true;
@@ -155,8 +212,8 @@
       } catch (error) {
         if (error.code !== 'timeout') throw error;
       }
+      await this.resolveReason(target);
       this.assertCurrent(target);
-      this.assertNoReason();
       const button = [...this.document.querySelectorAll('button[aria-label="Next video"]')]
         .find(element => visible(this.window, element) && !element.disabled);
       if (!button) throw problem('missing-next', 'Feedback was sent, but the next-video control is unavailable.');

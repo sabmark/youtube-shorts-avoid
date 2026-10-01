@@ -94,7 +94,7 @@ test('a stale success toast cannot confirm a new feedback request', async t => {
   await assert.rejects(adapter.feedback(target, 'not-interested'), { code: 'timeout' });
 });
 
-test('required reason prompts remain for the viewer to answer', async t => {
+test('unsupported reason prompts remain for the viewer to answer', async t => {
   const w = fixture(t, player());
   installMenu(w, { onFeedback: () => {
     const dialog = w.document.createElement('div');

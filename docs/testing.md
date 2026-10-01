@@ -2,13 +2,21 @@
 
 ## Automated tests
 
-The full suite contains 35 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, required and optional reasons, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The full version 0.1.1 suite contains 45 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
-The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the five runtime files, all manifest references resolve, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
+The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the nine runtime files, including the four declared logo sizes. All manifest references resolve, PNG dimensions match their declared sizes, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
 
-An independent whole-change review found two asynchronous boundary defects. A required reason appearing while the second menu opened could allow a channel click, and queued native advancement could follow an immediate Next click. Each regression failed before its fix. Reason checks now cover menu polling and the click boundary. Before clicking Next, the adapter observes native advancement for its four-second timeout window. Tests cover delayed native advancement; navigation arriving after that window remains a live timing limitation.
+The initial version 0.1.0 independent review found two asynchronous boundary defects. A required reason appearing while the second menu opened could allow a channel click, and queued native advancement could follow an immediate Next click. Each regression failed before its fix. Reason handling covers menu polling and the click boundary. Before clicking Next, the adapter observes native advancement for its four-second timeout window. Tests cover delayed native advancement; navigation arriving after that window remains a live timing limitation.
+
+## Version 0.1.1 reason policy and browser checks
+
+The viewer's signed-in local check reached a Tell us why dialog. They then changed the policy to automatic selection, preferably Other, otherwise another available reason. New regressions failed against the earlier stop policy and pass with scoped selection and submission. Coverage includes radio controls, hidden native inputs with visible labels, button choices, first-choice fallback, unrelated existing or later prompts, changed Shorts and dialogs that never close. Selection and submission occur once per dialog attempt; confirmation remains required before continuing.
+
+Independent review of the update identified two boundaries to tighten. Reason authorization is now consumed by the first handled dialog and expires when the Not interested feedback attempt finishes. A later prompt stays untouched and prevents channel submission. Editable text controls are checked before selection and before submission, including a field revealed by selecting Other. Each regression failed before the guard was added and passes in the final 45-test suite.
+
+The connected browser was rechecked and is still signed out. A fresh source preview using the updated scripts mounted one accessible button and stopped at the missing-feedback-options message before submitting feedback. The logo was inspected at 128 pixels and package tests verify all four PNG sizes. Signed-out source-preview behavior is verified. Signed-in behavior is covered by fixtures and the viewer's reported observation, but the updated live signed-in sequence remains unverified because Google rejected sign-in in this connected browser. These are distinct results, not a claim that both live account states passed.
 
 ## Authorized rendered source preview
 

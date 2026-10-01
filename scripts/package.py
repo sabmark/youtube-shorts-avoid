@@ -10,6 +10,10 @@ FILES = (
     "src/youtube.js",
     "src/workflow.js",
     "src/content.js",
+    "icons/icon16.png",
+    "icons/icon32.png",
+    "icons/icon48.png",
+    "icons/icon128.png",
 )
 
 
@@ -18,6 +22,7 @@ def main():
     extension = root / "extension"
     manifest = json.loads((extension / "manifest.json").read_text())
     declared = {"manifest.json"}
+    declared.update(manifest.get("icons", {}).values())
     for entry in manifest["content_scripts"]:
         declared.update(entry.get("js", []))
         declared.update(entry.get("css", []))

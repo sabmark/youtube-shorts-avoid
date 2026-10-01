@@ -1,5 +1,7 @@
 # YouTube Shorts Avoid
 
+<img src="assets/logo.svg" alt="Shorts Avoid logo: a play symbol with a minus badge" width="72" height="72">
+
 One button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
 
 Use a signed-in YouTube account with the interface set to English. The extension needs no separate login. It stores no account data and has no backend or telemetry.
@@ -17,7 +19,7 @@ Click **Avoid** only on a video and channel you want to dismiss. Each click proc
 
 ## Limits and verification
 
-- Optional reasons are left unanswered. A required reason stops automation so you can choose it yourself.
+- During this activation's Not interested step, an opened reason dialog selects **Other** if available, otherwise the first supported choice, then submits if needed. Optional Tell us why links are left alone. A pre-existing or later dialog, unsupported choice or request for extra typed input stops automation.
 - Missing options, unconfirmed feedback or a changed Short stop the sequence. If YouTube advances after the first action, the extension stops before applying channel feedback to the next video.
 - A timeout can mean YouTube received feedback without showing a recognized confirmation. Check the result before trying again.
 - After both confirmations, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
@@ -32,4 +34,4 @@ To remove it, open the browser's extensions page and choose **Remove** on YouTub
 
 ## Development and packaging
 
-Requires Node 22 or later and Python 3. Run `npm ci`, then `npm test`. Run `npm run package` to create `dist/youtube-shorts-avoid-0.1.0.zip` containing only the five runtime files. No build step is needed to load the `extension` folder.
+Requires Node 22 or later and Python 3. Run `npm ci`, then `npm test`. Run `npm run package` to create `dist/youtube-shorts-avoid-0.1.1.zip` containing only the nine runtime files, including four logo sizes. No build step is needed to load the `extension` folder.
