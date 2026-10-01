@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { mkdtempSync, cpSync, mkdirSync, writeFileSync } = require('node:fs');
+const { mkdtempSync, cpSync, mkdirSync, writeFileSync, readFileSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join, resolve } = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -21,8 +21,11 @@ test('package contains declared runtime files only, excluding development and se
 import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
     expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
-                'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png'}
+                'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png', 'LICENSE'}
     assert set(archive.namelist()) == expected, archive.namelist()
+    license_text = archive.read('LICENSE').decode()
+    assert license_text.splitlines()[0] == 'MIT License'
+    assert 'Copyright (c) 2026 Mark Anthony Sabandal' in license_text
     manifest = json.loads(archive.read('manifest.json'))
     for entry in manifest['content_scripts']:
         for path in entry['js'] + entry['css']:
@@ -35,4 +38,9 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
     assert archive.testzip() is None
 `, output], { encoding: 'utf8' });
   assert.equal(checked.status, 0, checked.stderr);
+});
+
+test('the installable extension retains the repository MIT license notice', () => {
+  const source = resolve(__dirname, '..');
+  assert.equal(readFileSync(join(source, 'extension', 'LICENSE'), 'utf8'), readFileSync(join(source, 'LICENSE'), 'utf8'));
 });

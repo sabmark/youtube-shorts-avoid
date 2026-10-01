@@ -5,6 +5,7 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 FILES = (
+    "LICENSE",
     "manifest.json",
     "control.css",
     "src/youtube.js",
@@ -26,7 +27,7 @@ def main():
     for entry in manifest["content_scripts"]:
         declared.update(entry.get("js", []))
         declared.update(entry.get("css", []))
-    if declared != set(FILES):
+    if declared != set(FILES) - {"LICENSE"}:
         raise ValueError("Manifest runtime files differ from the packaging allowlist")
     for name in FILES:
         path = extension / name

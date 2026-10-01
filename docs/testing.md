@@ -2,11 +2,11 @@
 
 ## Automated tests
 
-The full version 0.1.2 suite contains 47 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The public version 0.1.2 suite contains 48 tests, including a check that the installable package retains the repository MIT license notice. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
-The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the nine runtime files, including the four declared logo sizes. All manifest references resolve, PNG dimensions match their declared sizes, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
+The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the nine runtime files, including the four declared logo sizes, plus the MIT license notice. All manifest references resolve, PNG dimensions match their declared sizes, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
 
 The initial version 0.1.0 independent review found two asynchronous boundary defects. A required reason appearing while the second menu opened could allow a channel click, and queued native advancement could follow an immediate Next click. Each regression failed before its fix. Reason handling covers menu polling and the click boundary. Before clicking Next, the adapter observes native advancement for its four-second timeout window. Tests cover delayed native advancement; navigation arriving after that window remains a live timing limitation.
 
@@ -52,9 +52,11 @@ The native advance was queued long enough for channel feedback in this run. If a
 
 After packaging, Chrome reported installed version 0.1.2. The reloaded page had one 48 by 48 pixel Avoid button. Keyboard traversal focused it with a 3-pixel outline, and YouTube remained signed in. Independent review found no actionable defects; the full 47-test suite passed.
 
-## Runtime checks still required
+## Owner confirmation in Chrome and Opera
 
-Opera installation and signed-in Opera runtime remain unverified. The successful Chrome run does not establish compatibility with every YouTube account or interface variant.
+On 2026-10-02 (Asia/Singapore), the owner reported: "I tested chrome and opera and it works well." This confirms owner-tested runtime success in both browsers. No additional browser versions or detailed step-by-step observations were supplied. This report supersedes the earlier Opera-unverified outcome.
+
+The successful checks do not establish compatibility with every YouTube account or interface variant.
 
 Choose a Short and channel the viewer actually wants to dismiss. Verify that both feedback options exist, each action produces confirmation, reasons follow the chosen policy, and advancement happens once. If YouTube advances after the first action, the extension must stop without dismissing the newly displayed Short.
 
