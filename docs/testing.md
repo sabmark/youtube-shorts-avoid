@@ -2,13 +2,15 @@
 
 ## Automated tests
 
-The foundation and workflow/control suites contain 32 passing tests as of 2026-10-01. They execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, required and optional reasons, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The full suite contains 33 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, required and optional reasons, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
+The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the five runtime files, all manifest references resolve, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
+
 ## Authorized rendered source preview
 
-The viewer approved UI/UX verification separately for the foundation and button tickets. The connected browser preview ran the extension's source scripts and CSS on signed-out desktop YouTube Shorts. This was source injection for layout inspection, not an installed-extension test or proof of isolated-world runtime behavior.
+The viewer approved UI/UX verification separately for the foundation, button and packaging tickets. The connected browser preview ran the extension's source scripts and CSS on signed-out desktop YouTube Shorts. This was source injection for layout inspection, not an installed-extension test or proof of isolated-world runtime behavior.
 
 Verified observations:
 
