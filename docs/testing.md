@@ -71,3 +71,7 @@ A live YouTube source preview showed one 48 by 48 pixel Avoid button and no exte
 A Chromium fixture ran the real content scripts against synthetic visible YouTube controls. The button was disabled during feedback, Not interested and Don't recommend channel ran in order, navigation reached the next Short once, and the button became enabled again. No extension notification host appeared during the operation. The native feedback notice remained visible.
 
 These checks used source previews, not an installed version 0.1.3 extension. No feedback was submitted to a live YouTube account. The earlier installed Chrome and owner Chrome/Opera results apply to version 0.1.2; installed version 0.1.3 account behavior still needs an owner check after reloading the extension.
+
+## Version 0.1.3 owner confirmation in Chrome and Opera
+
+On 2026-10-02 (Asia/Singapore), the owner confirmed the notification-removal update: "Confirmed and works well on chrome and opera." This records owner-tested success in both browsers and supersedes the pending owner check above. Browser versions and detailed test steps were not supplied.
