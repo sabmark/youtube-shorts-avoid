@@ -2,11 +2,13 @@
 
 ## Automated tests
 
-The full suite contains 33 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, required and optional reasons, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The full suite contains 35 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, required and optional reasons, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
 The packaging test creates an isolated fixture containing secret-like and development files. The resulting archive contains exactly the five runtime files, all manifest references resolve, and the ZIP integrity check passes. `npm run package` produces the local distributable without including dependencies or account data.
+
+An independent whole-change review found two asynchronous boundary defects. A required reason appearing while the second menu opened could allow a channel click, and queued native advancement could follow an immediate Next click. Each regression failed before its fix. Reason checks now cover menu polling and the click boundary. Before clicking Next, the adapter observes native advancement for its four-second timeout window. Tests cover delayed native advancement; navigation arriving after that window remains a live timing limitation.
 
 ## Authorized rendered source preview
 

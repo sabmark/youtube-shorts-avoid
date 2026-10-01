@@ -5,10 +5,10 @@ const { fixture, player, installMenu, notice } = require('./helpers.cjs');
 const host = w => w.document.querySelector('shorts-avoid-control');
 const button = w => host(w)?.shadowRoot.querySelector('button');
 const status = w => w.document.querySelector('shorts-avoid-notice')?.shadowRoot.querySelector('[role="status"]');
-async function until(check) {
+async function until(check, timeoutMs = 800) {
   const start = Date.now();
   while (!check()) {
-    if (Date.now() - start > 800) assert.fail('expected UI state did not appear');
+    if (Date.now() - start > timeoutMs) assert.fail('expected UI state did not appear');
     await new Promise(resolve => setTimeout(resolve, 15));
   }
 }
@@ -59,7 +59,7 @@ test('disables repeated activation while feedback is pending and reports complet
   button(w).click();
   assert.equal(button(w).disabled, true);
   button(w).click();
-  await until(() => status(w).textContent.includes('Feedback sent'));
+  await until(() => status(w).textContent.includes('Feedback sent'), 6000);
   assert.equal(submissions, 2);
   assert.equal(button(w).disabled, false);
   assert.equal(w.location.pathname, '/shorts/second-video');

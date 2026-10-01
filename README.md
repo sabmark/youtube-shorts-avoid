@@ -20,6 +20,7 @@ Click **Avoid** only on a video and channel you want to dismiss. Each click proc
 - Optional reasons are left unanswered. A required reason stops automation so you can choose it yourself.
 - Missing options, unconfirmed feedback or a changed Short stop the sequence. If YouTube advances after the first action, the extension stops before applying channel feedback to the next video.
 - A timeout can mean YouTube received feedback without showing a recognized confirmation. Check the result before trying again.
+- After both confirmations, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
 - Feedback influences recommendations; it cannot guarantee that similar videos will never appear.
 - Automated tests and a signed-out rendered preview have been checked. Installed Chrome/Opera execution and the signed-in feedback sequence still need verification in your normal browser. See [the verification record](docs/testing.md).
 

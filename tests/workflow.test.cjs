@@ -88,6 +88,21 @@ test('automatic advancement after both actions is not followed by an extra skip'
   assert.equal(w.location.pathname, '/shorts/second-video');
 });
 
+test('delayed automatic advancement after both confirmations avoids a second skip', async t => {
+  const env = setup(t, { onFeedback: label => {
+    notice(env.w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
+    if (label !== 'Not interested') env.w.setTimeout(() => {
+      env.w.history.pushState({}, '', env.w.location.pathname === '/shorts/first-video'
+        ? '/shorts/second-video' : '/shorts/third-video');
+    }, 30);
+  } });
+  const result = await env.flow.run();
+  await new Promise(resolve => env.w.setTimeout(resolve, 50));
+  assert.equal(result.status, 'complete');
+  assert.equal(env.advances(), 0);
+  assert.equal(env.w.location.pathname, '/shorts/second-video');
+});
+
 test('a second activation is ignored while feedback is pending', async t => {
   let w;
   const sent = [];
@@ -127,5 +142,26 @@ test('unconfirmed feedback is reported honestly without continuing', async t => 
   assert.equal(result.status, 'stopped');
   assert.equal(result.code, 'timeout');
   assert.match(result.message, /may have been sent/i);
+  assert.equal(env.advances(), 0);
+});
+
+test('a required reason appearing while the second menu opens blocks channel feedback', async t => {
+  const sent = [];
+  const env = setup(t, { onFeedback: label => {
+    sent.push(label);
+    notice(env.w, 'Video removed');
+  } });
+  let openings = 0;
+  env.w.document.querySelector('[aria-label="More actions"]').addEventListener('click', () => {
+    if (++openings !== 2) return;
+    const dialog = env.w.document.createElement('div');
+    dialog.setAttribute('role', 'dialog');
+    dialog.textContent = 'Choose a reason';
+    env.w.document.body.append(dialog);
+  });
+  const result = await env.flow.run();
+  assert.equal(result.code, 'required-reason');
+  assert.deepEqual(sent, ['Not interested']);
+  assert.deepEqual(Array.from(result.completed), ['not-interested']);
   assert.equal(env.advances(), 0);
 });

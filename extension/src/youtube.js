@@ -62,6 +62,10 @@
         .find(element => visible(this.window, element) && /tell us why|why.*not interested|choose.*reason/.test(normalize(element.textContent)));
     }
 
+    assertNoReason() {
+      if (this.reason()) throw problem('required-reason', 'Choose a reason in YouTube to continue.');
+    }
+
     async wait(check, message) {
       const start = Date.now();
       do {
@@ -74,7 +78,7 @@
 
     async menu(target) {
       this.assertCurrent(target);
-      if (this.reason()) throw problem('required-reason', 'Choose a reason in YouTube to continue.');
+      this.assertNoReason();
       if (this.openedMenu?.target === target && visible(this.window, this.openedMenu.element)) return this.openedMenu.element;
       if (this.menus().length) throw problem('menu-open', 'Close the open YouTube menu, then try again.');
       const button = [...target.element.querySelectorAll('#menu-button button, button[aria-label="More actions"]')]
@@ -83,6 +87,7 @@
       button.click();
       const menu = await this.wait(() => {
         this.assertCurrent(target);
+        this.assertNoReason();
         const menus = this.menus();
         if (menus.length > 1) throw problem('ambiguous-menu', 'More than one YouTube menu is open. Close them and try again.');
         return menus[0];
@@ -115,10 +120,11 @@
       if (!item) throw problem('missing-options', 'The remaining feedback option is unavailable for this Short.');
       const before = new Map(this.notices().map(element => [element, normalize(element.textContent)]));
       this.assertCurrent(target);
+      this.assertNoReason();
       item.click();
       this.openedMenu = null;
       await this.wait(() => {
-        if (this.reason()) throw problem('required-reason', 'Choose a reason in YouTube to continue.');
+        this.assertNoReason();
         const confirmed = this.notices().some(element => {
           const text = normalize(element.textContent);
           if (before.get(element) === text) return false;
@@ -134,6 +140,23 @@
 
     async next(target) {
       this.assertCurrent(target);
+      // Feedback confirmation can precede YouTube's queued native navigation.
+      // Give that navigation the same bounded observation window as feedback.
+      try {
+        await this.wait(() => {
+          this.assertNoReason();
+          const current = this.current();
+          if (!current) throw problem('changed-short', 'You left the Shorts player.');
+          if (current.id !== target.id) return true;
+          this.assertCurrent(target);
+          return false;
+        });
+        return;
+      } catch (error) {
+        if (error.code !== 'timeout') throw error;
+      }
+      this.assertCurrent(target);
+      this.assertNoReason();
       const button = [...this.document.querySelectorAll('button[aria-label="Next video"]')]
         .find(element => visible(this.window, element) && !element.disabled);
       if (!button) throw problem('missing-next', 'Feedback was sent, but the next-video control is unavailable.');
