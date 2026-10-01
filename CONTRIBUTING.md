@@ -1,6 +1,6 @@
 # Contributing
 
-Open an issue to report a problem or propose a change. For a bug, include your browser and extension versions, YouTube interface language, the exact extension status message, and steps to reproduce. Say whether YouTube was signed in, but leave account names, cookies and credentials out of reports.
+Open an issue to report a problem or propose a change. For a bug, include your browser and extension versions, YouTube interface language, YouTube's native feedback notices, and steps to reproduce. Say whether YouTube was signed in, but leave account names, cookies and credentials out of reports.
 
 ## Local checks
 
