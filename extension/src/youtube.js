@@ -59,7 +59,7 @@
     }
 
     reason() {
-      return [...this.document.querySelectorAll('[role="dialog"], tp-yt-paper-dialog, ytd-feedback-dialog-renderer')]
+      return [...this.document.querySelectorAll('[role="dialog"], tp-yt-paper-dialog, ytd-feedback-dialog-renderer, yt-sheet-view-model, yt-contextual-sheet-layout')]
         .find(element => visible(this.window, element) && /tell us why|why.*not interested|choose.*reason/.test(normalize(element.textContent)));
     }
 
@@ -100,8 +100,8 @@
       this.assertCurrent(target);
       if (!choice.checked && !choice.control?.checked && choice.getAttribute('aria-checked') !== 'true') choice.click();
       const submit = await this.wait(() => {
-        this.assertCurrent(target);
         if (!visible(this.window, dialog)) return true;
+        this.assertCurrent(target);
         this.assertNoTextInput(dialog);
         return [...dialog.querySelectorAll('button, [role="button"], input[type="submit"]')]
           .find(element => enabled(element) && /^(submit|send|done|ok|confirm|send feedback|submit feedback)$/.test(name(element) || normalize(element.value)));
@@ -183,7 +183,7 @@
             const text = normalize(element.textContent);
             if (before.get(element) === text) return false;
             return kind === 'not-interested'
-              ? /video removed|we'll tune your recommendations|got it|won't see this video/.test(text)
+              ? /video removed|we'll tune your recommendations|got it|won't see this video|you'll see fewer videos like this/.test(text)
               : /won't recommend.*channel|will not recommend.*channel|channel.*won't.*recommend/.test(text);
           });
           if (confirmed) return true;

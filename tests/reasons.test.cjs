@@ -2,13 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { fixture, player, installMenu, notice } = require('./helpers.cjs');
 
-function prompt(window, { choices = ['Already watched', 'Other'], buttons = false, wrapped = false, submit = true, close = true, textInput = false, extraInputOnChoice = false } = {}) {
+function prompt(window, { choices = ['Already watched', 'Other'], buttons = false, wrapped = false, submit = true, close = true, textInput = false, extraInputOnChoice = false, sheet = false, advance = false } = {}) {
   const doc = window.document;
-  const dialog = doc.createElement('div');
-  dialog.setAttribute('role', 'dialog');
+  const dialog = doc.createElement(sheet ? 'yt-sheet-view-model' : 'div');
+  if (!sheet) dialog.setAttribute('role', 'dialog');
+  const layout = sheet ? doc.createElement('yt-contextual-sheet-layout') : dialog;
+  if (sheet) dialog.append(layout);
   const heading = doc.createElement('h2');
   heading.textContent = "Tell us why you're not interested";
-  dialog.append(heading);
+  layout.append(heading);
   const addTextInput = () => {
     const input = doc.createElement('input');
     input.type = 'text';
@@ -20,6 +22,13 @@ function prompt(window, { choices = ['Already watched', 'Other'], buttons = fals
   for (const label of choices) {
     const choice = doc.createElement(buttons ? 'button' : wrapped ? 'label' : 'div');
     choice.textContent = label;
+    if (sheet) {
+      choice.setAttribute('role', 'menuitem');
+      choice.setAttribute('aria-label', label);
+      const title = doc.createElement('span');
+      title.textContent = label;
+      choice.replaceChildren(title);
+    }
     if (wrapped) {
       const input = doc.createElement('input');
       input.type = 'radio';
@@ -31,9 +40,13 @@ function prompt(window, { choices = ['Already watched', 'Other'], buttons = fals
       selected.push(label);
       choice.setAttribute('aria-checked', 'true');
       if (extraInputOnChoice) addTextInput();
-      if (!submit) { dialog.remove(); notice(window, 'Video removed'); }
+      if (!submit) {
+        dialog.remove();
+        notice(window, sheet ? "You'll see fewer videos like this" : 'Video removed');
+        if (advance) window.history.pushState({}, '', '/shorts/second-video');
+      }
     };
-    dialog.append(choice);
+    layout.append(choice);
   }
   let submissions = 0;
   if (submit) {
@@ -88,6 +101,25 @@ test('reason choices rendered as buttons can close the dialog without a Submit b
   assert.equal(env.result.status, 'complete');
   assert.deepEqual(env.dialog.selected, ['Other']);
   assert.equal(env.dialog.submissions(), 0);
+});
+
+const liveChoices = ['Irrelevant', 'Boring', 'Too sexual', 'Disgusting', 'Violent', 'Offensive', 'Misleading', 'Other'];
+
+test('signed-in YouTube contextual reason sheet selects Other and recognizes its confirmation', async t => {
+  const env = await processReason(t, { sheet: true, buttons: true, submit: false, choices: liveChoices });
+  assert.deepEqual(env.dialog.selected, ['Other']);
+  assert.equal(env.dialog.submissions(), 0);
+  assert.equal(env.result.status, 'complete');
+});
+
+test('a reason sheet that advances natively records Not interested and never rejects the next channel', async t => {
+  const env = await processReason(t, { sheet: true, buttons: true, submit: false, choices: liveChoices, advance: true });
+  assert.deepEqual(env.dialog.selected, ['Other']);
+  assert.equal(env.result.status, 'partial');
+  assert.equal(env.result.code, 'changed-short');
+  assert.deepEqual([...env.result.completed], ['not-interested']);
+  assert.deepEqual(env.sent, ['Not interested']);
+  assert.equal(env.advances, 0);
 });
 
 test('visible reason labels work with hidden native radio inputs', async t => {

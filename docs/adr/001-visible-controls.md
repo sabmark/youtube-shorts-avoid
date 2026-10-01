@@ -4,7 +4,7 @@ Accepted on 2026-10-01 within the approved extension design.
 
 ## Context
 
-YouTube owns the recommendation system and can change Shorts menus independently of this extension. Account feedback controls require signed-in runtime verification. The connected browser cannot currently complete Google sign-in.
+YouTube owns the recommendation system and can change Shorts menus independently of this extension. Account feedback controls require signed-in runtime verification. Google initially rejected sign-in in the automated browser. Manual sign-in in ordinary Chrome followed by reconnecting the same dedicated profile allowed signed-in runtime testing.
 
 ## Decision
 
@@ -18,4 +18,4 @@ Build the control with DOM methods rather than HTML-string assignments. Place it
 
 ## Consequences
 
-The extension may report that a YouTube variant does not support the requested sequence. That outcome is safer than submitting feedback for a different Short or claiming completion without evidence. DOM fixture tests exercise the workflow without proving account-specific YouTube behavior. The viewer's normal signed-in browser remains necessary for runtime validation.
+The extension may report that a YouTube variant does not support the requested sequence. That outcome is safer than submitting feedback for a different Short or claiming completion without evidence. DOM fixture tests exercise the workflow without proving account-specific YouTube behavior. Signed-in installed Chrome testing passed for the observed YouTube variant. Other browser and account variants still require runtime validation.

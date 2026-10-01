@@ -24,7 +24,7 @@ Click **Avoid** only on a video and channel you want to dismiss. Each click proc
 - A timeout can mean YouTube received feedback without showing a recognized confirmation. Check the result before trying again.
 - After both confirmations, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
 - Feedback influences recommendations; it cannot guarantee that similar videos will never appear.
-- Automated tests and a signed-out rendered preview have been checked. Installed Chrome/Opera execution and the signed-in feedback sequence still need verification in your normal browser. See [the verification record](docs/testing.md).
+- The installed extension passed a signed-in Chrome test: Other was selected, both feedback actions were confirmed and YouTube advanced once. Opera runtime remains unverified. See [the verification record](docs/testing.md).
 
 For the first local check, pick a Short you actually want to dismiss. Confirm both feedback options exist, click Avoid, check the status and verify that the next Short appears once. If the extension stops, report its exact message and which browser you used.
 
@@ -34,4 +34,4 @@ To remove it, open the browser's extensions page and choose **Remove** on YouTub
 
 ## Development and packaging
 
-Requires Node 22 or later and Python 3. Run `npm ci`, then `npm test`. Run `npm run package` to create `dist/youtube-shorts-avoid-0.1.1.zip` containing only the nine runtime files, including four logo sizes. No build step is needed to load the `extension` folder.
+Requires Node 22 or later and Python 3. Run `npm ci`, then `npm test`. Run `npm run package` to create `dist/youtube-shorts-avoid-0.1.2.zip` containing only the nine runtime files, including four logo sizes. No build step is needed to load the `extension` folder.

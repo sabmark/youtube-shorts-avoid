@@ -2,7 +2,7 @@
 
 ## Automated tests
 
-The full version 0.1.1 suite contains 45 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
+The full version 0.1.2 suite contains 47 passing tests as of 2026-10-01. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
 
 The control also has a regression test for a page that rejects plain HTML assignments under Trusted Types. Test fixtures capture unexpected runtime errors and disconnect their observers before closing jsdom windows.
 
@@ -16,7 +16,7 @@ The viewer's signed-in local check reached a Tell us why dialog. They then chang
 
 Independent review of the update identified two boundaries to tighten. Reason authorization is now consumed by the first handled dialog and expires when the Not interested feedback attempt finishes. A later prompt stays untouched and prevents channel submission. Editable text controls are checked before selection and before submission, including a field revealed by selecting Other. Each regression failed before the guard was added and passes in the final 45-test suite.
 
-The connected browser was rechecked and is still signed out. A fresh source preview using the updated scripts mounted one accessible button and stopped at the missing-feedback-options message before submitting feedback. The logo was inspected at 128 pixels and package tests verify all four PNG sizes. Signed-out source-preview behavior is verified. Signed-in behavior is covered by fixtures and the viewer's reported observation, but the updated live signed-in sequence remains unverified because Google rejected sign-in in this connected browser. These are distinct results, not a claim that both live account states passed.
+At the version 0.1.1 checkpoint, the connected browser was signed out. A fresh source preview using the updated scripts mounted one accessible button and stopped at the missing-feedback-options message before submitting feedback. The logo was inspected at 128 pixels and package tests verify all four PNG sizes. Signed-out source-preview behavior is verified. Signed-in behavior is covered by fixtures and the viewer's reported observation, but the updated live signed-in sequence remains unverified because Google rejected sign-in in this connected browser. These are distinct results, not a claim that both live account states passed.
 
 ## Authorized rendered source preview
 
@@ -33,9 +33,28 @@ Verified observations:
 
 No recommendation feedback was submitted during these checks. Screenshots were inspected in the tool session and were not copied into this repository.
 
+## Version 0.1.2 installed signed-in Chrome check
+
+The viewer reported that version 0.1.1 still left the reason prompt untouched. After manual Google sign-in in ordinary Chrome, we reopened the same dedicated profile with remote debugging and without the enable-automation flag. YouTube stayed signed in. No credentials or cookies were exported.
+
+The installed version 0.1.1 reproduced the failure: its button opened the reason sheet but timed out without choosing an option. The live prompt uses `yt-sheet-view-model` and `yt-contextual-sheet-layout`, not a dialog container. It offers eight menuitem buttons: Irrelevant, Boring, Too sexual, Disgusting, Violent, Offensive, Misleading and Other. Choosing Other closes the sheet without a separate Submit button. The fresh notice reads "You'll see fewer videos like this".
+
+Two regressions based on that markup failed before the fix. Version 0.1.2 recognizes the sheet and notice. Once the selected sheet closes, native navigation can finish without incorrectly treating the choice as unfinished. A changed Short still prevents channel feedback to the successor.
+
+We reloaded the actual unpacked extension through Chrome's extension debugging interface and reloaded YouTube. This check used the installed isolated-world content scripts, with no source injection. On Short `tFU2d3qCKYc`, the actual Avoid button produced these observed clicks and results:
+
+- Not interested, then Other, then Don't recommend this channel.
+- Fresh notices: "You'll see fewer videos like this" and "We won't recommend you videos from this channel again".
+- The workflow finished with "Feedback sent." and the reason sheet closed.
+- The route changed once, to `L-FSNh2tgIo`; the extension made no Next video click. Both actions completed while bound to the original Short.
+
+The native advance was queued long enough for channel feedback in this run. If another YouTube variant advances earlier, the extension reports partial completion and leaves the successor's channel untouched. The regression covers this boundary.
+
+After packaging, Chrome reported installed version 0.1.2. The reloaded page had one 48 by 48 pixel Avoid button. Keyboard traversal focused it with a 3-pixel outline, and YouTube remained signed in. Independent review found no actionable defects; the full 47-test suite passed.
+
 ## Runtime checks still required
 
-Google rejected sign-in in the connected browser. The actual signed-in feedback sequence and fresh confirmation wording remain unverified. Chrome load-unpacked installation, Opera installation and Opera runtime behavior also require local verification in the viewer's normal browser.
+Opera installation and signed-in Opera runtime remain unverified. The successful Chrome run does not establish compatibility with every YouTube account or interface variant.
 
 Choose a Short and channel the viewer actually wants to dismiss. Verify that both feedback options exist, each action produces confirmation, reasons follow the chosen policy, and advancement happens once. If YouTube advances after the first action, the extension must stop without dismissing the newly displayed Short.
 
