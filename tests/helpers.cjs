@@ -1,15 +1,33 @@
-const { JSDOM } = require('jsdom');
+const { JSDOM, VirtualConsole } = require('jsdom');
+const assert = require('node:assert/strict');
 const { readFileSync, existsSync } = require('node:fs');
 const { join } = require('node:path');
 
-function fixture(t, html, url = 'https://www.youtube.com/shorts/first-video') {
-  const dom = new JSDOM(html, { url, runScripts: 'outside-only', pretendToBeVisual: true });
-  t.after(() => dom.window.close());
+function fixture(t, html, url = 'https://www.youtube.com/shorts/first-video', { beforeScripts } = {}) {
+  const runtimeErrors = [];
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on('jsdomError', error => runtimeErrors.push(error.message));
+  const dom = new JSDOM(html, { url, runScripts: 'outside-only', pretendToBeVisual: true, virtualConsole });
+  const observers = [];
+  const NativeObserver = dom.window.MutationObserver;
+  dom.window.MutationObserver = class extends NativeObserver {
+    constructor(...args) {
+      super(...args);
+      observers.push(this);
+    }
+  };
+  t.after(async () => {
+    for (const observer of observers) observer.disconnect();
+    dom.window.close();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(runtimeErrors, [], 'Unexpected errors in the DOM fixture');
+  });
   // jsdom has no layout engine. Supply rectangles for synthetic rendered elements.
   dom.window.Element.prototype.getBoundingClientRect = function () {
     const top = Number(this.dataset.top || 0);
     return { x: 0, y: top, top, bottom: top + 400, left: 0, right: 300, width: 300, height: 400 };
   };
+  beforeScripts?.(dom.window);
   for (const script of ['youtube.js', 'workflow.js', 'content.js']) {
     const path = join(__dirname, '..', 'extension', 'src', script);
     if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));

@@ -1,0 +1,15 @@
+shorts-avoid-control, shorts-avoid-notice {
+  --sa-bg: #f1f1f1;
+  --sa-fg: #171717;
+  --sa-border: #767676;
+  --sa-focus: #0958b9;
+}
+
+shorts-avoid-control { margin: 12px 0 8px; }
+
+html[dark] shorts-avoid-control, html[dark] shorts-avoid-notice {
+  --sa-bg: #272727;
+  --sa-fg: #ffffff;
+  --sa-border: #a0a0a0;
+  --sa-focus: #8bbaff;
+}
