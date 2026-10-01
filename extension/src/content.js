@@ -17,11 +17,7 @@
       button:disabled { cursor: wait; opacity: .6; }
       svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; }
       .label { margin-top: 5px; color: var(--sa-fg, #171717); }
-      .status { box-sizing: border-box; position: fixed; inset: auto 16px 20px auto; margin: 0; z-index: 2100;
-        width: min(260px, calc(100vw - 32px)); padding: 12px 14px; border: 1px solid var(--sa-border, #767676);
-        border-radius: 8px; background: var(--sa-bg, #f1f1f1); color: var(--sa-fg, #171717);
-        font: 13px/1.5 Arial, sans-serif; overflow-wrap: anywhere; box-shadow: 0 2px 8px #0002; }
-      [hidden] { display: none !important; }`;
+`;
   const button = document.createElement('button');
   button.type = 'button';
   button.setAttribute('aria-label', 'Avoid video and channel');
@@ -39,30 +35,12 @@
   label.className = 'label';
   label.setAttribute('aria-hidden', 'true');
   label.textContent = 'Avoid';
-  const status = document.createElement('div');
-  status.id = 'result';
-  status.className = 'status';
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
-  status.setAttribute('aria-atomic', 'true');
-  status.hidden = true;
   root.append(style, button, label);
-  const noticeHost = document.createElement('shorts-avoid-notice');
-  const noticeRoot = noticeHost.attachShadow({ mode: 'open' });
-  noticeRoot.append(style.cloneNode(true), status);
   let scheduled = null;
 
-  function show(state) {
+  function updateButton(state) {
     button.disabled = state.status === 'busy';
     button.setAttribute('aria-busy', String(button.disabled));
-    let text = state.status === 'busy' ? 'Updating recommendations...' : state.message || '';
-    if (state.status === 'partial') {
-      text = state.completed.length === 1
-        ? `Not interested confirmed. Channel feedback was not confirmed. ${text}`
-        : `Both feedback actions confirmed. ${text}`;
-    }
-    status.textContent = text;
-    status.hidden = !text;
   }
 
   function refresh() {
@@ -70,19 +48,14 @@
     const target = adapter.current();
     if (!target) {
       host.remove();
-      noticeHost.remove();
       return;
     }
     const rail = adapter.rail(target);
     if (!rail) {
       host.remove();
-      noticeHost.remove();
       return;
     }
     if (host.parentElement !== rail) rail.append(host);
-    if (!noticeHost.isConnected) document.body.append(noticeHost);
-    const space = window.innerWidth - rail.getBoundingClientRect().right - 32;
-    status.style.width = `${Math.min(260, Math.max(100, space))}px`;
     button.disabled = workflow.busy;
   }
 
@@ -92,7 +65,7 @@
   }
 
   button.addEventListener('click', () => {
-    if (!workflow.busy) void workflow.run(show).then(refresh);
+    if (!workflow.busy) void workflow.run(updateButton).then(refresh);
   });
   document.addEventListener('yt-navigate-finish', refresh);
   window.addEventListener('popstate', refresh);

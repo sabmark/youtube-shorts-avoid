@@ -19,7 +19,7 @@ test('mounts one accessible button beside the Shorts actions', t => {
   assert.equal(button(w).getAttribute('aria-label'), 'Avoid video and channel');
   assert.equal(button(w).type, 'button');
   assert.equal(host(w).parentElement.tagName, 'REEL-ACTION-BAR-VIEW-MODEL');
-  assert.equal(status(w).getAttribute('aria-live'), 'polite');
+  assert.equal(status(w), undefined);
   w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
   assert.equal(w.document.querySelectorAll('shorts-avoid-control').length, 1);
 });
@@ -44,7 +44,7 @@ test('stays absent on other YouTube routes and mounts after SPA navigation', t =
   assert.ok(button(w), 'a control should mount after entering Shorts');
 });
 
-test('disables repeated activation while feedback is pending and reports completion', async t => {
+test('disables repeated activation and completes feedback without extension notifications', async t => {
   const w = fixture(t, player());
   let submissions = 0;
   installMenu(w, { onFeedback: label => {
@@ -58,35 +58,40 @@ test('disables repeated activation while feedback is pending and reports complet
   assert.ok(button(w), 'the extension control is not implemented');
   button(w).click();
   assert.equal(button(w).disabled, true);
+  assert.equal(status(w), undefined, 'no progress notification');
   button(w).click();
-  await until(() => status(w).textContent.includes('Feedback sent'), 6000);
+  await until(() => !button(w).disabled, 6000);
+  assert.equal(status(w), undefined, 'no completion notification');
   assert.equal(submissions, 2);
   assert.equal(button(w).disabled, false);
   assert.equal(w.location.pathname, '/shorts/second-video');
 });
 
-test('a missing option produces an honest stopped status', async t => {
+test('a missing option stops without an extension notification', async t => {
   const w = fixture(t, player());
   installMenu(w, { items: ['Description', 'Report'] });
   assert.ok(button(w), 'the extension control is not implemented');
   button(w).click();
-  await until(() => status(w).textContent.includes('required feedback options'));
+  await until(() => !button(w).disabled);
+  assert.equal(status(w), undefined);
   assert.equal(button(w).disabled, false);
   assert.equal(w.location.pathname, '/shorts/first-video');
 });
 
-test('partial completion names the confirmed action and unfinished channel feedback', async t => {
+test('partial completion stops without an extension notification or successor feedback', async t => {
   const w = fixture(t, player());
+  let submissions = 0;
   installMenu(w, { onFeedback: () => {
+    submissions++;
     notice(w, 'Video removed');
     w.history.pushState({}, '', '/shorts/second-video');
   } });
   assert.ok(button(w), 'the extension control is not implemented');
   button(w).click();
   await until(() => !button(w).disabled);
-  assert.match(status(w).textContent, /Not interested confirmed/);
-  assert.match(status(w).textContent, /channel feedback was not confirmed/i);
-  assert.doesNotMatch(status(w).textContent, /Feedback sent\./);
+  assert.equal(status(w), undefined);
+  assert.equal(submissions, 1);
+  assert.equal(w.location.pathname, '/shorts/second-video');
 });
 
 test('removes the control on leaving Shorts', t => {
@@ -112,5 +117,5 @@ test('replacing the renderer during an operation cannot start another workflow',
   button(w).click();
   await until(() => !button(w).disabled);
   assert.equal(submissions, 1);
-  assert.match(status(w).textContent, /changed/i);
+  assert.equal(status(w), undefined);
 });
