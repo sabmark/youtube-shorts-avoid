@@ -83,8 +83,8 @@
   }
 
   button.addEventListener('click', activate);
-  function canUseShortcut(event) {
-    if (event.defaultPrevented || event.isComposing) return false;
+  function canUseShortcut(event, overrideDefault = false) {
+    if ((!overrideDefault && event.defaultPrevented) || event.isComposing) return false;
     const editable = event.composedPath().some(node => node instanceof Element &&
       (node.matches('input, textarea, select') || node.isContentEditable ||
        node.closest('[contenteditable]:not([contenteditable="false"])')));
@@ -102,21 +102,37 @@
     if (!event.repeat) activate();
   }, { capture: true });
   let mouseGesture = null;
-  document.addEventListener('mousedown', event => {
+  let ignoreCompatibilityMouse = false;
+  window.addEventListener('pointerdown', event => {
+    mouseGesture = null;
+    ignoreCompatibilityMouse = !!event.pointerType && event.pointerType !== 'mouse';
+    if (ignoreCompatibilityMouse) return;
+    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event, true)) return;
+    mouseGesture = { button: event.button, target: event.composedPath()[0], pointer: true };
+    consume(event);
+    activate();
+  }, { capture: true });
+  window.addEventListener('mousedown', event => {
+    if (ignoreCompatibilityMouse) return;
+    if (mouseGesture?.pointer && mouseGesture.button === event.button) {
+      consume(event);
+      return;
+    }
     mouseGesture = null;
     if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event)) return;
     mouseGesture = { button: event.button, target: event.composedPath()[0] };
     consume(event);
     activate();
   }, { capture: true });
-  for (const type of ['mouseup', 'click', 'auxclick', 'contextmenu']) {
-    document.addEventListener(type, event => {
+  for (const type of ['pointerup', 'mouseup', 'click', 'auxclick', 'contextmenu']) {
+    window.addEventListener(type, event => {
+      if (type === 'pointerup' && event.pointerType && event.pointerType !== 'mouse') return;
       if (!mouseGesture || event.button !== mouseGesture.button ||
           ((type === 'click' || type === 'auxclick') && event.detail === 0)) return;
       const target = event.composedPath()[0];
       const related = target === mouseGesture.target || (target instanceof Node && mouseGesture.target instanceof Node &&
         (target.contains(mouseGesture.target) || mouseGesture.target.contains(target)));
-      if (type !== 'mouseup' && !related) return;
+      if (type !== 'pointerup' && type !== 'mouseup' && !related) return;
       consume(event);
       if (type === 'click' || type === 'auxclick') mouseGesture = null;
     }, { capture: true });

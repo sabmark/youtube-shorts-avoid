@@ -354,3 +354,56 @@ test('a mouse press on a child suppresses release and click on its parent', asyn
   assert.equal(nativeCalls, 0);
   await until(() => !button(w).disabled);
 });
+
+test('mouse Back consumes pointer release when page cancellation suppresses compatibility mouse events', async t => {
+  const { storage } = require('./storage.cjs');
+  const w = fixture(t, player(), undefined, { beforeScripts(w) {
+    w.chrome = { storage: storage({ avoidShortcut: { type: 'mouse', button: 3 } }) };
+    w.addEventListener('pointerdown', event => event.preventDefault(), { capture: true });
+  } });
+  await new Promise(resolve => setImmediate(resolve));
+  installMenu(w, { items: ['Report'] });
+  mouse(w, 'pointerdown', 3);
+  assert.equal(button(w).disabled, true, 'a pointer press must activate even without compatibility mousedown');
+  assert.equal(mouse(w, 'pointerup', 3).defaultPrevented, true, 'consumed release prevents browser Back');
+  assert.equal(mouse(w, 'auxclick', 3).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('pointer shortcut overrides page handlers on Shorts while leaving other routes and typing alone', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 4 });
+  installMenu(w, { items: ['Report'] });
+  let pageCalls = 0;
+  w.document.addEventListener('pointerdown', () => pageCalls++, { capture: true });
+  const input = w.document.createElement('input');
+  w.document.body.append(input);
+  assert.equal(mouse(w, 'pointerdown', 4, input).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerup', 4, input).defaultPrevented, false);
+  w.history.pushState({}, '', '/watch?v=example');
+  assert.equal(mouse(w, 'pointerdown', 4).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerup', 4).defaultPrevented, false);
+  w.history.pushState({}, '', '/shorts/first-video');
+  assert.equal(mouse(w, 'pointerdown', 3).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerdown', 4).defaultPrevented, true);
+  assert.equal(pageCalls, 3, 'configured pointer event must not reach page capture handlers');
+  assert.equal(mouse(w, 'pointerup', 4).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('touch and pen compatibility mouse events do not activate a Left mouse shortcut', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 0 });
+  installMenu(w, { items: ['Report'] });
+  for (const pointerType of ['touch', 'pen']) {
+    const down = new w.MouseEvent('pointerdown', { button: 0, bubbles: true, composed: true, cancelable: true });
+    Object.defineProperty(down, 'pointerType', { value: pointerType });
+    w.document.body.dispatchEvent(down);
+    assert.equal(down.defaultPrevented, false);
+    assert.equal(mouse(w, 'mousedown', 0).defaultPrevented, false);
+    assert.equal(mouse(w, 'mouseup', 0).defaultPrevented, false);
+    assert.equal(mouse(w, 'click', 0).defaultPrevented, false);
+    assert.equal(button(w).disabled, false);
+  }
+  assert.equal(mouse(w, 'pointerdown', 0).defaultPrevented, true, 'a subsequent real mouse pointer still works');
+  mouse(w, 'pointerup', 0);
+  await until(() => !button(w).disabled);
+});

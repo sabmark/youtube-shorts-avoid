@@ -18,12 +18,12 @@
   }
   function fromEvent(event) {
     if (event.isComposing || event.repeat) return null;
-    if (event.type === 'mousedown') return normalize({ type: 'mouse', button: event.button,
+    if (event.type === 'mousedown' || event.type === 'pointerdown') return normalize({ type: 'mouse', button: event.button,
       ...Object.fromEntries(modifiers.map(name => [name, event[name]])) });
     return normalize({ key: event.key, ...Object.fromEntries(modifiers.map(name => [name, event[name]])) });
   }
   function matches(event, shortcut) {
-    const candidate = event.type === 'mousedown' ? fromEvent(event) : normalize({ key: event.key,
+    const candidate = event.type === 'mousedown' || event.type === 'pointerdown' ? fromEvent(event) : normalize({ key: event.key,
       ...Object.fromEntries(modifiers.map(name => [name, event[name]])) });
     return !!candidate && !!shortcut && candidate.type === shortcut.type &&
       (candidate.type === 'mouse' ? candidate.button === shortcut.button : candidate.key === shortcut.key) &&

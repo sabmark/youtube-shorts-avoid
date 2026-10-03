@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.18
+
+- Consume mouse pointer press and release on Shorts so Back/Forward bindings can override browser history navigation when page handlers suppress compatibility mouse events.
+- Keep normal navigation outside Shorts and ignore touch/pen compatibility mouse input.
+
 ## 0.1.17
 
 - Allow mouse buttons with optional modifiers as the Avoid shortcut.
