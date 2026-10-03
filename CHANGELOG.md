@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13
+
+- Check Google confirmation state after delayed background-tab polling resumes, before reporting a timeout.
+
 ## 0.1.12
 
 - Fix Remove feedback mistaking Google’s non-modal navigation drawer for a deletion confirmation.

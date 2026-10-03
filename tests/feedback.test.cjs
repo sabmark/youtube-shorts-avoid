@@ -153,3 +153,22 @@ test('a non-modal dialog containing navigation still requires confirmation unles
   assert.equal((await a.remove(before.entries[0].id)).status,'confirmation');
   assert.equal(clicks,0);
 });
+
+test('a confirmation appearing when a delayed poll resumes is checked before timing out', async t => {
+  const w = page(t);
+  const a = adapter(w);
+  const id = (await a.snapshot()).entries[0].id;
+  let now = 0;
+  w.eval('Date.now = () => window.testNow');
+  w.testNow = now;
+  w.setTimeout = callback => {
+    w.testNow = now += 1000;
+    w.document.body.insertAdjacentHTML('beforeend', '<div role="dialog" aria-labelledby="confirm-title"><p id="confirm-title">Confirm you would like to delete this activity</p><button>Cancel</button><button>Delete</button></div>');
+    callback();
+  };
+  let deleteClicks = 0;
+  w.document.querySelector('main button').onclick = () => deleteClicks++;
+  assert.equal((await a.remove(id)).status, 'confirmation');
+  assert.equal(deleteClicks, 1);
+  assert.equal(w.document.querySelectorAll('[role=listitem]').length, 1);
+});

@@ -48,9 +48,10 @@
       do {
         const value = check();
         if (value) return value;
+        if (Date.now() - start >= this.timeoutMs) return null;
         await new Promise(resolve => this.win.setTimeout(resolve, 50));
-      } while (Date.now() - start < this.timeoutMs);
-      return null;
+        // Background-tab timers can resume after the deadline; inspect the new DOM first.
+      } while (true);
     }
     async loadMore() {
       const before = await this.snapshot();
