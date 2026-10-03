@@ -259,3 +259,49 @@ test('an unrelated exact single-item dialog with another activity owner is never
   assert.notEqual((await a.remove(id)).status, 'removed');
   assert.equal(finalClicks, 0);
 });
+
+test('Google may assign the activity owner id only while opening confirmation', async t => {
+  const w = nativePage(t, card() + card('Other video','other-456'));
+  const owner = w.document.querySelector('c-wiz'); owner.removeAttribute('id');
+  const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+  const selected = owner.querySelector('[role=listitem]'); let finalClicks = 0;
+  selected.querySelector('button').onclick = () => {
+    owner.id = 'new-google-owner';
+    const dialog = nativeDeleteDialog(w, () => {finalClicks++; selected.remove();dialog.remove();});
+  };
+  assert.equal((await a.remove(id)).status, 'removed');
+  assert.equal(finalClicks, 1);
+});
+
+function nativeReceipt(w, finish) {
+  const d=w.document.createElement('div'); d.setAttribute('role','dialog');d.setAttribute('jsname','OSlCJe');
+  d.innerHTML='<div jsname="bN97Pc"><div jscontroller="oehLEf"><div>Deletion complete</div><div>The activity you selected is being permanently deleted from your account and no longer tied to you.</div><input type="checkbox" checked><button aria-label="Close this dialog">close</button><button>Got it</button></div></div>';
+  const close=d.querySelector('[aria-label="Close this dialog"]');close.getBoundingClientRect=()=>({width:48,height:48});close.onclick=finish;
+  d.querySelector('input').onclick=()=>assert.fail('receipt preference must stay unchanged');d.querySelectorAll('button')[1].onclick=()=>assert.fail('Got it must not change receipt preferences');w.document.body.append(d);return d;
+}
+
+test('the Google completion receipt is closed before confirming selected-card disappearance',async t=>{
+  const w=nativePage(t,card()+card('Other','other-456'));const a=adapter(w);const id=(await a.snapshot()).entries[0].id;const selected=w.document.querySelector('[role=listitem]');let finalClicks=0,closeClicks=0;
+  selected.querySelector('button').onclick=()=>{const confirmation=nativeDeleteDialog(w,()=>{finalClicks++;confirmation.remove();const receipt=nativeReceipt(w,()=>{closeClicks++;receipt.remove();selected.remove();});});};
+  assert.equal((await a.remove(id)).status,'removed');assert.equal(finalClicks,1);assert.equal(closeClicks,1);assert.equal(w.document.querySelectorAll('[role=listitem]').length,1);
+});
+
+test('a one-step Google deletion may require closing its completion receipt',async t=>{
+  const w=nativePage(t,card()+card('Other','other-456'));const a=adapter(w);const id=(await a.snapshot()).entries[0].id;const selected=w.document.querySelector('[role=listitem]');let closes=0;
+  selected.querySelector('button').onclick=()=>{const d=nativeReceipt(w,()=>{closes++;d.remove();selected.remove();});};
+  assert.equal((await a.remove(id)).status,'removed');assert.equal(closes,1);
+});
+
+test('an existing completion receipt can finish pending removal without another Delete click',async t=>{
+  const w=nativePage(t,card()+card('Other','other-456'));const a=adapter(w);const id=(await a.snapshot()).entries[0].id;const selected=w.document.querySelector('[role=listitem]');let deletes=0;
+  selected.querySelector('button').onclick=()=>deletes++;
+  const receipt=nativeReceipt(w,()=>{selected.remove();receipt.remove();});
+  assert.equal((await a.remove(id)).status,'removed');assert.equal(deletes,0);
+});
+
+test('closing a receipt for another item never deletes the selected video or reports its removal',async t=>{
+  const w=nativePage(t,card()+card('Other','other-456'));const a=adapter(w);const id=(await a.snapshot()).entries[0].id;let deletes=0;
+  w.document.querySelector('[role=listitem] button').onclick=()=>deletes++;
+  const receipt=nativeReceipt(w,()=>receipt.remove());
+  assert.notEqual((await a.remove(id)).status,'removed');assert.equal(deletes,0);
+});

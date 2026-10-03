@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.16
+
+- Close Google's informational deletion receipt inside the popup flow before verifying removal.
+- Finish a pending deletion receipt without clicking Delete again or changing Google receipt preferences.
+
+## 0.1.15
+
+- Allow Google to assign the selected activity container ID when opening its deletion confirmation.
+- Keep the confirmation bound to the original selected activity container.
+
 ## 0.1.14
 
 - Complete the selected video's Google deletion confirmation in the background after confirmation in the popup.

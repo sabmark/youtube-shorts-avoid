@@ -61,6 +61,18 @@
       const cancels = controls.filter(button => button.getAttribute('data-id') === 'IbE0S' && button.textContent.trim() === 'Cancel');
       return deletes.length === 1 && cancels.length === 1 ? deletes[0] : null;
     }
+    receiptCloseButton(dialog) {
+      if (dialog.getAttribute('jsname') !== 'OSlCJe') return null;
+      const body = dialog.querySelector('[jscontroller="oehLEf"]');
+      if (!body || ![...body.querySelectorAll('div')].some(el => el.textContent.trim() === 'Deletion complete') ||
+          !body.textContent.includes('The activity you selected is being permanently deleted from your account and no longer tied to you.')) return null;
+      const buttons = [...body.querySelectorAll('button[aria-label="Close this dialog"]')].filter(button => {
+        const rect = button.getBoundingClientRect();
+        return this.visible(button) && rect.width > 0 && rect.height > 0 &&
+          !button.disabled && button.getAttribute('aria-disabled') !== 'true';
+      });
+      return buttons.length === 1 ? buttons[0] : null;
+    }
     async waitFor(check) {
       const start = Date.now();
       do {
@@ -95,10 +107,12 @@
           target.button.getAttribute('aria-label') !== `Delete activity item ${target.title}` ||
           ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
       if (this.busy) return { status: 'error', message: 'Another operation is pending.' };
-      if (this.confirmationDialog()) return { status: 'confirmation' };
+      const pendingDialog = this.confirmationDialog();
+      const pendingReceipt = pendingDialog && this.receiptCloseButton(pendingDialog);
+      if (pendingDialog && !pendingReceipt) return { status: 'confirmation' };
       const existingDialogs = new Set(this.doc.querySelectorAll('[role="dialog"],[role="alertdialog"],dialog'));
       const originalData = target.card.getAttribute('jsdata');
-      const owner = target.card.closest('c-wiz[jscontroller="Dlfr9"][id]');
+      const owner = target.card.closest('c-wiz[jscontroller="Dlfr9"]');
       let completedDialog = null;
       this.busy = true;
       target.stale = true;
@@ -109,7 +123,12 @@
         [...card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url));
       const originalCount = matchingCards().length;
       try {
-        target.button.click();
+        let finalClicked = false;
+        let receiptClosed = !!pendingReceipt;
+        if (pendingReceipt) {
+          completedDialog = pendingDialog;
+          pendingReceipt.click();
+        } else target.button.click();
         const checkRemoval = () => {
           if (!this.onFeedbackPage() || target.identity !== this.context()) return 'stale';
           const dialog = this.confirmationDialog();
@@ -126,22 +145,31 @@
           return null;
         };
         let result = await this.waitFor(checkRemoval);
-        if (result === 'confirmation') {
+        for (let stage = 0; stage < 2 && result === 'confirmation'; stage++) {
           const dialog = this.confirmationDialog();
-          const button = dialog && !existingDialogs.has(dialog) && owner &&
-            this.doc.getElementById(dialog.getAttribute('jsowner')) === owner &&
-            owner.contains(target.card) &&
-            owner.querySelectorAll('[role="listitem"][aria-label="Card showing an activity from YouTube"]').length === 1 &&
-            this.confirmationDeleteButton(dialog);
-          if (button) {
+          const close = dialog && !receiptClosed && this.receiptCloseButton(dialog);
+          if (close) {
+            // This acknowledges an informational receipt only; it never toggles preferences or deletes.
+            if (!this.onFeedbackPage() || target.identity !== this.context()) return { status: 'stale' };
+            receiptClosed = true;
+            completedDialog = dialog;
+            close.click();
+          } else {
+            const button = !pendingReceipt && !finalClicked && dialog && !existingDialogs.has(dialog) && owner &&
+              this.doc.getElementById(dialog.getAttribute('jsowner')) === owner &&
+              owner.contains(target.card) &&
+              owner.querySelectorAll('[role="listitem"][aria-label="Card showing an activity from YouTube"]').length === 1 &&
+              this.confirmationDeleteButton(dialog);
+            if (!button) break;
             if (!this.onFeedbackPage() || target.identity !== this.context() || !target.card.isConnected ||
                 !target.card.contains(target.button) || target.card.getAttribute('jsdata') !== originalData ||
                 target.button.getAttribute('aria-label') !== `Delete activity item ${target.title}` ||
                 ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
+            finalClicked = true;
             completedDialog = dialog;
             button.click();
-            result = await this.waitFor(checkRemoval);
           }
+          result = await this.waitFor(checkRemoval);
         }
         return { status: result || 'error' };
       } finally { this.busy = false; }
