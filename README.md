@@ -31,9 +31,9 @@ If YouTube opens Tell us why, the extension chooses **Other** when available, ot
 
 ## Browse and remove feedback
 
-The feedback window uses locally bundled Bootstrap 5.3.8 and opens at roughly one-third of the screen width (480 to 800 pixels) and 90 percent of available screen height. Resize the window to change the visible list area. Chrome 116 or a compatible Opera version is required.
+The toolbar popup uses locally bundled Bootstrap 5.3.8 and opens at roughly one-third of the screen width (480 to 800 pixels). Its height fits the current video page, up to the browser’s 600-pixel popup limit. Longer pages scroll within the list.
 
-Click the extension icon to open a resizable window of videos marked Not Interested in your Google feedback history, including earlier feedback. Each video has a thumbnail; unavailable images show a placeholder. Clicking the icon again brings the same feedback window forward. The feedback window reuses a My Activity tab or opens one in the background. Use **Open Google history** to sign in or complete account verification, then **Refresh**. The supported page uses English.
+Click the extension icon to see a popup of videos marked Not Interested in your Google feedback history, including earlier feedback. Each video has a thumbnail; unavailable images show a placeholder. The popup reuses a My Activity tab or opens one in the background. Use **Open Google history** to sign in or complete account verification, then **Refresh**. The supported page uses English.
 
 Browse 10 videos per page with **Previous** and **Next**. **Load older feedback** asks Google to load more history. The count refers to loaded entries, not your total history. **Remove** asks for confirmation before clicking that video's native deletion control. If Google asks for its own confirmation, the history tab opens so you can complete it. Refresh afterward. Channel feedback is excluded from the list and retained when removing a video.
 
@@ -66,7 +66,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.10.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.11.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

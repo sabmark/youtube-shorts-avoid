@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.11
+
+- Restore feedback inside the extension toolbar popup; clicking the icon no longer opens a separate window.
+- Keep thumbnails, content-based height within the browser limit, and the wider Bootstrap layout.
+
 ## 0.1.10
 
 - Open the feedback list in a resizable window at 90 percent of available screen height, beyond the toolbar popup height limit.

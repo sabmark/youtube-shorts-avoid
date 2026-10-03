@@ -5,11 +5,10 @@ const { readFileSync, existsSync } = require('node:fs');
 const { join } = require('node:path');
 const entries = n => Array.from({length:n},(_,i)=>({id:`item-${i}`,title:`Video ${i}`,channel:'Channel',url:`https://www.youtube.com/watch?v=video-${i}`}));
 async function flush() { await new Promise(resolve=>setImmediate(resolve)); }
-async function popup(t, {data=entries(11),handle,existing=true,screenWidth=1920,screenHeight=1080,viewer=true,windows=[],windowFailure=false}={}) {
-  const dom = new JSDOM(readFileSync(join(__dirname,'../extension/popup.html'),'utf8'),{runScripts:'outside-only',url:`https://extension.test/popup.html${viewer?'?view=window':''}`});
+async function popup(t, {data=entries(11),handle,existing=true,screenWidth=1920}={}) {
+  const dom = new JSDOM(readFileSync(join(__dirname,'../extension/popup.html'),'utf8'),{runScripts:'outside-only',url:'https://extension.test/popup.html'});
   t.after(dom.window.close.bind(dom.window));
   Object.defineProperty(dom.window.screen, 'availWidth', {value:screenWidth});
-  Object.defineProperty(dom.window.screen, 'availHeight', {value:screenHeight});
   const calls=[];
   dom.window.close=()=>calls.push(['close']);
   dom.window.chrome={
@@ -18,9 +17,9 @@ async function popup(t, {data=entries(11),handle,existing=true,screenWidth=1920,
       async update(id,opts){calls.push(['update',id,opts]);return {id,windowId:3};},
       async reload(id){calls.push(['reload',id]);},
       async sendMessage(id,msg){calls.push(['message',id,msg]);return handle?handle(msg):{status:'ready',entries:data,hasMore:false};}},
-    windows:{async getAll(){return windows.map(win=>({...win,tabs:(win.tabs||[]).map(()=>({}))}));}, async update(id,opts){calls.push(['window-update',id,opts]);return {id};},
-      async create(opts){calls.push(['window-create',opts]);if(windowFailure)throw new Error('Creation failed');return {id:10};}},
-    runtime:{async getContexts(){return windows.flatMap(win=>(win.tabs||[]).filter(tab=>tab.url==='https://extension.test/popup.html?view=window').map(tab=>({windowId:win.id})));},getURL(path){return `https://extension.test/${path}`;}, async openOptionsPage(){calls.push(['settings']);}}
+    windows:{async update(id,opts){calls.push(['window-update',id,opts]);return {id};},
+      async create(opts){calls.push(['window-create',opts]);return {id:10};}},
+    runtime:{async openOptionsPage(){calls.push(['settings']);}}
   };
   const script=join(__dirname,'../extension/src/popup.js');
   if(existsSync(script)) dom.window.eval(readFileSync(script,'utf8'));
@@ -110,34 +109,18 @@ test('a missing receiver reloads the Google tab once and recovers the loaded lis
   assert.equal(calls.filter(c=>c[0]==='reload').length,1);
 });
 
-test('icon launcher opens a screen-sized feedback window without reading feedback itself', async t => {
-  for (const [screenWidth, expected] of [[1920,640], [2560,800], [1280,480], [0,640]]) {
-    const {calls}=await popup(t,{screenWidth,viewer:false});
-    const options=calls.find(c=>c[0]==='window-create')?.[1];
-    assert.ok(options,'resizable window is opened');
-    assert.equal(options.width,expected);
-    assert.equal(options.height,972);
-    assert.equal(options.type,'popup');
-    assert.equal(options.url,'https://extension.test/popup.html?view=window');
-    assert.equal(calls.some(c=>c[0]==='message'),false);
-    assert.ok(calls.some(c=>c[0]==='close'));
-  }
-});
-
-test('icon launcher focuses an existing feedback window without creating another', async t => {
-  const {calls}=await popup(t,{viewer:false,windows:[{id:42,type:'popup',tabs:[{url:'https://extension.test/popup.html?view=window'}]}]});
-  const focused=calls.find(c=>c[0]==='window-update');
-  assert.ok(focused,'existing feedback window is focused');
-  assert.equal(focused[1],42);
-  assert.equal(focused[2].focused,true);
+test('extension icon shows feedback inside its popup without opening another window', async t => {
+  const {w,calls}=await popup(t);
+  assert.equal(w.document.querySelectorAll('#entries li').length,10);
   assert.equal(calls.some(c=>c[0]==='window-create'),false);
-  assert.ok(calls.some(c=>c[0]==='close'));
+  assert.equal(calls.some(c=>c[0]==='close'),false);
 });
 
-test('a failed feedback window launch stays open with a readable error', async t => {
-  const {w,calls}=await popup(t,{viewer:false,windowFailure:true});
-  assert.match(w.document.querySelector('#status').textContent,/could not open/i);
-  assert.equal(calls.some(c=>c[0]==='close'),false);
+test('popup retains its explicit screen-based width', async t => {
+  for(const [screenWidth,expected] of [[1920,640],[2560,800],[1280,480],[0,640]]){
+    const {w}=await popup(t,{screenWidth});
+    assert.equal(w.document.documentElement.style.width, `${expected}px`);
+  }
 });
 
 test('video rows show thumbnails derived from validated video IDs without sending a referrer', async t => {
@@ -160,7 +143,7 @@ test('unavailable thumbnails leave a stable fallback and readable video title', 
   assert.equal(w.document.querySelector('#entries li .thumbnail').getAttribute('aria-hidden'),'true');
 });
 
-test('Google history is brought to the front from the separate feedback window', async t => {
+test('Google history brings its existing browser window to the front', async t => {
   const {w,calls}=await popup(t);
   await click(w,'#google');
   const focused=calls.find(c=>c[0]==='window-update');

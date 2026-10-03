@@ -1,39 +1,15 @@
 (() => {
   'use strict';
-  const viewer = new URL(location.href).searchParams.get('view') === 'window';
-  document.documentElement.dataset.view = viewer ? 'window' : 'launcher';
-  if (!viewer) {
-    async function openViewer() {
-      const url = chrome.runtime.getURL('popup.html?view=window');
-      const contexts = await chrome.runtime.getContexts({ contextTypes: ['TAB'], documentUrls: [url] });
-      const existing = contexts.find(context => context.windowId >= 0);
-      if (existing) {
-        try {
-          await chrome.windows.update(existing.windowId, { focused: true });
-          window.close();
-          return;
-        } catch (error) {
-          // A viewer closed after enumeration may be replaced; other failures stay visible.
-          if (!/No window with id/i.test(error.message)) throw error;
-        }
-      }
-      const availableWidth = screen.availWidth || 1920;
-      const availableHeight = screen.availHeight || 1000;
-      const width = Math.min(800, Math.max(480, Math.round(availableWidth / 3)));
-      const height = Math.round(availableHeight * .9);
-      await chrome.windows.create({
-        url, type: 'popup', width, height,
-        left: (screen.availLeft || 0) + Math.round((availableWidth - width) / 2),
-        top: (screen.availTop || 0) + Math.round((availableHeight - height) / 2)
-      });
-      window.close();
-    }
-    void openViewer().catch(() => {
-      document.getElementById('status').textContent = 'Could not open feedback window. Close this popup and click the extension icon to try again.';
+  // Native popups begin with a small viewport; sizing against it causes collapse.
+  document.documentElement.style.width = `${Math.min(800, Math.max(480, Math.round((screen.availWidth || 1920) / 3)))}px`;
+  // Chrome truncates fractional auto heights; round up to avoid a 1px outer scrollbar.
+  const shell = document.querySelector('.popup-shell');
+  if (window.ResizeObserver) {
+    const sizeObserver = new ResizeObserver(() => {
+      document.documentElement.style.height = `${Math.ceil(shell.getBoundingClientRect().height)}px`;
     });
-    return;
+    sizeObserver.observe(shell);
   }
-  document.getElementById('status').textContent = 'Loading feedback...';
   const theme = window.matchMedia?.('(prefers-color-scheme: dark)');
   const applyTheme = () => document.documentElement.setAttribute('data-bs-theme', theme?.matches ? 'dark' : 'light');
   applyTheme();
