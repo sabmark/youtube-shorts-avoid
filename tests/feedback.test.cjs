@@ -172,3 +172,90 @@ test('a confirmation appearing when a delayed poll resumes is checked before tim
   assert.equal(deleteClicks, 1);
   assert.equal(w.document.querySelectorAll('[role=listitem]').length, 1);
 });
+
+function nativePage(t, html) {
+  const w = page(t, html);
+  for (const [index, card] of [...w.document.querySelectorAll('[role=listitem]')].entries()) {
+    const owner = w.document.createElement('c-wiz'); owner.id = `activity-owner-${index}`; owner.setAttribute('jscontroller','Dlfr9');
+    card.replaceWith(owner); owner.append(card);
+  }
+  return w;
+}
+
+function nativeDeleteDialog(w, finish, { title = 'Confirm you would like to delete this activity', disabled = false, owner = w.document.querySelector('c-wiz')?.id } = {}) {
+  const dialog = w.document.createElement('div');
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('jsname', 'WCCDZe');
+  if (owner) dialog.setAttribute('jsowner', owner);
+  dialog.setAttribute('aria-labelledby', 'native-confirm-title');
+  dialog.innerHTML = `<div id="native-confirm-title" role="heading"><img alt=""></div><span jsname="bN97Pc"><p>${title}</p><p>This will not show again</p></span><div style="display:none"><div role="button" data-id="EBS5u">Delete</div></div><div role="button" data-id="IbE0S">Cancel</div><div role="button" data-id="EBS5u" aria-disabled="${disabled}">Delete</div>`;
+  const buttons = [...dialog.querySelectorAll('[role=button]')];
+  for (const button of buttons) button.getBoundingClientRect = () => ({ width: 64, height: 36 });
+  buttons[0].onclick = () => assert.fail('hidden template Delete must not be clicked');
+  buttons.at(-1).onclick = finish;
+  w.document.body.append(dialog);
+  return dialog;
+}
+
+test('popup-confirmed removal completes only its new single-activity Google dialog once', async t => {
+  const w = nativePage(t, card() + card('Second video','second-456') + '<div role="listitem" aria-label="Card showing an activity from YouTube"><button aria-label="Delete activity item Channel">Delete</button><a href="https://www.youtube.com/channel/example">Channel</a></div>');
+  const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+  const selected = w.document.querySelector('[role=listitem]');
+  let initialClicks = 0, finalClicks = 0;
+  selected.querySelector('button').onclick = () => {
+    initialClicks++;
+    const dialog = nativeDeleteDialog(w, () => {
+      finalClicks++;
+      w.setTimeout(() => { selected.remove(); dialog.remove(); }, 15);
+    });
+  };
+  assert.equal((await a.remove(id)).status, 'removed');
+  assert.equal(initialClicks, 1); assert.equal(finalClicks, 1);
+  assert.equal(w.document.querySelectorAll('[role=listitem]').length, 2);
+});
+
+test('pre-existing single-activity confirmations are never completed for another popup item', async t => {
+  const w = nativePage(t); const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+  let clicks = 0;
+  nativeDeleteDialog(w, () => clicks++);
+  w.document.querySelector('main button').onclick = () => clicks++;
+  assert.equal((await a.remove(id)).status, 'confirmation'); assert.equal(clicks, 0);
+});
+
+test('unrelated bulk disabled and replaced-target confirmations never receive final Delete', async t => {
+  for (const mode of ['bulk','disabled','changed-video','changed-account','changed-route','old-hidden']) {
+    const w = nativePage(t); const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+    let finalClicks = 0;
+    let old;
+    if(mode === 'old-hidden') { old = nativeDeleteDialog(w, () => finalClicks++); old.hidden = true; }
+    w.document.querySelector('main button').onclick = () => {
+      if(old) old.hidden = false;
+      else nativeDeleteDialog(w, () => finalClicks++, {title:mode === 'bulk' ? 'Delete all activity' : undefined, disabled:mode === 'disabled'});
+      if(mode === 'changed-video') w.document.querySelector('main a').href = 'https://www.youtube.com/watch?v=changed';
+      if(mode === 'changed-account') w.document.querySelector('[aria-label^="Google Account:"]').setAttribute('aria-label','Google Account: Other');
+      if(mode === 'changed-route') w.history.pushState({},'', '/myactivity');
+    };
+    assert.notEqual((await a.remove(id)).status, 'removed', mode);
+    assert.equal(finalClicks, 0, mode);
+  }
+});
+
+test('clicking the final Google Delete without disappearance never reports success or retries', async t => {
+  const w = nativePage(t); const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+  let finalClicks = 0;
+  w.document.querySelector('main button').onclick = () => nativeDeleteDialog(w, () => finalClicks++);
+  assert.equal((await a.remove(id)).status, 'error'); assert.equal(finalClicks, 1);
+  assert.equal(w.document.querySelectorAll('[role=listitem]').length, 1);
+});
+
+
+test('an unrelated exact single-item dialog with another activity owner is never confirmed', async t => {
+  const w = nativePage(t, card() + card('Other video','other-456'));
+  const a = adapter(w); const id = (await a.snapshot()).entries[0].id;
+  let finalClicks = 0;
+  w.document.querySelector('main button').onclick = () => w.setTimeout(() => {
+    nativeDeleteDialog(w, () => finalClicks++, {owner:'activity-owner-1'});
+  }, 10);
+  assert.notEqual((await a.remove(id)).status, 'removed');
+  assert.equal(finalClicks, 0);
+});

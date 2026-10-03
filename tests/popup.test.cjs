@@ -65,13 +65,13 @@ test('removal requires confirmation, cancel sends nothing, and successful remova
   assert.equal(calls.filter(c=>c[0]==='message'&&c[2].action==='remove').length,1);
 });
 
-test('native confirmation activates the history tab; stale and failed removal never report success',async t=>{
+test('blocked confirmation stays in the popup; stale and failed removal never report success',async t=>{
   for(const status of ['confirmation','stale','error']){
     const {w,calls}=await popup(t,{handle:msg=>msg.action==='remove'?{status}:{status:'ready',entries:entries(1),hasMore:false}});
     await click(w,'#entries li button');await click(w,'#confirm-remove');
     assert.equal(w.document.querySelectorAll('#entries li').length,1);
     assert.doesNotMatch(w.document.querySelector('#status').textContent,/feedback removed/i);
-    if(status==='confirmation') assert.ok(calls.some(c=>c[0]==='update'&&c[2].active));
+    assert.equal(calls.some(c=>c[0]==='update'||c[0]==='window-update'),false);
   }
 });
 

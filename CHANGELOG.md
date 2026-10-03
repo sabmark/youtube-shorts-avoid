@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.14
+
+- Complete the selected video's Google deletion confirmation in the background after confirmation in the popup.
+- Refresh the popup after verified removal without switching to Google history.
+- Bind confirmation to the selected activity container and preserve unrelated video and channel feedback.
+
 ## 0.1.13
 
 - Check Google confirmation state after delayed background-tab polling resumes, before reporting a timeout.

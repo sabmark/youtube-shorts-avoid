@@ -173,8 +173,7 @@
         apply(await snapshot());
         el('status').textContent = 'Video feedback removed. Channel feedback was kept.';
       } else if (result?.status === 'confirmation') {
-        el('status').textContent = 'Complete the confirmation in Google history, then Refresh.';
-        await openGoogle();
+        el('status').textContent = 'Google confirmation could not be completed. Refresh before retrying.';
       } else if (result?.status === 'stale') {
         el('status').textContent = 'This entry changed. Refresh the list before removing feedback.';
       } else {

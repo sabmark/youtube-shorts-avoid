@@ -29,19 +29,37 @@
     context() { return `${this.win.location.href}\n${this.account()}`; }
     buttons() { return [...this.doc.querySelectorAll('button,[role="button"]')]; }
     moreButton() { return this.buttons().find(el => el.textContent.trim() === 'Load more' && !el.disabled && !el.hidden); }
+    visible(element) {
+      if (element.closest('[hidden],[aria-hidden="true"],[inert]')) return false;
+      const visibility = this.win.getComputedStyle(element).visibility;
+      if (visibility === 'hidden' || visibility === 'collapse') return false;
+      for (let node = element; node; node = node.parentElement) {
+        if (this.win.getComputedStyle(node).display === 'none') return false;
+      }
+      return true;
+    }
     confirmationDialog() {
       return [...this.doc.querySelectorAll('[role="dialog"],[role="alertdialog"],dialog[open]')].find(dialog => {
         // Google's persistent navigation drawer is a non-modal dialog, not a confirmation.
         if (dialog.getAttribute('aria-label') === 'navigational drawer' &&
             dialog.getAttribute('aria-modal') === 'false' && dialog.querySelector('nav,[role="navigation"]')) return false;
-        if (dialog.closest('[hidden],[aria-hidden="true"],[inert]')) return false;
-        const visibility = this.win.getComputedStyle(dialog).visibility;
-        if (visibility === 'hidden' || visibility === 'collapse') return false;
-        for (let node = dialog; node; node = node.parentElement) {
-          if (this.win.getComputedStyle(node).display === 'none') return false;
-        }
-        return true;
+        return this.visible(dialog);
       });
+    }
+    confirmationDeleteButton(dialog) {
+      // Match the observed single-item Google dialog, never a generic or bulk Delete control.
+      if (dialog.getAttribute('jsname') !== 'WCCDZe') return null;
+      const body = dialog.querySelector('[jsname="bN97Pc"]');
+      if (!body || ![...body.querySelectorAll('p')].some(el =>
+        el.textContent.trim() === 'Confirm you would like to delete this activity')) return null;
+      const controls = [...dialog.querySelectorAll('button,[role="button"]')].filter(button => {
+        const rect = button.getBoundingClientRect();
+        return this.visible(button) && rect.width > 0 && rect.height > 0 &&
+          !button.disabled && button.getAttribute('aria-disabled') !== 'true';
+      });
+      const deletes = controls.filter(button => button.getAttribute('data-id') === 'EBS5u' && button.textContent.trim() === 'Delete');
+      const cancels = controls.filter(button => button.getAttribute('data-id') === 'IbE0S' && button.textContent.trim() === 'Cancel');
+      return deletes.length === 1 && cancels.length === 1 ? deletes[0] : null;
     }
     async waitFor(check) {
       const start = Date.now();
@@ -78,6 +96,10 @@
           ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
       if (this.busy) return { status: 'error', message: 'Another operation is pending.' };
       if (this.confirmationDialog()) return { status: 'confirmation' };
+      const existingDialogs = new Set(this.doc.querySelectorAll('[role="dialog"],[role="alertdialog"],dialog'));
+      const originalData = target.card.getAttribute('jsdata');
+      const owner = target.card.closest('c-wiz[jscontroller="Dlfr9"][id]');
+      let completedDialog = null;
       this.busy = true;
       target.stale = true;
       target.observer.disconnect();
@@ -88,9 +110,10 @@
       const originalCount = matchingCards().length;
       try {
         target.button.click();
-        const result = await this.waitFor(() => {
+        const checkRemoval = () => {
           if (!this.onFeedbackPage() || target.identity !== this.context()) return 'stale';
-          if (this.confirmationDialog()) return 'confirmation';
+          const dialog = this.confirmationDialog();
+          if (dialog) return dialog === completedDialog ? null : 'confirmation';
           if ([...this.doc.querySelectorAll('[role="alert"]')].some(el => /error|failed|try again/i.test(el.textContent))) return 'error';
           if (!target.card.isConnected) {
             if (matchingCards().length >= originalCount) return 'error';
@@ -101,7 +124,25 @@
             if (Date.now() - absentSince >= this.settleMs) return 'removed';
           }
           return null;
-        });
+        };
+        let result = await this.waitFor(checkRemoval);
+        if (result === 'confirmation') {
+          const dialog = this.confirmationDialog();
+          const button = dialog && !existingDialogs.has(dialog) && owner &&
+            this.doc.getElementById(dialog.getAttribute('jsowner')) === owner &&
+            owner.contains(target.card) &&
+            owner.querySelectorAll('[role="listitem"][aria-label="Card showing an activity from YouTube"]').length === 1 &&
+            this.confirmationDeleteButton(dialog);
+          if (button) {
+            if (!this.onFeedbackPage() || target.identity !== this.context() || !target.card.isConnected ||
+                !target.card.contains(target.button) || target.card.getAttribute('jsdata') !== originalData ||
+                target.button.getAttribute('aria-label') !== `Delete activity item ${target.title}` ||
+                ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
+            completedDialog = dialog;
+            button.click();
+            result = await this.waitFor(checkRemoval);
+          }
+        }
         return { status: result || 'error' };
       } finally { this.busy = false; }
     }

@@ -14,7 +14,7 @@ Google Help documents clearing Not Interested and Don't recommend channel feedba
 
 - Add a popup page declared through `action.default_popup`.
 - Add a content script for `https://myactivity.google.com/*` and matching host permission. The script responds only on the feedback page (`page=youtube_user_feedback`) and only to internal extension messages. It never reads other activity categories.
-- When the popup opens, reuse an existing feedback tab. If none exists, create an inactive tab at the supplied URL. The tab stays available for sign-in, verification and native confirmation; the popup does not close a pre-existing user tab.
+- When the popup opens, reuse an existing feedback tab. If none exists, create an inactive tab at the supplied URL. The tab stays available for sign-in and verification; the popup does not close a pre-existing user tab.
 - The content script reads video cards from the rendered list and returns only the title, channel, video URL and an opaque identifier for that DOM entry. Channel-only entries are excluded.
 - The popup keeps returned entries in memory, showing 10 at a time with Previous and Next controls. At the end of the loaded entries, Load older feedback invokes Google's Load more and refreshes the snapshot.
 - No history entries or authentication information are written to extension storage. The existing shortcut setting remains the only persistent preference.
@@ -23,7 +23,7 @@ Google Help documents clearing Not Interested and Don't recommend channel feedba
 
 Each row offers Remove. A confirmation inside the popup names the chosen video before a removal message is sent. The content script resolves the opaque identifier to the original connected card, checks the current feedback-page URL and account identity, and clicks only that card's native delete button. A disconnected or changed card is rejected as stale.
 
-The operation has a timeout. The popup reports removal only when the targeted card disappears while the feedback page and account remain the same. Native confirmation, verification, or an unrecognized outcome is shown as pending or failed, not successful; the user can open the Google tab to finish or inspect the result. No other entry is automatically removed.
+The operation has a timeout. The popup reports removal only when the targeted card disappears while the feedback page and account remain the same. Following the owner's popup-only requirement, the content script completes the newly created native single-activity confirmation only when its Google jsowner resolves to the original selected activity container. It clicks the visible enabled Delete control once, keeps the popup open, and waits for both dialog closure and verified disappearance. Existing, unrelated, bulk or unsupported confirmations remain failed or pending within the popup; removal never activates the history tab. No other entry is automatically removed.
 
 Remove all is omitted. Date-group controls can include both video and channel feedback and do not meet the requested video-only scope. This limitation is stated in the popup and README.
 
