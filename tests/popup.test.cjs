@@ -38,7 +38,9 @@ test('popup paginates 11 loaded entries as 10 then 1 and navigates back',async t
 test('popup creates an inactive Google tab when needed and renders remote titles as text',async t=>{
   const {w,calls}=await popup(t,{existing:false,data:[{...entries(1)[0],title:'<img src=x onerror=alert(1)>'}]});
   assert.match(w.document.querySelector('#entries').textContent,/<img src=x/);
-  assert.equal(w.document.querySelector('#entries img'),null);
+  assert.equal(w.document.querySelector('#entries a img'),null);
+  assert.equal(w.document.querySelectorAll('#entries img').length,1);
+  assert.equal(w.document.querySelector('#entries img').hasAttribute('onerror'),false);
   assert.equal(calls.find(c=>c[0]==='create')[1].active,false);
 });
 
@@ -109,4 +111,24 @@ test('popup sets an explicit screen-based width without depending on its initial
     const {w} = await popup(t, {screenWidth});
     assert.equal(w.document.documentElement.style.width, `${expected}px`);
   }
+});
+
+test('video rows show thumbnails derived from validated video IDs without sending a referrer', async t => {
+  const {w} = await popup(t, {data:[{...entries(1)[0],url:'https://www.youtube.com/watch?v=sample-ID_1&list=ignored',thumbnail:'https://untrusted.test/image'}]});
+  const image = w.document.querySelector('#entries li img');
+  assert.ok(image, 'video thumbnail is rendered');
+  assert.equal(image.src, 'https://i.ytimg.com/vi/sample-ID_1/mqdefault.jpg');
+  assert.equal(image.referrerPolicy, 'no-referrer');
+  assert.equal(image.alt, '');
+  assert.equal(image.loading, 'lazy');
+});
+
+test('unavailable thumbnails leave a stable fallback and readable video title', async t => {
+  const {w} = await popup(t, {data:entries(1)});
+  const image = w.document.querySelector('#entries li img');
+  assert.ok(image);
+  image.dispatchEvent(new w.Event('error'));
+  assert.equal(image.hidden, true);
+  assert.match(w.document.querySelector('#entries li').textContent,/Video 0/);
+  assert.equal(w.document.querySelector('#entries li .thumbnail').getAttribute('aria-hidden'),'true');
 });

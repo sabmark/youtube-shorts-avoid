@@ -21,3 +21,9 @@ footer { flex-shrink: 0; }
 button.btn:focus, a:focus-visible { outline: 3px solid var(--bs-primary); outline-offset: 3px; }
 
 [data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-secondary-color); }
+
+.feedback-row > .thumbnail { position: relative; flex: 0 0 112px; height: 63px; overflow: hidden; border-radius: 6px; background: var(--bs-secondary-bg); }
+.thumbnail::before { content: ''; position: absolute; left: calc(50% - 5px); top: calc(50% - 8px); border-left: 12px solid var(--bs-secondary-color); border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+.thumbnail img { position: relative; display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumbnail img[hidden] { display: none; }
+@media (max-width: 520px) { .feedback-row { gap: 12px; } .feedback-row > .thumbnail { flex-basis: 96px; height: 54px; } }

@@ -64,6 +64,19 @@
     for (const entry of entries.slice(page * 10, page * 10 + 10)) {
       const row = document.createElement('li');
       row.className = 'list-group-item feedback-row';
+      const thumbnail = document.createElement('div');
+      thumbnail.className = 'thumbnail';
+      thumbnail.setAttribute('aria-hidden', 'true');
+      const image = document.createElement('img');
+      image.alt = '';
+      image.width = 112;
+      image.height = 63;
+      image.loading = 'lazy';
+      image.referrerPolicy = 'no-referrer';
+      image.addEventListener('error', () => { image.hidden = true; }, { once: true });
+      const videoId = new URL(validVideoUrl(entry.url)).searchParams.get('v');
+      image.src = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+      thumbnail.append(image);
       const details = document.createElement('div');
       const link = document.createElement('a');
       link.textContent = entry.title;
@@ -86,7 +99,7 @@
         el('confirmation').hidden = false;
         el('confirm-remove').focus();
       });
-      row.append(details, remove);
+      row.append(thumbnail, details, remove);
       el('entries').append(row);
     }
     el('page').textContent = entries.length ? `Page ${page + 1} of ${Math.ceil(entries.length / 10)} - ${entries.length} loaded` : '0 loaded';

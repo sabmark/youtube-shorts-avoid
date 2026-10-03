@@ -11,3 +11,5 @@ The manifest grants content-script access to YouTube pages so the control can ap
 The My Activity host permission lets the popup find a feedback tab and communicate with the content script there. The script reads YouTube video feedback titles, channel names and video links only when the page is the YouTube user feedback view. Returned entries stay in popup/page memory and are not saved, synchronized or exported. Opening the popup may open a background Google feedback tab using your existing Google session. Sign-in and account verification stay on Google's page.
 
 Removing one video clicks its native Google deletion control after your popup confirmation. Channel-only entries and other Google activity are excluded. The extension does not offer a bulk reset. Google may require further confirmation in its own tab.
+
+The popup loads video thumbnails from YouTube's image host (`i.ytimg.com`) using the video ID from each validated video link. Images load as their rows enter view, without a referrer header. YouTube receives those image requests; the extension does not save thumbnail images or send the feedback list to another service.

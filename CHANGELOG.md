@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+
+- Show video thumbnails beside feedback titles, with a stable placeholder for unavailable images.
+
 ## 0.1.7
 
 - Fix the collapsed native popup width and size it to roughly one-third of the screen, between 480 and 800 pixels.
