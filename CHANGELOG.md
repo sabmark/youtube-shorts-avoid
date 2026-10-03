@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.12
+
+- Fix Remove feedback mistaking Google’s non-modal navigation drawer for a deletion confirmation.
+- Ignore hidden dialogs while preserving real visible confirmation dialogs and alerts.
+
 ## 0.1.11
 
 - Restore feedback inside the extension toolbar popup; clicking the icon no longer opens a separate window.

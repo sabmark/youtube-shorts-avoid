@@ -29,6 +29,20 @@
     context() { return `${this.win.location.href}\n${this.account()}`; }
     buttons() { return [...this.doc.querySelectorAll('button,[role="button"]')]; }
     moreButton() { return this.buttons().find(el => el.textContent.trim() === 'Load more' && !el.disabled && !el.hidden); }
+    confirmationDialog() {
+      return [...this.doc.querySelectorAll('[role="dialog"],[role="alertdialog"],dialog[open]')].find(dialog => {
+        // Google's persistent navigation drawer is a non-modal dialog, not a confirmation.
+        if (dialog.getAttribute('aria-label') === 'navigational drawer' &&
+            dialog.getAttribute('aria-modal') === 'false' && dialog.querySelector('nav,[role="navigation"]')) return false;
+        if (dialog.closest('[hidden],[aria-hidden="true"],[inert]')) return false;
+        const visibility = this.win.getComputedStyle(dialog).visibility;
+        if (visibility === 'hidden' || visibility === 'collapse') return false;
+        for (let node = dialog; node; node = node.parentElement) {
+          if (this.win.getComputedStyle(node).display === 'none') return false;
+        }
+        return true;
+      });
+    }
     async waitFor(check) {
       const start = Date.now();
       do {
@@ -62,7 +76,7 @@
           target.button.getAttribute('aria-label') !== `Delete activity item ${target.title}` ||
           ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
       if (this.busy) return { status: 'error', message: 'Another operation is pending.' };
-      if (this.doc.querySelector('[role="dialog"],dialog[open]')) return { status: 'confirmation' };
+      if (this.confirmationDialog()) return { status: 'confirmation' };
       this.busy = true;
       target.stale = true;
       target.observer.disconnect();
@@ -75,7 +89,7 @@
         target.button.click();
         const result = await this.waitFor(() => {
           if (!this.onFeedbackPage() || target.identity !== this.context()) return 'stale';
-          if (this.doc.querySelector('[role="dialog"],dialog[open]')) return 'confirmation';
+          if (this.confirmationDialog()) return 'confirmation';
           if ([...this.doc.querySelectorAll('[role="alert"]')].some(el => /error|failed|try again/i.test(el.textContent))) return 'error';
           if (!target.card.isConnected) {
             if (matchingCards().length >= originalCount) return 'error';

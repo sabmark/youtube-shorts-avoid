@@ -112,3 +112,44 @@ test('a card recycled in place with the same title and URL invalidates its old i
   assert.equal((await a.remove(id)).status, 'stale', 'a consumed mutation must keep the old id stale');
   assert.equal(clicks, 0);
 });
+
+test('Google non-modal navigation drawer does not block individual video removal', async t => {
+  const drawer = '<div role="dialog" aria-label="navigational drawer" aria-modal="false" aria-expanded="true" aria-hidden="false"><nav><a href="/myactivity">My Activity</a><a href="/more">Other activity</a></nav></div>';
+  const w = page(t, drawer + card() + card('Second video','second-456'));
+  const a = adapter(w);
+  const before = await a.snapshot();
+  let clicks = 0;
+  const selected = w.document.querySelector('[role=listitem]');
+  selected.querySelector('button').onclick = () => { clicks++; selected.remove(); };
+  assert.equal((await a.remove(before.entries[0].id)).status,'removed');
+  assert.equal(clicks,1);
+  assert.ok(w.document.querySelector('[aria-label="navigational drawer"]'));
+  assert.equal(w.document.querySelectorAll('[role=listitem]').length,1);
+});
+
+test('hidden dialogs do not block removal but visible dialogs still require confirmation', async t => {
+  for(const hidden of [true,false]) {
+    const w=page(t, `<div role="dialog" ${hidden?'style="display:none"':''}><button>Delete</button><button>Cancel</button></div>`+card()+card('Second','second-456'));
+    const a=adapter(w);const before=await a.snapshot();
+    let clicks=0;const selected=w.document.querySelector('[role=listitem]');
+    selected.querySelector('button').onclick=()=>{clicks++;selected.remove();};
+    assert.equal((await a.remove(before.entries[0].id)).status,hidden?'removed':'confirmation');
+    assert.equal(clicks,hidden?1:0);
+  }
+});
+
+test('a visible native alert dialog after clicking Delete remains a confirmation', async t => {
+  const w=page(t,card()+card('Second','second-456'));
+  const a=adapter(w);const before=await a.snapshot();
+  w.document.querySelector('[role=listitem] button').onclick=()=>w.document.body.insertAdjacentHTML('beforeend','<div role="alertdialog"><button>Delete</button><button>Cancel</button></div>');
+  assert.equal((await a.remove(before.entries[0].id)).status,'confirmation');
+  assert.equal(w.document.querySelectorAll('[role=listitem]').length,2);
+});
+
+test('a non-modal dialog containing navigation still requires confirmation unless it is the observed drawer', async t => {
+  const w=page(t,'<div role="dialog" aria-label="Confirm removal" aria-modal="false"><nav><a href="/help">Help</a></nav><button>Delete</button><button>Cancel</button></div>'+card());
+  const a=adapter(w);const before=await a.snapshot();
+  let clicks=0;w.document.querySelector('[role=listitem] button').onclick=()=>clicks++;
+  assert.equal((await a.remove(before.entries[0].id)).status,'confirmation');
+  assert.equal(clicks,0);
+});
