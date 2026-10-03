@@ -14,7 +14,7 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Download [youtube-shorts-avoid-0.1.3.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.3/youtube-shorts-avoid-0.1.3.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
+Download [youtube-shorts-avoid-0.1.16.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.16/youtube-shorts-avoid-0.1.16.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
