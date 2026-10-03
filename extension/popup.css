@@ -1,13 +1,14 @@
 /* Explicit root dimensions avoid Chromium's initially narrow popup viewport. */
 html { width: 640px; font-size: 14px; }
 body { margin: 0; width: 100%; background: var(--bs-tertiary-bg); }
-.popup-shell { height: 590px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.popup-shell { max-height: 600px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
 header { flex-shrink: 0; }
 h1 { font-weight: 650; letter-spacing: -.025em; }
 .toolbar { flex-wrap: wrap; }
 .btn { min-height: 44px; font-weight: 500; white-space: nowrap; }
 .status { font-size: .9rem; }
-#entries { flex: 1; min-height: 64px; overflow-y: auto; }
+#entries { flex: 0 1 auto; min-height: 0; margin: 0; overflow-y: auto; }
+#entries:empty { min-height: 64px; }
 .feedback-row { display: flex; align-items: center; gap: 18px; padding: 14px; }
 .feedback-row > div { flex: 1; min-width: 0; }
 .feedback-row a { display: block; color: var(--bs-body-color); font-weight: 550; text-decoration: none; overflow-wrap: anywhere; }

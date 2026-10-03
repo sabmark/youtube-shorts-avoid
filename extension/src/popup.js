@@ -2,6 +2,14 @@
   'use strict';
   // Native popups begin with a small viewport; sizing against it causes collapse.
   document.documentElement.style.width = `${Math.min(800, Math.max(480, Math.round((screen.availWidth || 1920) / 3)))}px`;
+  // Chrome truncates fractional auto heights; round up to avoid a 1px outer scrollbar.
+  const shell = document.querySelector('.popup-shell');
+  if (window.ResizeObserver) {
+    const sizeObserver = new ResizeObserver(() => {
+      document.documentElement.style.height = `${Math.ceil(shell.getBoundingClientRect().height)}px`;
+    });
+    sizeObserver.observe(shell);
+  }
   const theme = window.matchMedia?.('(prefers-color-scheme: dark)');
   const applyTheme = () => document.documentElement.setAttribute('data-bs-theme', theme?.matches ? 'dark' : 'light');
   applyTheme();

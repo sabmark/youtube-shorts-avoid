@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9
+
+- Resize the popup to its list content, capped at Chrome’s 600-pixel toolbar limit.
+- Give rows more vertical space and move the explanatory note into an expandable About this list section.
+
 ## 0.1.8
 
 - Show video thumbnails beside feedback titles, with a stable placeholder for unavailable images.
