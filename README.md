@@ -29,6 +29,14 @@ Click **Avoid** or press **Right Arrow** only on a video and channel you want to
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
+## Browse and remove feedback
+
+Click the extension icon to see a popup of videos marked Not Interested in your Google feedback history, including earlier feedback. The popup reuses a My Activity tab or opens one in the background. Use **Open Google history** to sign in or complete account verification, then **Refresh**. The supported page uses English.
+
+Browse 10 videos per page with **Previous** and **Next**. **Load older feedback** asks Google to load more history. The count refers to loaded entries, not your total history. **Remove** asks for confirmation before clicking that video's native deletion control. If Google asks for its own confirmation, the history tab opens so you can complete it. Refresh afterward. Channel feedback is excluded from the list and retained when removing a video.
+
+There is no **Remove all** button: the observed Google bulk controls include channel feedback, and a video-only bulk reset has not been verified. The popup reads history in memory and does not save it to extension storage. **Shortcut settings** opens the keyboard configuration page.
+
 ## Limits and verification
 
 - During this activation's Not interested step, an opened reason dialog selects **Other** if available, otherwise the first supported choice, then submits if needed. Optional Tell us why links are left alone. A pre-existing or later dialog, unsupported choice or request for extra typed input stops automation.
@@ -56,7 +64,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.5.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.6.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

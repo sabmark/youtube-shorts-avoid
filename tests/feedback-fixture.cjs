@@ -18,7 +18,7 @@ function page(t, html = card(), url = feedbackUrl, { beforeScripts } = {}) {
   if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));
   return dom.window;
 }
-const adapter = w => w.ShortsAvoid?.FeedbackAdapter ? new w.ShortsAvoid.FeedbackAdapter(w, { timeoutMs: 60 }) : {
+const adapter = w => w.ShortsAvoid?.FeedbackAdapter ? new w.ShortsAvoid.FeedbackAdapter(w, { timeoutMs: 120, settleMs: 20 }) : {
   async snapshot() { return { status: 'unsupported', entries: [], hasMore: false }; },
   async loadMore() { return this.snapshot(); }, async remove() { return { status: 'error' }; }
 };

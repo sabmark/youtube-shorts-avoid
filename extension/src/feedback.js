@@ -10,10 +10,11 @@
     } catch { return null; }
   }
   class FeedbackAdapter {
-    constructor(win, { timeoutMs = 6000 } = {}) {
+    constructor(win, { timeoutMs = 6000, settleMs = 350 } = {}) {
       this.win = win;
       this.doc = win.document;
       this.timeoutMs = timeoutMs;
+      this.settleMs = settleMs;
       this.cards = new Map();
       this.ids = new WeakMap();
       this.identity = '';
@@ -55,20 +56,35 @@
     }
     async remove(id) {
       const target = this.cards.get(id);
-      if (!target || !this.onFeedbackPage() || target.identity !== this.context() ||
+      if (target?.observer.takeRecords().length) target.stale = true;
+      if (!target || target.stale || !this.onFeedbackPage() || target.identity !== this.context() ||
           !target.card.isConnected || !target.button.isConnected ||
           target.button.getAttribute('aria-label') !== `Delete activity item ${target.title}` ||
           ![...target.card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url)) return { status: 'stale' };
       if (this.busy) return { status: 'error', message: 'Another operation is pending.' };
       if (this.doc.querySelector('[role="dialog"],dialog[open]')) return { status: 'confirmation' };
       this.busy = true;
+      target.stale = true;
+      target.observer.disconnect();
+      let absentSince = null;
+      const matchingCards = () => [...this.doc.querySelectorAll('[role="listitem"][aria-label="Card showing an activity from YouTube"]')].filter(card =>
+        card.querySelector('button[aria-label], [role="button"][aria-label]')?.getAttribute('aria-label') === `Delete activity item ${target.title}` &&
+        [...card.querySelectorAll('a[href]')].some(a => videoUrl(a.href) === target.url));
+      const originalCount = matchingCards().length;
       try {
         target.button.click();
         const result = await this.waitFor(() => {
           if (!this.onFeedbackPage() || target.identity !== this.context()) return 'stale';
           if (this.doc.querySelector('[role="dialog"],dialog[open]')) return 'confirmation';
-          if (!target.card.isConnected) return 'removed';
           if ([...this.doc.querySelectorAll('[role="alert"]')].some(el => /error|failed|try again/i.test(el.textContent))) return 'error';
+          if (!target.card.isConnected) {
+            if (matchingCards().length >= originalCount) return 'error';
+            const loaded = this.doc.querySelector('[role="listitem"][aria-label="Card showing an activity from YouTube"]') ||
+              /No activity|No results|You have no activity/i.test(this.doc.body.textContent);
+            if (!loaded) { absentSince = null; return null; }
+            if (absentSince === null) absentSince = Date.now();
+            if (Date.now() - absentSince >= this.settleMs) return 'removed';
+          }
           return null;
         });
         return { status: result || 'error' };
@@ -80,10 +96,14 @@
       if (!this.onFeedbackPage()) return { status: 'unsupported', ...empty };
       if (!this.account()) return { status: 'verification', ...empty };
       if (this.context() !== this.identity) {
+        for (const record of this.cards.values()) record.observer.disconnect();
         this.cards.clear(); this.ids = new WeakMap(); this.identity = this.context();
       }
       const all = [...this.doc.querySelectorAll('[role="listitem"][aria-label="Card showing an activity from YouTube"]')];
       const entries = [];
+      for (const [id, record] of this.cards) {
+        if (!record.card.isConnected) { record.observer.disconnect(); this.cards.delete(id); }
+      }
       for (const card of all) {
         const button = card.querySelector('button[aria-label^="Delete activity item "],[role="button"][aria-label^="Delete activity item "]');
         const link = [...card.querySelectorAll('a[href]')].find(a => videoUrl(a.href));
@@ -93,8 +113,17 @@
         if (!title) continue;
         const channel = [...card.querySelectorAll('a[href]')].find(a => /^https:\/\/www\.youtube\.com\/channel\//.test(a.href))?.textContent.trim() || '';
         let id = this.ids.get(card);
-        if (!id) { id = this.win.crypto.randomUUID(); this.ids.set(card, id); }
-        this.cards.set(id, { card, button, url, title, identity: this.identity });
+        const previous = this.cards.get(id);
+        if (previous && previous.observer.takeRecords().length) previous.stale = true;
+        if (!previous || previous.stale) {
+          previous?.observer.disconnect();
+          if (id) this.cards.delete(id);
+          id = this.win.crypto.randomUUID(); this.ids.set(card, id);
+          const record = { card, button, url, title, identity: this.identity, stale: false };
+          record.observer = new this.win.MutationObserver(() => { record.stale = true; });
+          record.observer.observe(card, { subtree: true, childList: true, attributes: true, characterData: true });
+          this.cards.set(id, record);
+        }
         entries.push({ id, title, channel, url });
       }
       const text = this.doc.body.textContent;

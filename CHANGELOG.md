@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+
+- Add an extension popup to browse existing Not Interested video feedback, load older entries and remove a selected video through Google's controls.
+- Keep channel feedback and omit a bulk-reset button. Add My Activity access for the popup integration.
+
 ## 0.1.5
 
 - Add a settings page to save an Avoid key or key combination, with a reset to Right Arrow. Changes apply to open Shorts tabs.

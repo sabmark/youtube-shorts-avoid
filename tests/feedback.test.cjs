@@ -89,3 +89,26 @@ test('internal-message bridge rejects another sender and unknown actions', async
   assert.equal(result.status,'ready');
   assert.equal(result.entries.length,1);
 });
+
+test('a rebuilt equivalent card is not reported as successful deletion', async t => {
+  const w = page(t);
+  const a = adapter(w);
+  const id = (await a.snapshot()).entries[0].id;
+  const original = w.document.querySelector('[role=listitem]');
+  original.querySelector('button').onclick = () => { original.outerHTML = card(); };
+  assert.notEqual((await a.remove(id)).status, 'removed');
+  assert.equal((await a.snapshot()).entries.length, 1);
+});
+
+test('a card recycled in place with the same title and URL invalidates its old identifier', async t => {
+  const w = page(t);
+  const a = adapter(w);
+  const id = (await a.snapshot()).entries[0].id;
+  const original = w.document.querySelector('[role=listitem]');
+  original.setAttribute('jsdata', 'Activity;replacement;2');
+  let clicks = 0;
+  original.querySelector('button').onclick = () => clicks++;
+  assert.equal((await a.remove(id)).status, 'stale');
+  assert.equal((await a.remove(id)).status, 'stale', 'a consumed mutation must keep the old id stale');
+  assert.equal(clicks, 0);
+});
