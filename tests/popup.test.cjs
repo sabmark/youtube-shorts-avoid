@@ -5,9 +5,10 @@ const { readFileSync, existsSync } = require('node:fs');
 const { join } = require('node:path');
 const entries = n => Array.from({length:n},(_,i)=>({id:`item-${i}`,title:`Video ${i}`,channel:'Channel',url:`https://www.youtube.com/watch?v=video-${i}`}));
 async function flush() { await new Promise(resolve=>setImmediate(resolve)); }
-async function popup(t, {data=entries(11),handle,existing=true}={}) {
+async function popup(t, {data=entries(11),handle,existing=true,screenWidth=1920}={}) {
   const dom = new JSDOM(readFileSync(join(__dirname,'../extension/popup.html'),'utf8'),{runScripts:'outside-only',url:'https://extension.test/popup.html'});
   t.after(()=>dom.window.close());
+  Object.defineProperty(dom.window.screen, 'availWidth', {value:screenWidth});
   const calls=[];
   dom.window.chrome={
     tabs:{async query(){return existing?[{id:7,url:'https://myactivity.google.com/page?page=youtube_user_feedback'}]:[];},
@@ -101,4 +102,11 @@ test('a missing receiver reloads the Google tab once and recovers the loaded lis
   await new Promise(resolve=>setTimeout(resolve,350));
   assert.equal(w.document.querySelectorAll('#entries li').length,1);
   assert.equal(calls.filter(c=>c[0]==='reload').length,1);
+});
+
+test('popup sets an explicit screen-based width without depending on its initial viewport', async t => {
+  for (const [screenWidth, expected] of [[1920,640], [2560,800], [1280,480], [0,640]]) {
+    const {w} = await popup(t, {screenWidth});
+    assert.equal(w.document.documentElement.style.width, `${expected}px`);
+  }
 });

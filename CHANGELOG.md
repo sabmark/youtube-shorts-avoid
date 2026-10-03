@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7
+
+- Fix the collapsed native popup width and size it to roughly one-third of the screen, between 480 and 800 pixels.
+- Use locally bundled Bootstrap 5.3.8 for buttons, video rows, pagination and light/dark styling. Keep scrolling within the video list.
+
 ## 0.1.6
 
 - Add an extension popup to browse existing Not Interested video feedback, load older entries and remove a selected video through Google's controls.

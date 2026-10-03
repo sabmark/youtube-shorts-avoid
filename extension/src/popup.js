@@ -1,5 +1,11 @@
 (() => {
   'use strict';
+  // Native popups begin with a small viewport; sizing against it causes collapse.
+  document.documentElement.style.width = `${Math.min(800, Math.max(480, Math.round((screen.availWidth || 1920) / 3)))}px`;
+  const theme = window.matchMedia?.('(prefers-color-scheme: dark)');
+  const applyTheme = () => document.documentElement.setAttribute('data-bs-theme', theme?.matches ? 'dark' : 'light');
+  applyTheme();
+  theme?.addEventListener('change', applyTheme);
   const historyUrl = 'https://myactivity.google.com/page?utm_source=my-activity&hl=en&page=youtube_user_feedback';
   const el = id => document.getElementById(id);
   let tabId = null;
@@ -57,6 +63,7 @@
     el('entries').replaceChildren();
     for (const entry of entries.slice(page * 10, page * 10 + 10)) {
       const row = document.createElement('li');
+      row.className = 'list-group-item feedback-row';
       const details = document.createElement('div');
       const link = document.createElement('a');
       link.textContent = entry.title;
@@ -64,11 +71,12 @@
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       const channel = document.createElement('span');
-      channel.className = 'channel';
+      channel.className = 'channel text-body-secondary';
       channel.textContent = entry.channel;
       details.append(link, channel);
       const remove = document.createElement('button');
       remove.type = 'button';
+      remove.className = 'btn btn-outline-danger';
       remove.textContent = 'Remove';
       remove.setAttribute('aria-label', `Remove feedback for ${entry.title}`);
       remove.disabled = busy;

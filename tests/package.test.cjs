@@ -22,6 +22,7 @@ import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
     expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
                 'popup.html', 'popup.css', 'src/popup.js', 'src/feedback.js',
+                'vendor/bootstrap.min.css', 'vendor/bootstrap.LICENSE.txt',
                 'src/shortcut.js', 'src/options.js', 'options.html', 'options.css',
                 'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png', 'LICENSE'}
     assert set(archive.namelist()) == expected, archive.namelist()
