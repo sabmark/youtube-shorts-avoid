@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.10
+
+- Open the feedback list in a resizable window at 90 percent of available screen height, beyond the toolbar popup height limit.
+- Reuse the feedback window when the icon is clicked again; resize the list with the window.
+- Bring the Google browser window forward for history and native confirmations. Chrome 116 or later is required.
+
 ## 0.1.9
 
 - Resize the popup to its list content, capped at Chrome’s 600-pixel toolbar limit.

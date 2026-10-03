@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Shorts Avoid",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Request video and channel recommendation feedback for a Short with one click.",
   "icons": {
     "16": "icons/icon16.png",
@@ -45,5 +45,6 @@
   },
   "host_permissions": [
     "https://myactivity.google.com/*"
-  ]
+  ],
+  "minimum_chrome_version": "116"
 }
