@@ -4,6 +4,20 @@
   if (!api?.YoutubeAdapter || !api.Workflow || api.controller) return;
   const adapter = new api.YoutubeAdapter(window);
   const workflow = new api.Workflow(adapter);
+  const storage = globalThis.chrome?.storage;
+  let shortcut = storage ? null : api.Shortcut.defaultShortcut;
+  let storageRevision = 0;
+  if (storage) {
+    storage.onChanged.addListener((changes, area) => {
+      if (area !== 'local' || !changes.avoidShortcut) return;
+      storageRevision++;
+      shortcut = api.Shortcut.normalize(changes.avoidShortcut.newValue) || api.Shortcut.defaultShortcut;
+    });
+    const revision = storageRevision;
+    storage.local.get('avoidShortcut').then(result => {
+      if (revision === storageRevision) shortcut = api.Shortcut.normalize(result.avoidShortcut) || api.Shortcut.defaultShortcut;
+    }).catch(() => { /* Leave the shortcut inactive if settings cannot be read. */ });
+  }
   const host = document.createElement('shorts-avoid-control');
   const root = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
@@ -70,8 +84,7 @@
 
   button.addEventListener('click', activate);
   document.addEventListener('keydown', event => {
-    if (event.key !== 'ArrowRight' || event.defaultPrevented || event.isComposing ||
-        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (!api.Shortcut.matches(event, shortcut) || event.defaultPrevented || event.isComposing) return;
     const editable = event.composedPath().some(node => node instanceof Element &&
       (node.matches('input, textarea, select') || node.isContentEditable ||
        node.closest('[contenteditable]:not([contenteditable="false"])')));

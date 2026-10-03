@@ -21,6 +21,7 @@ test('package contains declared runtime files only, excluding development and se
 import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
     expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
+                'src/shortcut.js', 'src/options.js', 'options.html', 'options.css',
                 'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png', 'LICENSE'}
     assert set(archive.namelist()) == expected, archive.namelist()
     license_text = archive.read('LICENSE').decode()

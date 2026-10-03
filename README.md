@@ -25,7 +25,7 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. The shortcut ignores editable fields and modified keypresses; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a different key or key combination, or reset to Right Arrow. Saved changes apply to open Shorts tabs. The shortcut ignores editable fields and key combinations that differ from your setting; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
@@ -56,7 +56,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.4.zip` containing the nine runtime files and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.5.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

@@ -213,3 +213,49 @@ test('Right Arrow intercepts an earlier page bubble handler before it changes th
   assert.equal(button(w).disabled, true);
   await until(() => !button(w).disabled);
 });
+
+test('saved shortcut replaces Right Arrow and updates in an open Shorts tab', async t => {
+  const { storage } = require('./storage.cjs');
+  const store = storage({ avoidShortcut: { key: 'k', ctrlKey: true } });
+  const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+  installMenu(w, { items: ['Report'] });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(arrow(w).defaultPrevented, false, 'old default must no longer activate');
+  assert.equal(arrow(w, w.document, { key: 'k', ctrlKey: true }).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+  await store.local.set({ avoidShortcut: { key: 'j' } });
+  assert.equal(arrow(w, w.document, { key: 'k', ctrlKey: true }).defaultPrevented, false);
+  assert.equal(arrow(w, w.document, { key: 'j', shiftKey: true }).defaultPrevented, false);
+  assert.equal(arrow(w, w.document, { key: 'j' }).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('configured shortcut keeps typing, composition and held-key guards', async t => {
+  const { storage } = require('./storage.cjs');
+  const w = fixture(t, player(), undefined, { beforeScripts(w) {
+    w.chrome = { storage: storage({ avoidShortcut: { key: 'j', altKey: true } }) };
+  } });
+  await new Promise(resolve => setImmediate(resolve));
+  const input = w.document.createElement('input');
+  w.document.body.append(input);
+  assert.equal(arrow(w, input, { key: 'j', altKey: true }).defaultPrevented, false);
+  assert.equal(arrow(w, w.document, { key: 'j', altKey: true, isComposing: true }).defaultPrevented, false);
+  assert.equal(arrow(w, w.document, { key: 'j', altKey: true, repeat: true }).defaultPrevented, true);
+  assert.equal(button(w).disabled, false);
+});
+
+test('shortcut waits for stored settings and does not overwrite a newer change with a delayed read', async t => {
+  const { storage } = require('./storage.cjs');
+  const store = storage();
+  let finishRead;
+  store.local.get = () => new Promise(resolve => { finishRead = resolve; });
+  const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+  assert.equal(arrow(w).defaultPrevented, false);
+  await store.local.set({ avoidShortcut: { key: 'j' } });
+  finishRead({ avoidShortcut: { key: 'k' } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(arrow(w, w.document, { key: 'k' }).defaultPrevented, false);
+  installMenu(w, { items: ['Report'] });
+  assert.equal(arrow(w, w.document, { key: 'j' }).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+- Add a settings page to save an Avoid key or key combination, with a reset to Right Arrow. Changes apply to open Shorts tabs.
+
 ## 0.1.4
 
 - Add Right Arrow as a shortcut for Avoid video and channel. Editable fields, modified keypresses and held-key repeats do not trigger feedback.

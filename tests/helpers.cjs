@@ -28,7 +28,7 @@ function fixture(t, html, url = 'https://www.youtube.com/shorts/first-video', { 
     return { x: 0, y: top, top, bottom: top + 400, left: 0, right: 300, width: 300, height: 400 };
   };
   beforeScripts?.(dom.window);
-  for (const script of ['youtube.js', 'workflow.js', 'content.js']) {
+  for (const script of ['youtube.js', 'workflow.js', 'shortcut.js', 'content.js']) {
     const path = join(__dirname, '..', 'extension', 'src', script);
     if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));
   }

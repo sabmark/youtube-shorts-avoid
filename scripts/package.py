@@ -11,6 +11,10 @@ FILES = (
     "src/youtube.js",
     "src/workflow.js",
     "src/content.js",
+    "src/shortcut.js",
+    "src/options.js",
+    "options.html",
+    "options.css",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",
@@ -27,6 +31,8 @@ def main():
     for entry in manifest["content_scripts"]:
         declared.update(entry.get("js", []))
         declared.update(entry.get("css", []))
+    declared.add(manifest["options_page"])
+    declared.update({"options.css", "src/options.js"})
     if declared != set(FILES) - {"LICENSE"}:
         raise ValueError("Manifest runtime files differ from the packaging allowlist")
     for name in FILES:
