@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.17
+
+- Allow mouse buttons with optional modifiers as the Avoid shortcut.
+- Keep keyboard bindings and Right Arrow reset available.
+- Capture mouse bindings only after focusing the shortcut field and suppress matching click defaults on Shorts.
+
 ## 0.1.16
 
 - Close Google's informational deletion receipt inside the popup flow before verifying removal.

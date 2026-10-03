@@ -83,17 +83,44 @@
   }
 
   button.addEventListener('click', activate);
-  document.addEventListener('keydown', event => {
-    if (!api.Shortcut.matches(event, shortcut) || event.defaultPrevented || event.isComposing) return;
+  function canUseShortcut(event) {
+    if (event.defaultPrevented || event.isComposing) return false;
     const editable = event.composedPath().some(node => node instanceof Element &&
       (node.matches('input, textarea, select') || node.isContentEditable ||
        node.closest('[contenteditable]:not([contenteditable="false"])')));
     if (editable || !window.location.pathname.startsWith('/shorts/') ||
-        !host.isConnected || !adapter.current()) return;
+        !host.isConnected || !adapter.current()) return false;
+    return true;
+  }
+  function consume(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
+  }
+  document.addEventListener('keydown', event => {
+    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event)) return;
+    consume(event);
     if (!event.repeat) activate();
   }, { capture: true });
+  let mouseGesture = null;
+  document.addEventListener('mousedown', event => {
+    mouseGesture = null;
+    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event)) return;
+    mouseGesture = { button: event.button, target: event.composedPath()[0] };
+    consume(event);
+    activate();
+  }, { capture: true });
+  for (const type of ['mouseup', 'click', 'auxclick', 'contextmenu']) {
+    document.addEventListener(type, event => {
+      if (!mouseGesture || event.button !== mouseGesture.button ||
+          ((type === 'click' || type === 'auxclick') && event.detail === 0)) return;
+      const target = event.composedPath()[0];
+      const related = target === mouseGesture.target || (target instanceof Node && mouseGesture.target instanceof Node &&
+        (target.contains(mouseGesture.target) || mouseGesture.target.contains(target)));
+      if (type !== 'mouseup' && !related) return;
+      consume(event);
+      if (type === 'click' || type === 'auxclick') mouseGesture = null;
+    }, { capture: true });
+  }
   document.addEventListener('yt-navigate-finish', refresh);
   window.addEventListener('popstate', refresh);
   window.addEventListener('resize', refresh);

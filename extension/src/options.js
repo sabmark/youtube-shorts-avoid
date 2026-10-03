@@ -26,6 +26,20 @@
     status.textContent = '';
     render();
   });
+  field.addEventListener('mousedown', event => {
+    if (busy || document.activeElement !== field) return;
+    const candidate = shortcut.fromEvent(event);
+    if (!candidate) return;
+    event.preventDefault();
+    pending = candidate;
+    status.textContent = '';
+    render();
+  });
+  for (const type of ['mouseup', 'click', 'auxclick', 'contextmenu']) {
+    field.addEventListener(type, event => {
+      if (!busy && document.activeElement === field) event.preventDefault();
+    });
+  }
   async function persist(value) {
     busy = true;
     render();

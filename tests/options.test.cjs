@@ -78,3 +78,40 @@ test('a failed initial settings read can be retried without reopening the page',
   assert.equal(field(w).disabled, false);
   assert.equal(field(w).value, 'j');
 });
+
+function mouse(w, type, button, extra = {}) {
+  const event = new w.MouseEvent(type, { button, bubbles: true, cancelable: true, ...extra });
+  field(w).dispatchEvent(event);
+  return event;
+}
+
+test('mouse capture requires focus and persists a modified mouse binding', async t => {
+  const store = storage();
+  const w = await options(t, store);
+  assert.equal(mouse(w, 'mousedown', 0).defaultPrevented, false);
+  assert.equal(field(w).value, 'Right', 'clicking to focus must not replace the binding');
+  field(w).focus();
+  assert.equal(mouse(w, 'mousedown', 1, { ctrlKey: true }).defaultPrevented, true);
+  assert.equal(field(w).value, 'Ctrl + Middle mouse');
+  assert.equal(mouse(w, 'auxclick', 1).defaultPrevented, true);
+  await click(w, '#save');
+  const reopened = await options(t, store);
+  assert.equal(field(reopened).value, 'Ctrl + Middle mouse');
+  key(reopened, 'j');
+  assert.equal(field(reopened).value, 'j');
+  key(reopened, 'Escape');
+  assert.equal(field(reopened).value, 'Ctrl + Middle mouse');
+  await click(reopened, '#reset');
+  assert.equal(field(reopened).value, 'Right');
+});
+
+test('settings captures all five standard mouse buttons and suppresses the context menu', async t => {
+  const w = await options(t, storage());
+  field(w).focus();
+  for (const [button, label] of ['Left mouse', 'Middle mouse', 'Right mouse', 'Mouse Back', 'Mouse Forward'].entries()) {
+    mouse(w, 'mousedown', button);
+    assert.equal(field(w).value, label);
+  }
+  mouse(w, 'mousedown', 2);
+  assert.equal(mouse(w, 'contextmenu', 2).defaultPrevented, true);
+});

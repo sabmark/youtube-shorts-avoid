@@ -25,7 +25,7 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a different key or key combination, or reset to Right Arrow. Saved changes apply to open Shorts tabs. The shortcut ignores editable fields and key combinations that differ from your setting; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a key, mouse button or combination with modifier keys, or reset to Right Arrow. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; browser Back/Forward actions may take priority. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
@@ -37,7 +37,7 @@ Click the extension icon to see a popup of videos marked Not Interested in your 
 
 Browse 10 videos per page with **Previous** and **Next**. **Load older feedback** asks Google to load more history. The count refers to loaded entries, not your total history. **Remove** asks for confirmation before clicking that video's native deletion control. The extension completes the matching Google confirmation in the background and refreshes the popup after verifying removal. You stay in the popup. Channel feedback is excluded from the list and retained when removing a video.
 
-There is no **Remove all** button: the observed Google bulk controls include channel feedback, and a video-only bulk reset has not been verified. The popup reads history in memory and does not save it to extension storage. **Shortcut settings** opens the keyboard configuration page.
+There is no **Remove all** button: the observed Google bulk controls include channel feedback, and a video-only bulk reset has not been verified. The popup reads history in memory and does not save it to extension storage. **Shortcut settings** opens the shortcut configuration page.
 
 ## Limits and verification
 
@@ -66,7 +66,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.16.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.17.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 
