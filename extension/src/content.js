@@ -64,9 +64,23 @@
     if (scheduled === null) scheduled = window.setTimeout(refresh, 80);
   }
 
-  button.addEventListener('click', () => {
+  function activate() {
     if (!workflow.busy) void workflow.run(updateButton).then(refresh);
-  });
+  }
+
+  button.addEventListener('click', activate);
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'ArrowRight' || event.defaultPrevented || event.isComposing ||
+        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const editable = event.composedPath().some(node => node instanceof Element &&
+      (node.matches('input, textarea, select') || node.isContentEditable ||
+       node.closest('[contenteditable]:not([contenteditable="false"])')));
+    if (editable || !window.location.pathname.startsWith('/shorts/') ||
+        !host.isConnected || !adapter.current()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (!event.repeat) activate();
+  }, { capture: true });
   document.addEventListener('yt-navigate-finish', refresh);
   window.addEventListener('popstate', refresh);
   window.addEventListener('resize', refresh);

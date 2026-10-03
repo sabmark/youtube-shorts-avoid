@@ -75,3 +75,11 @@ These checks used source previews, not an installed version 0.1.3 extension. No 
 ## Version 0.1.3 owner confirmation in Chrome and Opera
 
 On 2026-10-02 (Asia/Singapore), the owner confirmed the notification-removal update: "Confirmed and works well on chrome and opera." This records owner-tested success in both browsers and supersedes the pending owner check above. Browser versions and detailed test steps were not supplied.
+
+## Version 0.1.4 Right Arrow shortcut
+
+The full 52-test suite passes. New content-script fixtures verify that Right Arrow runs the existing button workflow, submits both feedback actions and advances once. They cover repeated keys, activation while busy, editable fields including shadow DOM inputs, modified keypresses, composition, previously handled events and inactive routes or controls. Existing click and workflow tests continue to pass.
+
+The shortcut activation regression failed before its handler was added. Independent review identified that an earlier page bubble handler could navigate first. A regression reproduced that ordering failure; capture-phase handling now prevents that bubble handler from changing the Short. Packaging produces `dist/youtube-shorts-avoid-0.1.4.zip`.
+
+The owner chose to skip UI/UX verification for this ticket. No live browser or installed-extension shortcut check was run. Reload the extension and YouTube, then press Right Arrow on a Short you want to dismiss. Confirm that feedback runs and navigation advances once. Typing in a comment field and holding Right Arrow must not trigger repeated feedback.

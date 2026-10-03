@@ -119,3 +119,97 @@ test('replacing the renderer during an operation cannot start another workflow',
   assert.equal(submissions, 1);
   assert.equal(status(w), undefined);
 });
+
+function arrow(w, target = w.document, options = {}) {
+  const event = new w.KeyboardEvent('keydown', {
+    key: 'ArrowRight', bubbles: true, composed: true, cancelable: true, ...options
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
+test('Right Arrow runs the button workflow once and blocks repeated activation', async t => {
+  const w = fixture(t, player());
+  let submissions = 0;
+  let advances = 0;
+  installMenu(w, { onFeedback: label => {
+    submissions++;
+    w.setTimeout(() => notice(w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel"), 25);
+  } });
+  w.document.querySelector('[aria-label="Next video"]').onclick = () => {
+    advances++;
+    w.history.pushState({}, '', '/shorts/second-video');
+    w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
+  };
+  assert.equal(arrow(w).defaultPrevented, true);
+  assert.equal(button(w).disabled, true);
+  arrow(w);
+  arrow(w, w.document, { repeat: true });
+  button(w).click();
+  await until(() => !button(w).disabled, 6000);
+  assert.equal(submissions, 2);
+  assert.equal(advances, 1);
+  assert.equal(w.location.pathname, '/shorts/second-video');
+  assert.equal(arrow(w, w.document, { repeat: true }).defaultPrevented, true);
+  assert.equal(button(w).disabled, false);
+});
+
+test('Right Arrow ignores editable fields, modifiers and previously handled events', t => {
+  const w = fixture(t, player());
+  for (const markup of ['<input>', '<textarea></textarea>', '<select><option>A</option></select>',
+    '<div contenteditable="true"><span>typing</span></div>']) {
+    const container = w.document.createElement('div');
+    container.innerHTML = markup;
+    w.document.body.append(container);
+    assert.equal(arrow(w, container.querySelector('span') || container.firstElementChild).defaultPrevented, false);
+    assert.equal(button(w).disabled, false);
+  }
+  const shadowHost = w.document.createElement('div');
+  w.document.body.append(shadowHost);
+  const shadow = shadowHost.attachShadow({ mode: 'open' });
+  shadow.innerHTML = '<input>';
+  assert.equal(arrow(w, shadow.querySelector('input')).defaultPrevented, false);
+  for (const modifier of ['altKey', 'ctrlKey', 'metaKey', 'shiftKey', 'isComposing']) {
+    assert.equal(arrow(w, w.document, { [modifier]: true }).defaultPrevented, false);
+    assert.equal(button(w).disabled, false);
+  }
+  w.addEventListener('keydown', event => event.preventDefault(), { capture: true, once: true });
+  arrow(w);
+  assert.equal(button(w).disabled, false);
+});
+
+test('Right Arrow stays inactive outside Shorts or without an active control', t => {
+  const w = fixture(t, player(), 'https://www.youtube.com/');
+  assert.equal(arrow(w).defaultPrevented, false);
+  w.history.pushState({}, '', '/shorts/first-video');
+  w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
+  assert.ok(button(w));
+  w.history.pushState({}, '', '/watch?v=example');
+  assert.equal(arrow(w).defaultPrevented, false, 'route check must not wait for refresh');
+  w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
+  assert.equal(arrow(w).defaultPrevented, false);
+  w.history.pushState({}, '', '/shorts/first-video');
+  w.document.querySelector('reel-action-bar-view-model').remove();
+  w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
+  assert.equal(arrow(w).defaultPrevented, false);
+});
+
+test('Right Arrow intercepts an earlier page bubble handler before it changes the Short', async t => {
+  let nativeCalls = 0;
+  const w = fixture(t, player(), 'https://www.youtube.com/shorts/first-video', {
+    beforeScripts(window) {
+      window.document.addEventListener('keydown', event => {
+        if (event.key === 'ArrowRight') {
+          nativeCalls++;
+          window.history.pushState({}, '', '/shorts/second-video');
+        }
+      });
+    }
+  });
+  installMenu(w, { items: ['Report'] });
+  arrow(w, w.document.body);
+  assert.equal(nativeCalls, 0);
+  assert.equal(w.location.pathname, '/shorts/first-video');
+  assert.equal(button(w).disabled, true);
+  await until(() => !button(w).disabled);
+});

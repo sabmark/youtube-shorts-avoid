@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- Add Right Arrow as a shortcut for Avoid video and channel. Editable fields, modified keypresses and held-key repeats do not trigger feedback.
+
 ## 0.1.3
 
 - Remove all extension progress, completion and error notifications, including "Feedback sent."
