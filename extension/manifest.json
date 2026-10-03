@@ -24,10 +24,26 @@
         "control.css"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://myactivity.google.com/*"
+      ],
+      "js": [
+        "src/feedback.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "permissions": [
     "storage"
   ],
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Browse Not Interested video feedback",
+    "default_popup": "popup.html"
+  },
+  "host_permissions": [
+    "https://myactivity.google.com/*"
+  ]
 }

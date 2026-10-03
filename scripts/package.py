@@ -15,6 +15,10 @@ FILES = (
     "src/options.js",
     "options.html",
     "options.css",
+    "popup.html",
+    "popup.css",
+    "src/popup.js",
+    "src/feedback.js",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",
@@ -32,6 +36,8 @@ def main():
         declared.update(entry.get("js", []))
         declared.update(entry.get("css", []))
     declared.add(manifest["options_page"])
+    declared.add(manifest["action"]["default_popup"])
+    declared.update({"popup.css", "src/popup.js"})
     declared.update({"options.css", "src/options.js"})
     if declared != set(FILES) - {"LICENSE"}:
         raise ValueError("Manifest runtime files differ from the packaging allowlist")

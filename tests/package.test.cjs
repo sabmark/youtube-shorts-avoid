@@ -21,6 +21,7 @@ test('package contains declared runtime files only, excluding development and se
 import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
     expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
+                'popup.html', 'popup.css', 'src/popup.js', 'src/feedback.js',
                 'src/shortcut.js', 'src/options.js', 'options.html', 'options.css',
                 'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png', 'LICENSE'}
     assert set(archive.namelist()) == expected, archive.namelist()
@@ -29,7 +30,7 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
     assert 'Copyright (c) 2026 Mark Anthony Sabandal' in license_text
     manifest = json.loads(archive.read('manifest.json'))
     for entry in manifest['content_scripts']:
-        for path in entry['js'] + entry['css']:
+        for path in entry.get('js', []) + entry.get('css', []):
             assert path in archive.namelist(), path
     for size in (16, 32, 48, 128):
         path = manifest['icons'][str(size)]
