@@ -165,3 +165,38 @@ test('an unsupported reason appearing while the second menu opens blocks channel
   assert.deepEqual(Array.from(result.completed), ['not-interested']);
   assert.equal(env.advances(), 0);
 });
+
+for (const [mode, label, kind] of [
+  ['not-interested', 'Not interested', 'not-interested'],
+  ['channel', "Don't recommend channel", 'channel']
+]) {
+  test(`${mode} mode submits only selected feedback even without the other menu option`, async t => {
+    const sent = [];
+    const env = setup(t, { items: [label], onFeedback: value => {
+      sent.push(value);
+      notice(env.w, value === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
+    } });
+    const result = await env.flow.run(undefined, 'avoid', mode);
+    assert.equal(result.status, 'complete');
+    assert.deepEqual(Array.from(result.completed), [kind]);
+    assert.deepEqual(sent, [label]);
+    assert.equal(env.advances(), 1);
+  });
+  test(`${mode} mode never skips a successor after automatic navigation`, async t => {
+    const env = setup(t, { onFeedback: value => {
+      notice(env.w, value === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
+      env.w.history.pushState({}, '', '/shorts/second-video');
+    } });
+    const result = await env.flow.run(undefined, 'avoid', mode);
+    assert.equal(result.status, 'complete');
+    assert.deepEqual(Array.from(result.completed), [kind]);
+    assert.equal(env.advances(), 0);
+  });
+}
+
+test('invalid Avoid mode safely falls back to both actions', async t => {
+  const env = setup(t);
+  const result = await env.flow.run(undefined, 'avoid', 'unknown');
+  assert.deepEqual(Array.from(result.completed), ['not-interested', 'channel']);
+  assert.equal(env.advances(), 1);
+});

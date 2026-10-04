@@ -10,7 +10,7 @@ async function options(t, store) {
   t.after(() => dom.window.close());
   dom.window.chrome = { storage: store };
   Object.defineProperty(dom.window.navigator, 'locks', { value: locksFor(store) });
-  for (const name of ['shortcut.js', 'options.js']) {
+  for (const name of ['settings.js', 'shortcut.js', 'options.js']) {
     const path = join(base, 'src', name);
     if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));
   }
@@ -180,4 +180,43 @@ test('concurrent settings pages cannot save the same new binding', async t => {
   assert.equal(saved.avoidShortcut.key,'k');
   assert.notEqual(saved.likeShortcut?.key,'k');
   assert.match(second.document.querySelector('#status').textContent,/already used|different shortcut/i);
+});
+
+for (const initial of [undefined, 'invalid', 'both']) {
+  test(`Avoid feedback defaults to both for ${initial} settings`, async t => {
+    const w = await options(t, storage({ avoidFeedback: initial }));
+    const select = w.document.querySelector('#avoid-feedback');
+    assert.ok(select, 'Avoid feedback selector exists');
+    assert.equal(select.value, 'both');
+    assert.equal(select.disabled, false);
+  });
+}
+
+test('Avoid feedback selection saves and reloads without changing shortcuts', async t => {
+  const store = storage({ avoidShortcut: { key: 'j' }, likeShortcut: { key: 'l' } });
+  for (const mode of ['not-interested', 'channel', 'both']) {
+    const w = await options(t, store);
+    const select = w.document.querySelector('#avoid-feedback');
+    assert.ok(select, 'Avoid feedback selector exists');
+    select.value = mode;
+    select.dispatchEvent(new w.Event('change', { bubbles: true }));
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal((await options(t, store)).document.querySelector('#avoid-feedback').value, mode);
+    assert.equal((await store.local.get('avoidShortcut')).avoidShortcut.key, 'j');
+    assert.equal((await store.local.get('likeShortcut')).likeShortcut.key, 'l');
+  }
+});
+
+test('failed feedback saving restores the saved selection and reports an error', async t => {
+  const store = storage({ avoidFeedback: 'channel' });
+  store.local.set = async () => { throw new Error('quota'); };
+  const w = await options(t, store);
+  const select = w.document.querySelector('#avoid-feedback');
+  assert.ok(select);
+  select.value = 'not-interested';
+  select.dispatchEvent(new w.Event('change', { bubbles: true }));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(select.value, 'channel');
+  assert.equal(select.disabled, false);
+  assert.match(w.document.querySelector('#status').textContent, /could not save/i);
 });

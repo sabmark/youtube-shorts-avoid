@@ -3,9 +3,9 @@
 ## Package
 
 - Source: public v0.1.22 at a97a677a, immediate Like fix e522f64, and approved store branding in this publishing branch.
-- Manifest version: 0.1.24; Manifest V3.
+- Manifest version: 0.1.25; Manifest V3.
 - Build: `npm ci --ignore-scripts`, `npm test`, `npm run package`.
-- Upload: `dist/youtube-shorts-avoid-0.1.24.zip`.
+- Upload: `dist/youtube-shorts-avoid-0.1.25.zip`.
 - The ZIP contains runtime files and the MIT license. It excludes development files and account information.
 
 ## Listing fields
@@ -20,7 +20,7 @@ Category: Entertainment, selected from the dashboard's available categories.
 
 Choose how to respond to desktop YouTube Shorts with Avoid and Like controls and customizable shortcuts.
 
-Avoid requests Not interested, then Don't recommend channel, and moves to the next Short after both actions are confirmed. Like requests YouTube's Like control and then Next immediately, without waiting for confirmation or automatic navigation.
+Avoid sends Not interested, Don't recommend channel, or both, and moves to the next Short after the selected actions are confirmed. Both is the default; choose your feedback in Options. Like requests YouTube's Like control and then Next immediately, without waiting for confirmation or automatic navigation.
 
 Use Left Arrow for Avoid and Right Arrow for Like by default. Shortcut settings lets you choose a different key, mouse button or modifier combination for either action. Each activation processes one Short.
 
@@ -28,7 +28,7 @@ The extension menu links to your Not Interested and liked-video history on Googl
 
 Use a signed-in YouTube account with an English interface on desktop Shorts. YouTube's available controls and confirmations determine whether an action can finish. Recommendation feedback does not guarantee that similar videos will never appear.
 
-The extension runs locally. It has no backend, analytics or telemetry. Shortcut preferences stay in local extension storage.
+The extension runs locally. It has no backend, analytics or telemetry. Shortcut and feedback preferences stay in local extension storage.
 
 This is an independent project and is not affiliated with YouTube or Google. YouTube is a trademark of Google LLC.
 
@@ -46,7 +46,7 @@ Let viewers send recommendation feedback or Like the current desktop YouTube Sho
 
 ### Storage permission justification
 
-Save the viewer's chosen Avoid and Like shortcuts locally so their key or mouse button and modifier settings persist across browser restarts. The extension does not save account information, video history or page content.
+Save the viewer's chosen Avoid and Like shortcuts locally and selected Avoid feedback locally so these settings persist across browser restarts. The extension does not save account information, video history or page content.
 
 ### YouTube site access justification
 
@@ -58,17 +58,17 @@ No remote code. JavaScript, styles and icons are bundled in the extension. There
 
 ### Data use
 
-The developer receives no user data. There is no backend, telemetry, analytics, account-data storage or export. The extension processes the current page's visible controls in memory and stores only shortcut preferences locally. YouTube receives the viewer's feedback and Like actions through its own interface.
+The developer receives no user data. There is no backend, telemetry, analytics, account-data storage or export. The extension processes the current page's visible controls in memory and stores only shortcut and feedback preferences locally. YouTube receives the viewer's feedback and Like actions through its own interface.
 
 Review the dashboard's current data-category wording against this behavior and the linked privacy policy before certifying the declarations. No account declarations or certifications have been submitted by preparing this document.
 
 ## Reviewer instructions
 
 1. Install the package in desktop Chrome and use an English YouTube interface.
-2. Open extension Shortcut settings. Confirm the default Avoid and Like fields show Left and Right, respectively. Save a different shortcut, reload the page, verify persistence, then reset it.
+2. Open extension Options. Verify Feedback sent by Avoid defaults to Both; save each single-action choice and check persistence. Confirm the default Avoid and Like fields show Left and Right, respectively. Save a different shortcut, reload the page, verify persistence, then reset it.
 3. Open a desktop YouTube Short using a signed-in YouTube account. The extension requires no separate account or credentials.
 4. On a Short you want to like, click the heart control or press Right Arrow. Confirm one immediate advance and check that YouTube records the intended Like. An already-liked Short should remain liked.
-5. On a Short and channel you want to dismiss, use Avoid or Left Arrow. Confirm Not interested and Don't recommend channel feedback, followed by one advance. If YouTube asks for a reason during the supported step, the extension selects Other when available, otherwise the first supported option.
+5. On Shorts for which you intend feedback, test each Avoid mode with Left Arrow or the Avoid button. Confirm only the selected feedback, followed by one advance. Both sends Not interested, then Don't recommend channel. If YouTube asks for a reason during the supported step, the extension selects Other when available, otherwise the first supported option.
 6. Outside Shorts, confirm the extension adds no controls and does not intercept its shortcuts. Editable fields remain available for typing.
 7. Open the toolbar menu. Shortcut settings opens the settings page; history links open Google pages in new tabs. History sign-in and management happen on Google's pages.
 
@@ -79,7 +79,7 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Store icon: `extension/icons/icon128.png`, 128x128 PNG, approved original minus-and-heart logo with 16px transparent padding.
 - Small promotional tile: `store/promo.png`, 440x280 PNG; editable vector source is `store/promo.svg`.
 - Screenshots: `store/screenshots/settings-light.png` and `settings-dark.png`, each 1280x800.
-- Screenshots show the real installed v0.1.24 settings page in Chromium, rendered at 75% scale to fit both action cards and instructions. They contain no account information.
+- Screenshots show the real installed v0.1.25 settings page in Chromium, rendered at 65% scale to fit both action cards and instructions. They contain no account information.
 - A live Shorts screenshot can be added after account access; it has not been captured yet.
 
 ## Verification and remaining steps
@@ -109,3 +109,10 @@ Checked against official Chrome documentation on 2026-10-04:
 - https://developer.chrome.com/docs/webstore/cws-dashboard-privacy
 - https://developer.chrome.com/docs/webstore/register
 - https://developer.chrome.com/docs/webstore/set-up-account
+
+## v0.1.25 update before submission
+
+The new package adds selectable Avoid feedback. The dashboard still contains v0.1.24; replace its ZIP, description, settings screenshots, storage justification and privacy link after reviewing v0.1.25. No submission has been made. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
+
+- v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. Live owner acceptance of the new modes remains pending.
+- v0.1.25 ZIP SHA-256: `5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347`.

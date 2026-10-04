@@ -7,7 +7,7 @@
       this.busy = false;
     }
 
-    async run(onState = () => {}, action = 'avoid') {
+    async run(onState = () => {}, action = 'avoid', feedbackMode = 'both') {
       if (this.busy) return { status: 'busy', completed: [] };
       this.busy = true;
       const completed = [];
@@ -20,8 +20,9 @@
           await this.adapter.like(target);
           completed.push('like');
         } else {
-          await this.adapter.preflight(target);
-          for (const kind of ['not-interested', 'channel']) {
+          const kinds = api.Feedback.kinds(feedbackMode);
+          await this.adapter.preflight(target, kinds);
+          for (const kind of kinds) {
             this.adapter.assertCurrent(target);
             await this.adapter.feedback(target, kind);
             completed.push(kind);

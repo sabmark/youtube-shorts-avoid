@@ -7,10 +7,19 @@
   const storage = globalThis.chrome?.storage;
   let shortcut = storage ? null : api.Shortcut.defaultShortcut;
   let likeShortcut = storage ? null : api.Shortcut.likeShortcut;
-  const revisions = { avoidShortcut: 0, likeShortcut: 0 };
+  let feedbackMode = 'both';
+  let feedbackReady = !storage;
+  const revisions = { avoidShortcut: 0, likeShortcut: 0, avoidFeedback: 0 };
   function applySetting(name, value) {
     if (name === 'avoidShortcut') shortcut = api.Shortcut.normalize(value) || api.Shortcut.defaultShortcut;
-    else likeShortcut = api.Shortcut.normalize(value) || api.Shortcut.likeShortcut;
+    else if (name === 'likeShortcut') likeShortcut = api.Shortcut.normalize(value) || api.Shortcut.likeShortcut;
+    else {
+      feedbackMode = api.Feedback.normalize(value);
+      feedbackReady = true;
+      button.setAttribute('aria-label', api.Feedback.label(feedbackMode));
+      button.title = api.Feedback.label(feedbackMode);
+      updateButton({ status: workflow.busy ? 'busy' : 'idle' });
+    }
   }
   if (storage) {
     storage.onChanged.addListener((changes, area) => {
@@ -85,8 +94,8 @@
 
   function updateButton(state) {
     for (const control of [button, likeButton]) {
-      control.disabled = state.status === 'busy';
-      control.setAttribute('aria-busy', String(control.disabled));
+      control.disabled = state.status === 'busy' || (control === button && !feedbackReady);
+      control.setAttribute('aria-busy', String(state.status === 'busy'));
     }
   }
 
@@ -112,7 +121,9 @@
   }
 
   function activate(action = 'avoid') {
-    if (!workflow.busy) void workflow.run(updateButton, action).then(refresh);
+    if (!workflow.busy && (action === 'like' || feedbackReady)) {
+      void workflow.run(updateButton, action, feedbackMode).then(refresh);
+    }
   }
 
   button.addEventListener('click', () => activate());

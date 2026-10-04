@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.25
+
+- Choose which feedback Avoid sends: Not interested, Don't recommend channel, or both. Both remains the default.
+- Apply saved feedback choices to open Shorts tabs and check only the selected menu options.
+
 ## 0.1.24
 
 - Rename the extension to Shorts Avoid for YouTube for store publishing.

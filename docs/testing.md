@@ -282,3 +282,17 @@ Install or reload **version0.1.22**, then reload YouTube. Open Shortcut settings
 ## Version 0.1.22 owner acceptance
 
 On 2026-10-04, after receiving the packaged ZIP in Windows Downloads, the owner reported: "Looking nice, it works, release it." This is owner-reported local acceptance of the current functionality and design. The browser was not specified; it does not establish a separate Opera retest.
+
+## v0.1.25 selectable Avoid feedback - 2026-10-04
+
+- Ticket: EP10-FT01-US01-TSK01. New and existing installs default to both actions. Options saves Not interested only, Don't recommend channel only, or both locally. All Avoid activations use the saved choice.
+- Test-first: the new single-action tests failed because preflight required both menu options and the workflow always sent both. Settings persistence and content propagation tests also failed before implementation.
+- Full automated suite: 103 passed, zero failed. Package allowlist test confirms the new settings module is included and development files remain excluded.
+- Installed Chromium extension on a controlled English Shorts fixture: each mode sent exactly its selected feedback and advanced once; single-action menus contained only the selected option. The choice persisted after reloading Options, and changing it affected the existing Shorts tab's Avoid button.
+- Right Arrow requested Next 0.2ms after Like in the fixture despite delayed native Like confirmation. No page errors. At 360px the settings page had no horizontal overflow. Light and dark screenshots show the installed v0.1.25 settings page at 65% scale in a 1280x800 viewport.
+- ZIP SHA-256: 5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347.
+- New feedback modes have not yet been accepted on live YouTube. Prior live owner acceptance of immediate Like-and-next applies to v0.1.24. No native toolbar popup layout changes are included in this ticket.
+
+Live retest: extract Downloads\youtube-shorts-avoid-0.1.25.zip, reload the unpacked extension and YouTube, then choose each feedback mode in Options. On videos for which you intend the feedback, press Left Arrow and confirm only the selected feedback and one advance. Reload Options to check persistence. Confirm Right Arrow still advances immediately and records the Like.
+
+Review found an enabled Avoid button when feedback settings were unreadable. A failing-first regression test reproduced it. Avoid now stays disabled until the saved choice is known, including on read failure; a newer successful settings event restores it. Like remains available. Independent review found no remaining defects after this correction. Final suite: 103 passed, zero failed; installed browser checks reran successfully.

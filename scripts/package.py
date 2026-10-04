@@ -8,6 +8,7 @@ FILES = (
     "LICENSE",
     "manifest.json",
     "control.css",
+    "src/settings.js",
     "src/youtube.js",
     "src/workflow.js",
     "src/content.js",

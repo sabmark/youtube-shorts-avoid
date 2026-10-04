@@ -154,10 +154,10 @@
           && labels[kind]?.includes(normalize(element.getAttribute('aria-label') || element.textContent)));
     }
 
-    async preflight(target) {
+    async preflight(target, kinds = ['not-interested', 'channel']) {
       const menu = await this.menu(target);
-      if (!this.item(menu, 'not-interested') || !this.item(menu, 'channel')) {
-        throw problem('missing-options', 'This Short does not offer both required feedback options. Sign in and check the YouTube menu.');
+      if (kinds.some(kind => !this.item(menu, kind))) {
+        throw problem('missing-options', 'This Short does not offer the selected feedback options. Sign in and check the YouTube menu.');
       }
     }
 

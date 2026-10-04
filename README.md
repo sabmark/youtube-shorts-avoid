@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/sabmark/youtube-shorts-avoid)](https://github.com/sabmark/youtube-shorts-avoid/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
+The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed by default. In Options, choose **Both (default)**, **Not interested only**, or **Don't recommend channel only** under **Feedback sent by Avoid**. The choice applies to the Avoid button and your Avoid shortcut, including Left Arrow.
 
 The **Like** heart button requests Like and then Next immediately, without waiting for Like confirmation or automatic navigation. An already-liked video stays liked.
 
@@ -27,7 +27,7 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** or press **Left Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save an independent key, mouse button or modifier combination for Avoid and Like, or reset either action to its default. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; a saved Back/Forward mouse binding overrides browser history navigation on Shorts. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. Press **Right Arrow** or click **Like** to like and advance. Avoid defaults to Left Arrow and Like to Right Arrow. Newly saved shortcuts must differ. If older saved bindings overlap, Avoid takes priority until you change one of them. Both buttons are disabled while an action is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** or press **Left Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save an independent key, mouse button or modifier combination for Avoid and Like, or reset either action to its default. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; a saved Back/Forward mouse binding overrides browser history navigation on Shorts. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. Press **Right Arrow** or click **Like** to like and advance. Avoid defaults to Left Arrow and Like to Right Arrow. Newly saved shortcuts must differ. If older saved bindings overlap, Avoid takes priority until you change one of them. Both buttons are disabled while an action is pending. Avoid also stays disabled until its saved feedback choice loads; reload YouTube if settings cannot be read. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
@@ -40,7 +40,7 @@ The Material 3 popup and settings use locally bundled styles and follow your bro
 - During this activation's Not interested step, an opened reason dialog selects **Other** if available, otherwise the first supported choice, then submits if needed. Optional Tell us why links are left alone. A pre-existing or later dialog, unsupported choice or request for extra typed input stops automation.
 - Missing options, unconfirmed feedback or a changed Short stop the sequence. If YouTube advances after the first action, the extension stops before applying channel feedback to the next video.
 - If the button becomes enabled without advancing, YouTube may have received feedback without showing a recognized confirmation. Check YouTube's native feedback notices and the current Short before trying again.
-- After both confirmations, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
+- After the selected feedback is confirmed, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
 - Feedback influences recommendations; it cannot guarantee that similar videos will never appear.
 - The installed extension passed a signed-in Chrome test: Other was selected, both feedback actions were confirmed and YouTube advanced once. The owner then tested Chrome and Opera and reported both working. See [the verification record](docs/testing.md).
 
@@ -62,7 +62,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.24.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.25.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 
