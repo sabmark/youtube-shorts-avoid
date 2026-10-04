@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.24
+
+- Rename the extension to Shorts Avoid for YouTube for store publishing.
+- Use an original minus-and-heart logo with transparent icon padding.
+- Prepare Chrome Web Store listing text, reviewer instructions and store images.
+- Include immediate Like-and-next from 0.1.23.
+
 ## 0.1.23
 
 - Request the next Short immediately after Like, without waiting for Like confirmation or the four-second negative-feedback navigation window.

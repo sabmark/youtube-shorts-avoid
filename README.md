@@ -1,6 +1,6 @@
-# YouTube Shorts Avoid
+# Shorts Avoid for YouTube
 
-<img src="assets/logo.svg" alt="Shorts Avoid logo: a play symbol with a minus badge" width="72" height="72">
+<img src="assets/logo.svg" alt="Shorts Avoid logo: a minus and a heart" width="72" height="72">
 
 [![Checks](https://github.com/sabmark/youtube-shorts-avoid/actions/workflows/ci.yml/badge.svg)](https://github.com/sabmark/youtube-shorts-avoid/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/sabmark/youtube-shorts-avoid)](https://github.com/sabmark/youtube-shorts-avoid/releases/latest)
@@ -48,7 +48,7 @@ For the first local check, pick a Short you actually want to dismiss. Confirm bo
 
 ## Remove or update
 
-To remove it, open the browser's extensions page and choose **Remove** on YouTube Shorts Avoid. For an update, replace the files in the same permanent folder, click the extension's **Reload** button and reload YouTube.
+To remove it, open the browser's extensions page and choose **Remove** on Shorts Avoid for YouTube. For an update, replace the files in the same permanent folder, click the extension's **Reload** button and reload YouTube.
 
 ## Development and packaging
 
@@ -62,7 +62,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.23.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.24.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 
