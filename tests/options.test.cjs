@@ -153,3 +153,15 @@ test('Like mouse binding captures after focus and persists modifier flags', asyn
   await click(w, '#like-save');
   assert.equal((await options(t, store)).document.querySelector('#like-shortcut').value, 'Alt + Middle mouse');
 });
+
+test('an already-open settings page rejects a shortcut saved by another page', async t => {
+  const store = storage();
+  const first = await options(t, store);
+  const second = await options(t, store);
+  key(first, 'k');await click(first, '#save');
+  const like = second.document.querySelector('#like-shortcut');
+  like.dispatchEvent(new second.KeyboardEvent('keydown', { key:'k',bubbles:true,cancelable:true }));
+  await click(second, '#like-save');
+  assert.match(second.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('likeShortcut')).likeShortcut, undefined);
+});

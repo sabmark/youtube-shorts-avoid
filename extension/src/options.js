@@ -20,15 +20,22 @@
   }
   async function persist(control, value) {
     if (busy) return;
-    const other = controls.find(item => item !== control);
-    if (same(value, other.saved)) {
-      status.textContent = 'This shortcut is already used by the other action. Choose a different shortcut.';
-      control.field.setAttribute('aria-invalid', 'true');
-      return;
-    }
     busy = true;
     render();
     try {
+      // Another Options tab may have saved since this page was opened.
+      const current = await chrome.storage.local.get(controls.map(item => item.name));
+      for (const item of controls) {
+        const unchanged = same(item.pending, item.saved);
+        item.saved = shortcut.normalize(current[item.name]) || item.fallback;
+        if (unchanged) item.pending = item.saved;
+      }
+      const other = controls.find(item => item !== control);
+      if (same(value, other.saved)) {
+        status.textContent = 'This shortcut is already used by the other action. Choose a different shortcut.';
+        control.field.setAttribute('aria-invalid', 'true');
+        return;
+      }
       await chrome.storage.local.set({ [control.name]: value });
       control.saved = value;
       control.pending = value;
