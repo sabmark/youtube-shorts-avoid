@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.21
+
+- Add independent Like shortcut settings with keyboard and mouse support, save and reset.
+- Apply changes immediately to open Shorts tabs and reject duplicate shortcuts.
+- Preserve existing Avoid bindings and show a warning if old settings overlap.
+
 ## 0.1.20
 
 - Restore a compact extension menu with Shortcut settings and links to Google Not Interested and liked-video history.

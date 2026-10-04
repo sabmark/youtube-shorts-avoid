@@ -115,3 +115,41 @@ test('settings captures all five standard mouse buttons and suppresses the conte
   mouse(w, 'mousedown', 2);
   assert.equal(mouse(w, 'contextmenu', 2).defaultPrevented, true);
 });
+
+test('Like shortcut saves and reloads independently without replacing Avoid', async t => {
+  const store = storage({ avoidShortcut: { key: 'j' } });
+  const w = await options(t, store);
+  const like = w.document.querySelector('#like-shortcut');
+  assert.ok(like, 'Like shortcut is configurable');
+  assert.equal(like.value, 'Right');
+  like.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'l', ctrlKey: true, bubbles: true, cancelable: true }));
+  await click(w, '#like-save');
+  const reopened = await options(t, store);
+  assert.equal(reopened.document.querySelector('#like-shortcut').value, 'Ctrl + l');
+  assert.equal(field(reopened).value, 'j');
+  await click(reopened, '#like-reset');
+  assert.equal(reopened.document.querySelector('#like-shortcut').value, 'Right');
+  assert.equal(field(reopened).value, 'j');
+});
+
+test('duplicate bindings and conflicting resets are rejected without writing settings', async t => {
+  const store = storage({ avoidShortcut: { key: 'j' }, likeShortcut: { key: 'ArrowLeft' } });
+  const w = await options(t, store);
+  key(w, 'ArrowLeft');
+  await click(w, '#save');
+  assert.match(w.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('avoidShortcut')).avoidShortcut.key, 'j');
+  await click(w, '#reset');
+  assert.match(w.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('avoidShortcut')).avoidShortcut.key, 'j');
+});
+
+test('Like mouse binding captures after focus and persists modifier flags', async t => {
+  const store = storage();const w = await options(t, store);
+  const like = w.document.querySelector('#like-shortcut');
+  assert.ok(like);
+  like.focus();
+  like.dispatchEvent(new w.MouseEvent('mousedown', { button: 1, altKey: true, bubbles: true, cancelable: true }));
+  await click(w, '#like-save');
+  assert.equal((await options(t, store)).document.querySelector('#like-shortcut').value, 'Alt + Middle mouse');
+});

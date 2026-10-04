@@ -96,3 +96,29 @@ test('a saved Right Arrow Avoid shortcut takes priority over the like shortcut',
   await new Promise(resolve => setTimeout(resolve, 80));
   assert.equal(negative, 1);
 });
+
+for (const binding of [{ key: 'l', ctrlKey: true }, { type: 'mouse', button: 1, altKey: true }]) {
+  test(`saved Like ${binding.type || 'keyboard'} shortcut activates and updates live`, async t => {
+    const { storage } = require('./storage.cjs');
+    const store = storage({ likeShortcut: binding });
+    const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+    await new Promise(resolve => setImmediate(resolve));
+    const native = w.document.createElement('button');native.setAttribute('aria-label', 'Like');native.setAttribute('aria-pressed', 'false');
+    let likes=0;native.onclick=()=>{likes++;native.setAttribute('aria-pressed','true')};
+    w.document.querySelector('reel-action-bar-view-model').prepend(native);
+    w.ShortsAvoid.YoutubeAdapter.prototype.next = async function(target) { this.assertCurrent(target);w.history.pushState({}, '', '/shorts/second-video'); };
+    const emit = value => {
+      const event = value.type === 'mouse' ? new w.MouseEvent('mousedown', { ...value, bubbles:true,cancelable:true })
+        : new w.KeyboardEvent('keydown', { ...value, bubbles:true,cancelable:true });
+      w.document.body.dispatchEvent(event);return event;
+    };
+    assert.equal(emit({key:'ArrowRight'}).defaultPrevented,false,'saved Like replaces its default');
+    assert.equal(emit(binding).defaultPrevented,true);
+    await new Promise(resolve=>setTimeout(resolve,70));assert.equal(likes,1);assert.equal(w.location.pathname,'/shorts/second-video');
+    native.setAttribute('aria-pressed','false');
+    await store.local.set({likeShortcut:{key:'k'}});
+    assert.equal(emit(binding).defaultPrevented,false);
+    assert.equal(emit({key:'k'}).defaultPrevented,true);
+    await new Promise(resolve=>setTimeout(resolve,70));assert.equal(likes,2);
+  });
+}

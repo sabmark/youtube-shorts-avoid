@@ -2,7 +2,7 @@
 
 YouTube Shorts Avoid runs locally on `https://www.youtube.com/`. Its content scripts inspect the visible Shorts controls and feedback notices, and click YouTube's own controls when you activate Avoid or Like.
 
-The extension has no backend, analytics, telemetry or persistent account-data storage. It does not read or export login cookies, passwords or authentication tokens. Workflow state stays in page memory. Your chosen Avoid shortcut is saved locally in extension storage; it contains only the key or mouse button and modifier settings. The storage permission allows this setting to persist across browser restarts.
+The extension has no backend, analytics, telemetry or persistent account-data storage. It does not read or export login cookies, passwords or authentication tokens. Workflow state stays in page memory. Your chosen Avoid and Like shortcuts are saved locally in extension storage; each contains only the key or mouse button and modifier settings. The storage permission allows this setting to persist across browser restarts.
 
 The extension uses YouTube's existing signed-in session. Avoid sends Not interested and channel feedback through YouTube's interface. Like activates YouTube's Like control and advances after confirmation. YouTube handles those actions and your account session under its own policies.
 

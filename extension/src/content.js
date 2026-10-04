@@ -6,17 +6,31 @@
   const workflow = new api.Workflow(adapter);
   const storage = globalThis.chrome?.storage;
   let shortcut = storage ? null : api.Shortcut.defaultShortcut;
-  let storageRevision = 0;
+  let likeShortcut = storage ? null : api.Shortcut.likeShortcut;
+  const revisions = { avoidShortcut: 0, likeShortcut: 0 };
+  function applySetting(name, value) {
+    if (name === 'avoidShortcut') shortcut = api.Shortcut.normalize(value) || api.Shortcut.defaultShortcut;
+    else likeShortcut = api.Shortcut.normalize(value) || api.Shortcut.likeShortcut;
+  }
   if (storage) {
     storage.onChanged.addListener((changes, area) => {
-      if (area !== 'local' || !changes.avoidShortcut) return;
-      storageRevision++;
-      shortcut = api.Shortcut.normalize(changes.avoidShortcut.newValue) || api.Shortcut.defaultShortcut;
+      if (area !== 'local') return;
+      for (const name of Object.keys(revisions)) {
+        if (!changes[name]) continue;
+        revisions[name]++;
+        applySetting(name, changes[name].newValue);
+      }
     });
-    const revision = storageRevision;
-    storage.local.get('avoidShortcut').then(result => {
-      if (revision === storageRevision) shortcut = api.Shortcut.normalize(result.avoidShortcut) || api.Shortcut.defaultShortcut;
-    }).catch(() => { /* Leave the shortcut inactive if settings cannot be read. */ });
+    const initialRevisions = { ...revisions };
+    storage.local.get(Object.keys(revisions)).then(result => {
+      for (const name of Object.keys(revisions)) {
+        if (initialRevisions[name] === revisions[name]) applySetting(name, result[name]);
+      }
+    }).catch(() => { /* Leave shortcuts inactive if settings cannot be read. */ });
+  }
+  function actionFor(event) {
+    return api.Shortcut.matches(event, shortcut) ? 'avoid'
+      : api.Shortcut.matches(event, likeShortcut) ? 'like' : null;
   }
   const host = document.createElement('shorts-avoid-control');
   const root = host.attachShadow({ mode: 'open' });
@@ -53,7 +67,7 @@
   const likeButton = document.createElement('button');
   likeButton.type = 'button';
   likeButton.setAttribute('aria-label', 'Like video and go to next');
-  likeButton.title = 'Like video and go to next (Right Arrow)';
+  likeButton.title = 'Like video and go to next';
   const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   heart.setAttribute('viewBox', '0 0 28 28');
   heart.setAttribute('aria-hidden', 'true');
@@ -117,9 +131,8 @@
     event.stopImmediatePropagation();
   }
   document.addEventListener('keydown', event => {
-    if (!shortcut || !canUseShortcut(event)) return;
-    const action = api.Shortcut.matches(event, shortcut) ? 'avoid'
-      : api.Shortcut.matches(event, api.Shortcut.likeShortcut) ? 'like' : null;
+    if (!canUseShortcut(event)) return;
+    const action = actionFor(event);
     if (!action) return;
     consume(event);
     if (!event.repeat) activate(action);
@@ -130,10 +143,11 @@
     mouseGesture = null;
     ignoreCompatibilityMouse = !!event.pointerType && event.pointerType !== 'mouse';
     if (ignoreCompatibilityMouse) return;
-    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event, true)) return;
+    const action = actionFor(event);
+    if (!action || !canUseShortcut(event, true)) return;
     mouseGesture = { button: event.button, target: event.composedPath()[0], pointer: true };
     consume(event);
-    activate();
+    activate(action);
   }, { capture: true });
   window.addEventListener('mousedown', event => {
     if (ignoreCompatibilityMouse) return;
@@ -142,10 +156,11 @@
       return;
     }
     mouseGesture = null;
-    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event)) return;
+    const action = actionFor(event);
+    if (!action || !canUseShortcut(event)) return;
     mouseGesture = { button: event.button, target: event.composedPath()[0] };
     consume(event);
-    activate();
+    activate(action);
   }, { capture: true });
   for (const type of ['pointerup', 'mouseup', 'click', 'auxclick', 'contextmenu']) {
     window.addEventListener(type, event => {
