@@ -36,7 +36,7 @@ This is an independent project and is not affiliated with YouTube or Google. You
 
 - Homepage: https://github.com/sabmark/youtube-shorts-avoid
 - Support: https://github.com/sabmark/youtube-shorts-avoid/issues
-- Privacy: https://github.com/sabmark/youtube-shorts-avoid/blob/097924b6cd722620e52bd66f62460bda66185dbe/PRIVACY.md
+- Privacy: https://github.com/sabmark/youtube-shorts-avoid/blob/885e254bc82edfb7f161b553acf2204fb7930eb8/PRIVACY.md
 
 ## Privacy fields
 
