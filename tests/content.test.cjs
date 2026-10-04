@@ -122,13 +122,13 @@ test('replacing the renderer during an operation cannot start another workflow',
 
 function arrow(w, target = w.document, options = {}) {
   const event = new w.KeyboardEvent('keydown', {
-    key: 'ArrowRight', bubbles: true, composed: true, cancelable: true, ...options
+    key: 'ArrowLeft', bubbles: true, composed: true, cancelable: true, ...options
   });
   target.dispatchEvent(event);
   return event;
 }
 
-test('Right Arrow runs the button workflow once and blocks repeated activation', async t => {
+test('Left Arrow runs the button workflow once and blocks repeated activation', async t => {
   const w = fixture(t, player());
   let submissions = 0;
   let advances = 0;
@@ -154,7 +154,7 @@ test('Right Arrow runs the button workflow once and blocks repeated activation',
   assert.equal(button(w).disabled, false);
 });
 
-test('Right Arrow ignores editable fields, modifiers and previously handled events', t => {
+test('Left Arrow ignores editable fields, modifiers and previously handled events', t => {
   const w = fixture(t, player());
   for (const markup of ['<input>', '<textarea></textarea>', '<select><option>A</option></select>',
     '<div contenteditable="true"><span>typing</span></div>']) {
@@ -178,7 +178,7 @@ test('Right Arrow ignores editable fields, modifiers and previously handled even
   assert.equal(button(w).disabled, false);
 });
 
-test('Right Arrow stays inactive outside Shorts or without an active control', t => {
+test('Left Arrow stays inactive outside Shorts or without an active control', t => {
   const w = fixture(t, player(), 'https://www.youtube.com/');
   assert.equal(arrow(w).defaultPrevented, false);
   w.history.pushState({}, '', '/shorts/first-video');
@@ -194,12 +194,12 @@ test('Right Arrow stays inactive outside Shorts or without an active control', t
   assert.equal(arrow(w).defaultPrevented, false);
 });
 
-test('Right Arrow intercepts an earlier page bubble handler before it changes the Short', async t => {
+test('Left Arrow intercepts an earlier page bubble handler before it changes the Short', async t => {
   let nativeCalls = 0;
   const w = fixture(t, player(), 'https://www.youtube.com/shorts/first-video', {
     beforeScripts(window) {
       window.document.addEventListener('keydown', event => {
-        if (event.key === 'ArrowRight') {
+        if (event.key === 'ArrowLeft') {
           nativeCalls++;
           window.history.pushState({}, '', '/shorts/second-video');
         }
@@ -214,7 +214,7 @@ test('Right Arrow intercepts an earlier page bubble handler before it changes th
   await until(() => !button(w).disabled);
 });
 
-test('saved shortcut replaces Right Arrow and updates in an open Shorts tab', async t => {
+test('saved shortcut replaces Left Arrow and updates in an open Shorts tab', async t => {
   const { storage } = require('./storage.cjs');
   const store = storage({ avoidShortcut: { key: 'k', ctrlKey: true } });
   const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });

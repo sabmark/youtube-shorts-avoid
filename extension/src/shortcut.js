@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const api = globalThis.ShortsAvoid = globalThis.ShortsAvoid || {};
-  const defaultShortcut = { key: 'ArrowRight', ctrlKey: false, altKey: false, shiftKey: false, metaKey: false };
+  const defaultShortcut = { key: 'ArrowLeft', ctrlKey: false, altKey: false, shiftKey: false, metaKey: false };
   const modifiers = ['ctrlKey', 'altKey', 'shiftKey', 'metaKey'];
   const mouseLabels = ['Left mouse', 'Middle mouse', 'Right mouse', 'Mouse Back', 'Mouse Forward'];
   function normalize(value) {
@@ -33,5 +33,6 @@
     return [value.ctrlKey && 'Ctrl', value.altKey && 'Alt', value.shiftKey && 'Shift', value.metaKey && 'Meta',
       value.type === 'mouse' ? mouseLabels[value.button] : value.key === ' ' ? 'Space' : value.key.replace('Arrow', '')].filter(Boolean).join(' + ');
   }
-  api.Shortcut = { defaultShortcut, normalize, fromEvent, matches, label };
+  const likeShortcut = { ...defaultShortcut, key: 'ArrowRight' };
+  api.Shortcut = { defaultShortcut, likeShortcut, normalize, fromEvent, matches, label };
 })();

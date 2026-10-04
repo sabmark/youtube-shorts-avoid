@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.19
+
+- Add a heart button that likes the current Short and advances after confirmation.
+- Set Left Arrow as the default Avoid shortcut and Right Arrow as like-and-next. Saved Avoid bindings take priority.
+- Preserve an existing like and block overlapping activations.
+
 ## 0.1.18
 
 - Consume mouse pointer press and release on Shorts so Back/Forward bindings can override browser history navigation when page handlers suppress compatibility mouse events.

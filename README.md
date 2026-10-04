@@ -6,7 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/sabmark/youtube-shorts-avoid)](https://github.com/sabmark/youtube-shorts-avoid/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-One button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
+The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
+
+The **Like** heart button likes the current Short and advances when YouTube confirms it. An already-liked video stays liked.
 
 Use a signed-in YouTube account with the interface set to English. The extension needs no separate login. It stores no account data and has no backend or telemetry.
 
@@ -25,7 +27,7 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a key, mouse button or combination with modifier keys, or reset to Right Arrow. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; a saved Back/Forward mouse binding overrides browser history navigation on Shorts. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** or press **Left Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a key, mouse button or combination with modifier keys, or reset to Left Arrow. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; a saved Back/Forward mouse binding overrides browser history navigation on Shorts. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. Press **Right Arrow** or click **Like** to like and advance. If your saved Avoid binding uses Right Arrow, it takes priority; reset Avoid to Left Arrow to use both default keys. Both buttons are disabled while an action is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 

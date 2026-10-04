@@ -12,12 +12,13 @@
   <main>
     <h1>Avoid shortcut</h1>
     <p>Choose a shortcut to dismiss the current video and channel, then move to the next Short.</p>
+    <p>Like and go to next uses Right Arrow. If you save Right Arrow for Avoid, your saved Avoid shortcut takes priority; use the heart button to like.</p>
     <label for="shortcut">Shortcut key or mouse button</label>
     <input id="shortcut" type="text" readonly aria-describedby="hint" disabled>
     <p id="hint">Focus the field, then press a key or click a mouse button inside it, optionally with Ctrl, Alt, Shift or Meta. The first click only focuses the field. Tab moves focus; Escape cancels a change. Browser or mouse-software shortcuts may take priority. A saved mouse shortcut replaces that button's normal action on Shorts outside editable fields.</p>
     <div class="actions">
       <button id="save" type="button" disabled>Save shortcut</button>
-      <button id="reset" type="button" disabled>Reset to Right Arrow</button>
+      <button id="reset" type="button" disabled>Reset to Left Arrow</button>
     </div>
     <button id="retry" type="button" hidden>Retry loading settings</button>
     <p id="status" role="status" aria-live="polite"></p>

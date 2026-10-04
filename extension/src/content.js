@@ -50,11 +50,30 @@
   label.setAttribute('aria-hidden', 'true');
   label.textContent = 'Avoid';
   root.append(style, button, label);
+  const likeButton = document.createElement('button');
+  likeButton.type = 'button';
+  likeButton.setAttribute('aria-label', 'Like video and go to next');
+  likeButton.title = 'Like video and go to next (Right Arrow)';
+  const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  heart.setAttribute('viewBox', '0 0 28 28');
+  heart.setAttribute('aria-hidden', 'true');
+  const heartPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  heartPath.setAttribute('d', 'M14 24 4 14C-3 6 7-2 14 6 21-2 31 6 24 14Z');
+  heart.append(heartPath);
+  likeButton.append(heart);
+  likeButton.style.marginTop = '12px';
+  const likeLabel = document.createElement('span');
+  likeLabel.className = 'label';
+  likeLabel.setAttribute('aria-hidden', 'true');
+  likeLabel.textContent = 'Like';
+  root.append(likeButton, likeLabel);
   let scheduled = null;
 
   function updateButton(state) {
-    button.disabled = state.status === 'busy';
-    button.setAttribute('aria-busy', String(button.disabled));
+    for (const control of [button, likeButton]) {
+      control.disabled = state.status === 'busy';
+      control.setAttribute('aria-busy', String(control.disabled));
+    }
   }
 
   function refresh() {
@@ -70,7 +89,7 @@
       return;
     }
     if (host.parentElement !== rail) rail.append(host);
-    button.disabled = workflow.busy;
+    updateButton({ status: workflow.busy ? 'busy' : 'idle' });
   }
 
   function schedule() {
@@ -78,11 +97,12 @@
     if (scheduled === null) scheduled = window.setTimeout(refresh, 80);
   }
 
-  function activate() {
-    if (!workflow.busy) void workflow.run(updateButton).then(refresh);
+  function activate(action = 'avoid') {
+    if (!workflow.busy) void workflow.run(updateButton, action).then(refresh);
   }
 
-  button.addEventListener('click', activate);
+  button.addEventListener('click', () => activate());
+  likeButton.addEventListener('click', () => activate('like'));
   function canUseShortcut(event, overrideDefault = false) {
     if ((!overrideDefault && event.defaultPrevented) || event.isComposing) return false;
     const editable = event.composedPath().some(node => node instanceof Element &&
@@ -97,9 +117,12 @@
     event.stopImmediatePropagation();
   }
   document.addEventListener('keydown', event => {
-    if (!api.Shortcut.matches(event, shortcut) || !canUseShortcut(event)) return;
+    if (!shortcut || !canUseShortcut(event)) return;
+    const action = api.Shortcut.matches(event, shortcut) ? 'avoid'
+      : api.Shortcut.matches(event, api.Shortcut.likeShortcut) ? 'like' : null;
+    if (!action) return;
     consume(event);
-    if (!event.repeat) activate();
+    if (!event.repeat) activate(action);
   }, { capture: true });
   let mouseGesture = null;
   let ignoreCompatibilityMouse = false;

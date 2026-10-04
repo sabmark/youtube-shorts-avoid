@@ -222,3 +222,12 @@ Three new regressions failed before their fixes and now pass: cancelled-pointer 
 With the updated extension installed, Chromium native Back and Forward input through its input protocol each activated Avoid once without traversing browser history on the Shorts fixture, including page pointerdown cancellation. On normal YouTube watch routes, both buttons still traversed history and did not activate Avoid. An unassigned Back button on Shorts also retained normal history navigation. Fixture feedback options were deliberately unavailable, so these checks submitted no recommendation feedback. Opera with the owner's physical Razer Mouse 4 still requires retesting.
 
 Install or reload v0.1.18, then reload the existing YouTube tab. Keep Mouse Back saved and test Mouse 4 on a Short you want to dismiss, outside an editable field. Confirm that it runs Avoid instead of returning to the previous browser page. On another website or a normal YouTube watch page, Mouse 4 should still navigate Back.
+
+
+## Like and arrow defaults, version 0.1.19
+
+The heart button and Right Arrow like the current Short and advance only after YouTube exposes a liked state. An already-liked video remains liked. Left Arrow now defaults to the existing Avoid sequence (Not interested, then Don't recommend channel). Saved Avoid shortcuts take priority, including saved Right Arrow bindings. Reset Avoid to Left Arrow to use both default arrows.
+
+The new regression tests failed before implementation. The full suite passes 113 tests with no failures, and packaging creates version 0.1.19. An isolated Chromium lease ran the content scripts on an intercepted synthetic Shorts page: heart click and Right Arrow each clicked Like once, sent no negative feedback and advanced once; Left Arrow sent both negative feedback actions and advanced once. Light 1024x768 and dark 360x640 checks showed two 48x48 controls, 3px focus rings and no script errors; screenshots were inspected. These were page-script fixture checks, not installed-extension or live account confirmation. Live signed-in YouTube and Opera remain owner checks.
+
+Install or reload the package, reload YouTube, reset Avoid to Left Arrow if desired, then try the heart or Right Arrow on a Short you want to like. Confirm the native Like state and one advance. Try an already-liked Short and confirm its like remains. Test Left Arrow on a Short you want to dismiss.

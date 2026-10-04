@@ -7,7 +7,7 @@
       this.busy = false;
     }
 
-    async run(onState = () => {}) {
+    async run(onState = () => {}, action = 'avoid') {
       if (this.busy) return { status: 'busy', completed: [] };
       this.busy = true;
       const completed = [];
@@ -16,11 +16,16 @@
       try {
         const target = this.adapter.current();
         this.adapter.assertCurrent(target);
-        await this.adapter.preflight(target);
-        for (const kind of ['not-interested', 'channel']) {
-          this.adapter.assertCurrent(target);
-          await this.adapter.feedback(target, kind);
-          completed.push(kind);
+        if (action === 'like') {
+          await this.adapter.like(target);
+          completed.push('like');
+        } else {
+          await this.adapter.preflight(target);
+          for (const kind of ['not-interested', 'channel']) {
+            this.adapter.assertCurrent(target);
+            await this.adapter.feedback(target, kind);
+            completed.push(kind);
+          }
         }
         const current = this.adapter.current();
         if (!current || current.id === target.id) await this.adapter.next(target);
