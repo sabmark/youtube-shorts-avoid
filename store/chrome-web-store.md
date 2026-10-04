@@ -87,7 +87,7 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Full v0.1.24 suite: 89 passed, zero failed; package created successfully.
 - Installed Chromium settings: Shift+j was captured, saved to extension storage and retained after reload; Reset restored Left.
 - Light and dark settings screenshots captured. At a 360px viewport, document width remained within the viewport.
-- The owner signed in and completed the account steps. The developer dashboard is accessible.
+- The owner signed in and completed the trader declaration. The developer dashboard is accessible. Chrome's final submission check still reports that the publisher contact email is unverified; the owner must finish the verification link before submission.
 - Chrome draft created: `capdpopadgbflaoklceadlimohpcmopm`. Its initial v0.1.22 ZIP was replaced with v0.1.24; the item remains Draft.
 - Native toolbar-popup verification remains pending in this publishing session. Settings screenshots are not native popup verification.
 - The owner tested the combined v0.1.24 ZIP in Chrome and reported: "Passed: navigation starts immediately and the Like is recorded." This is live owner acceptance of Like-and-next. Installed-extension fixture checks also requested Next 0.7ms after Right Arrow Like and 0.2ms after heart Like. Avoid has prior owner acceptance; it was not retested live in this publishing session.
@@ -95,6 +95,7 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Confirm developer registration, contact verification, 2-Step Verification and required account declarations in the dashboard. Complete any payment or identity steps as the owner.
 - Prepare the dashboard draft and review package, listing, assets, privacy and distribution fields.
 - Obtain the project's required deployment approval before submitting for review.
+- Draft distribution is free of charge, public, in all 155 available regions. Listing, two settings screenshots, promotional tile, privacy disclosures and reviewer instructions are saved.
 - Record the item ID and submission result. After approval/publication, add the public install URL to README. Do not replace unpacked-install instructions with an unapproved store URL.
 - Opera Add-ons remains in the original ticket scope; this preparation covers Chrome first.
 
