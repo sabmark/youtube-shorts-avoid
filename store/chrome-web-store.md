@@ -94,7 +94,7 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Package SHA-256: `5613f6a0620f5f999aee0ee0681b0a671616ed01d1adabed93a11b4a3085c775`.
 - Confirm developer registration, contact verification, 2-Step Verification and required account declarations in the dashboard. Complete any payment or identity steps as the owner.
 - Prepare the dashboard draft and review package, listing, assets, privacy and distribution fields.
-- Obtain the project's required deployment approval before submitting for review.
+- Deployment approval recorded in Relayframe packet 2026-10-04T05-08-31-760Z-31462-0-deploy.md from the owner's explicit instruction to continue publication.
 - Draft distribution is free of charge, public, in all 155 available regions. Listing, two settings screenshots, promotional tile, privacy disclosures and reviewer instructions are saved.
 - Record the item ID and submission result. After approval/publication, add the public install URL to README. Do not replace unpacked-install instructions with an unapproved store URL.
 - Opera Add-ons remains in the original ticket scope; this preparation covers Chrome first.
@@ -112,7 +112,17 @@ Checked against official Chrome documentation on 2026-10-04:
 
 ## v0.1.25 update before submission
 
-The new package adds selectable Avoid feedback. The dashboard package and listing are being updated to v0.1.25 with matching screenshots, storage justification and privacy link. No submission has been made. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
+The new package adds selectable Avoid feedback. The dashboard package and listing were updated to v0.1.25 with matching screenshots, storage justification and privacy link. Chrome accepted the submission on 2026-10-04 and shows Pending review. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
 
 - v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. The owner tested the new modes and reported: "Cool, all good. Continue with the publishing, email is already verified."
 - v0.1.25 ZIP SHA-256: `5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347`.
+
+## Chrome submission outcome - 2026-10-04
+
+- Item: `capdpopadgbflaoklceadlimohpcmopm`, Shorts Avoid for YouTube, v0.1.25.
+- Dashboard confirmed: "Your extension was submitted for review" and "Status: Pending review".
+- Automatic publication after approval was checked in the final submission dialog. Distribution is free, public, all 155 region checkboxes selected.
+- Submitted ZIP SHA-256: `5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347`.
+- Two new Options screenshots, selectable-feedback listing text, matching storage justification, immutable v0.1.25 privacy link and updated reviewer instructions are saved.
+- Public availability is pending Google review; no approved install URL is recorded yet. Opera Add-ons remains pending.
+- Sprint closeout is separately blocked because the feature branches are not merged into the primary checkout owned by another session. That checkout was preserved.
