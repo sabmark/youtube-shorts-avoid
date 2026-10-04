@@ -296,3 +296,7 @@ On 2026-10-04, after receiving the packaged ZIP in Windows Downloads, the owner 
 Live retest: extract Downloads\youtube-shorts-avoid-0.1.25.zip, reload the unpacked extension and YouTube, then choose each feedback mode in Options. On videos for which you intend the feedback, press Left Arrow and confirm only the selected feedback and one advance. Reload Options to check persistence. Confirm Right Arrow still advances immediately and records the Like.
 
 Review found an enabled Avoid button when feedback settings were unreadable. A failing-first regression test reproduced it. Avoid now stays disabled until the saved choice is known, including on read failure; a newer successful settings event restores it. Like remains available. Independent review found no remaining defects after this correction. Final suite: 103 passed, zero failed; installed browser checks reran successfully.
+
+## v0.1.25 owner acceptance - 2026-10-04
+
+The owner located the new Avoid feedback setting, tested it, and reported: "Cool, all good. Continue with the publishing, email is already verified." This records live owner acceptance of the new feedback modes. The publishing checkout was fast-forwarded to the reviewed v0.1.25 source and the full suite reran: 103 passed, zero failed. Publisher Settings independently confirms Verified email address.

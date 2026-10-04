@@ -87,7 +87,7 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Full v0.1.24 suite: 89 passed, zero failed; package created successfully.
 - Installed Chromium settings: Shift+j was captured, saved to extension storage and retained after reload; Reset restored Left.
 - Light and dark settings screenshots captured. At a 360px viewport, document width remained within the viewport.
-- The owner signed in and completed the trader declaration. The developer dashboard is accessible. Chrome's final submission check still reports that the publisher contact email is unverified; the owner must finish the verification link before submission.
+- The owner signed in and completed the trader declaration. The developer dashboard is accessible. Publisher Settings now shows Verified email address; verified on 2026-10-04 after the owner completed the email link.
 - Chrome draft created: `capdpopadgbflaoklceadlimohpcmopm`. Its initial v0.1.22 ZIP was replaced with v0.1.24; the item remains Draft.
 - Native toolbar-popup verification remains pending in this publishing session. Settings screenshots are not native popup verification.
 - The owner tested the combined v0.1.24 ZIP in Chrome and reported: "Passed: navigation starts immediately and the Like is recorded." This is live owner acceptance of Like-and-next. Installed-extension fixture checks also requested Next 0.7ms after Right Arrow Like and 0.2ms after heart Like. Avoid has prior owner acceptance; it was not retested live in this publishing session.
@@ -112,7 +112,7 @@ Checked against official Chrome documentation on 2026-10-04:
 
 ## v0.1.25 update before submission
 
-The new package adds selectable Avoid feedback. The dashboard still contains v0.1.24; replace its ZIP, description, settings screenshots, storage justification and privacy link after reviewing v0.1.25. No submission has been made. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
+The new package adds selectable Avoid feedback. The dashboard package and listing are being updated to v0.1.25 with matching screenshots, storage justification and privacy link. No submission has been made. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
 
-- v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. Live owner acceptance of the new modes remains pending.
+- v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. The owner tested the new modes and reported: "Cool, all good. Continue with the publishing, email is already verified."
 - v0.1.25 ZIP SHA-256: `5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347`.
