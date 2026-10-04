@@ -260,3 +260,7 @@ Owner-authorized checks loaded the real extension in a private Chromium profile.
 The installed native popup measured360x386 with scrollWidth360 and scrollHeight386 in light and dark themes; its screenshot was inspected. A previous check used the narrow settings window and Chromium clamped the popup to280px, so the native check now uses a normal desktop window separately from narrow settings verification. WSL window focus also intermittently blocked popup opening; a private headless-new Chromium window provided the final native target. These checks verify rendering and extension settings, not live account feedback. Signed-in YouTube actions and Opera remain owner checks.
 
 Install or reload **version0.1.22**, then reload YouTube. Open Shortcut settings from the extension icon. Save a different key or mouse shortcut for Like, confirm Avoid stays unchanged, and try the binding on a Short you want to like. Reset either action independently. Check the Material popup and settings in your preferred theme.
+
+## Version 0.1.22 owner acceptance
+
+On 2026-10-04, after receiving the packaged ZIP in Windows Downloads, the owner reported: "Looking nice, it works, release it." This is owner-reported local acceptance of the current functionality and design. The browser was not specified; it does not establish a separate Opera retest.
