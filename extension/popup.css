@@ -1,9 +1,16 @@
-/* Explicit root width keeps native popup sizing independent of its initial viewport. */
-html { width: 320px; font-size: 14px; }
-body { margin: 0; width: 100%; background: var(--bs-tertiary-bg); }
-.popup-shell { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-h1 { font-weight: 650; letter-spacing: -.025em; }
-.btn { min-height: 44px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
-.note { font-size: .85rem; line-height: 1.5; }
-.btn:focus-visible { outline: 3px solid var(--bs-primary); outline-offset: 3px; }
-[data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-secondary-color); }
+/* Use an explicit root width for Chromium's intrinsic toolbar popup sizing. */
+html { width: 360px; }
+.popup-shell { padding: 24px 16px 16px; display: flex; flex-direction: column; gap: 20px; }
+.popup-shell .brand { padding: 0 8px; }
+.brand h1 { font-size: 20px; line-height: 28px; font-weight: 600; }
+.brand p { color: var(--md-on-surface-variant); font-size: 12px; margin-top: 2px; }
+.menu { display: flex; flex-direction: column; padding: 8px; gap: 4px; border-radius: 24px; background: var(--md-surface-container); }
+.menu-row { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 72px; padding: 12px; color: var(--md-on-surface); text-align: left; text-decoration: none; background: transparent; border: 0; border-radius: 16px; transition: background-color .15s; }
+.menu-row:hover { background: var(--md-primary-container); }
+.menu-row > .icon:first-child { color: var(--md-primary); }
+.menu-row > .icon:last-child { width: 18px; height: 18px; flex-basis: 18px; color: var(--md-on-surface-variant); }
+.menu-copy { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.menu-title { font-size: 14px; font-weight: 600; }
+.menu-detail { color: var(--md-on-surface-variant); font-size: 12px; line-height: 18px; }
+.popup-footer { color: var(--md-on-surface-variant); font-size: 12px; text-align: center; }
+.popup-shell .status { padding: 0 8px; }

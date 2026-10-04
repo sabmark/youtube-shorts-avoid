@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YouTube Shorts Avoid</title>
-  <link rel="stylesheet" href="vendor/bootstrap.min.css">
+  <title>Shorts Avoid</title>
+  <link rel="stylesheet" href="material.css">
   <link rel="stylesheet" href="popup.css">
   <script defer src="src/popup.js"></script>
 </head>
 <body>
   <main class="popup-shell">
-    <header class="d-flex align-items-center gap-3">
+    <header class="brand">
       <img src="icons/icon48.png" width="40" height="40" alt="">
-      <h1 class="h5 mb-0">YouTube Shorts Avoid</h1>
+      <div><h1>Shorts Avoid</h1><p>Shortcuts and feedback history</p></div>
     </header>
-    <nav class="d-grid gap-2" aria-label="Extension menu">
-      <button id="settings" class="btn btn-primary" type="button">Shortcut settings</button>
-      <a class="btn btn-outline-secondary" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_user_feedback" target="_blank" rel="noopener noreferrer">Not Interested history</a>
-      <a class="btn btn-outline-secondary" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_likes" target="_blank" rel="noopener noreferrer">Liked videos history</a>
+    <nav class="menu" aria-label="Extension menu">
+      <button id="settings" class="menu-row" aria-label="Shortcut settings" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h1m3 0h1m3 0h1m3 0h1M6 12h1m3 0h1m3 0h1m3 0h1M7 16h10"/></svg><span class="menu-copy"><span class="menu-title">Shortcut settings</span><span class="menu-detail">Customize Avoid and Like</span></span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+      <a class="menu-row" aria-label="Not Interested history" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_user_feedback" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg><span class="menu-copy"><span class="menu-title">Not Interested history</span><span class="menu-detail">Manage feedback on Google</span></span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7m0-7L11 13M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg></a>
+      <a class="menu-row" aria-label="Liked videos history" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_likes" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 4 12C-2 5 6-1 12 6 18-1 26 5 20 12Z"/></svg><span class="menu-copy"><span class="menu-title">Liked videos history</span><span class="menu-detail">Review your likes on Google</span></span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7m0-7L11 13M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg></a>
     </nav>
-    <p class="note text-body-secondary mb-0">Manage your feedback on Google. History links open in a new tab.</p>
-    <p id="status" class="note text-body-secondary mb-0" role="status" aria-live="polite" hidden></p>
+    <footer class="popup-footer">History opens in a new Google tab.</footer>
+    <p id="status" class="status" role="status" aria-live="polite" hidden></p>
   </main>
 </body>
 </html>

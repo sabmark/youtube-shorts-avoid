@@ -8,10 +8,6 @@
     });
     sizeObserver.observe(shell);
   }
-  const theme = window.matchMedia?.('(prefers-color-scheme: dark)');
-  const applyTheme = () => document.documentElement.setAttribute('data-bs-theme', theme?.matches ? 'dark' : 'light');
-  applyTheme();
-  theme?.addEventListener('change', applyTheme);
   document.getElementById('settings').addEventListener('click', () => {
     void chrome.runtime.openOptionsPage().catch(() => {
       const status = document.getElementById('status');

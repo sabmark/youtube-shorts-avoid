@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.22
+
+- Redesign the popup and settings with local Material 3 styles, icon rows, shortcut cards and automatic light/dark themes.
+- Include independent Avoid and Like shortcut controls from 0.1.21.
+- Remove Bootstrap and keep keyboard focus,48px buttons and native popup height rounding.
+
 ## 0.1.21
 
 - Add independent Like shortcut settings with keyboard and mouse support, save and reset.

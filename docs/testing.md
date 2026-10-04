@@ -247,3 +247,16 @@ Install or reload **version 0.1.20** and reload YouTube. Click the extension ico
 Owner feedback identified a missing Like control in Options. The root cause was that options.js persisted only avoidShortcut while content.js matched a fixed Like default. Options now saves and resets each action independently, captures keyboard or mouse shortcuts with modifiers, and rejects newly saved duplicate bindings. Existing overlapping settings remain unchanged and show an Avoid-priority warning. Each content-setting read has its own revision guard so a delayed load does not replace newer changes.
 
 New persistence, collision, mouse and live-update tests failed before implementation. The full suite passes 87 tests with no failures and packaging creates version 0.1.21. Independent review found stale collision validation between two open Options pages; failing-first regressions verify settings are re-read before saving and cross-tab writes are serialized with a Web Lock. The next interface change applies Material 3 styling to these controls and the popup; rendered verification will cover the combined package.
+
+
+## Material 3 popup and settings, version 0.1.22
+
+The owner approved local Material 3 styling for the popup and settings, including separate Avoid and Like shortcut cards. A shared local material.css defines light/dark color roles, typography, rounded buttons and visible focus. Settings uses outlined capture fields, independent save/reset controls and shared instructions. The popup uses three icon rows. Bootstrap assets and its unused development dependency are removed.
+
+The packaging regression failed before updating the runtime allowlist. The combined full suite passes 87 tests with no failures and packaging creates version 0.1.22. Independent review found no remaining defects after sequential and concurrent cross-tab collision regressions were fixed using fresh reads and a Web Lock.
+
+Owner-authorized checks loaded the real extension in a private Chromium profile. Like captured Ctrl+l, saved through actual extension storage, reloaded without changing Avoid, accepted Right mouse and reset to Right Arrow. A duplicate Avoid binding was rejected. Two Options pages concurrently requesting K stored Avoid=K while Like remained Right Arrow. Settings at960x1000 light and360x640 dark had no horizontal overflow,56px fields,48px buttons and3px focus; screenshots were inspected.
+
+The installed native popup measured360x386 with scrollWidth360 and scrollHeight386 in light and dark themes; its screenshot was inspected. A previous check used the narrow settings window and Chromium clamped the popup to280px, so the native check now uses a normal desktop window separately from narrow settings verification. WSL window focus also intermittently blocked popup opening; a private headless-new Chromium window provided the final native target. These checks verify rendering and extension settings, not live account feedback. Signed-in YouTube actions and Opera remain owner checks.
+
+Install or reload **version0.1.22**, then reload YouTube. Open Shortcut settings from the extension icon. Save a different key or mouse shortcut for Like, confirm Avoid stays unchanged, and try the binding on a Short you want to like. Reset either action independently. Check the Material popup and settings in your preferred theme.

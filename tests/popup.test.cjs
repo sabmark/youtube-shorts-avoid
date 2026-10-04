@@ -26,9 +26,9 @@ test('opening the menu offers both histories without reading or opening Google a
   assert.deepEqual(calls, []);
   const links = [...w.document.querySelectorAll('a')];
   assert.equal(links.length, 2);
-  assert.equal(links[0].textContent.trim(), 'Not Interested history');
+  assert.equal(links[0].getAttribute('aria-label'), 'Not Interested history');
   assert.equal(links[0].href, 'https://myactivity.google.com/page?hl=en&page=youtube_user_feedback');
-  assert.equal(links[1].textContent.trim(), 'Liked videos history');
+  assert.equal(links[1].getAttribute('aria-label'), 'Liked videos history');
   assert.equal(links[1].href, 'https://myactivity.google.com/page?hl=en&page=youtube_likes');
   for (const link of links) {
     assert.equal(link.target, '_blank');

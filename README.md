@@ -33,7 +33,7 @@ If YouTube opens Tell us why, the extension chooses **Other** when available, ot
 
 ## Extension menu
 
-Click the extension icon to open **Shortcut settings**, **Not Interested history**, or **Liked videos history**. The history links open Google's My Activity pages in a new tab. Sign in to the Google account used for YouTube and manage feedback there. The extension does not read, list or delete your Google history.
+The Material 3 popup and settings use locally bundled styles and follow your browser's light or dark theme. Click the extension icon to open **Shortcut settings**, **Not Interested history**, or **Liked videos history**. The history links open Google's My Activity pages in a new tab. Sign in to the Google account used for YouTube and manage feedback there. The extension does not read, list or delete your Google history.
 
 ## Limits and verification
 
