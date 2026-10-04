@@ -1,30 +1,9 @@
-/* Explicit root dimensions avoid Chromium's initially narrow popup viewport. */
-html { width: 640px; font-size: 14px; }
+/* Explicit root width keeps native popup sizing independent of its initial viewport. */
+html { width: 320px; font-size: 14px; }
 body { margin: 0; width: 100%; background: var(--bs-tertiary-bg); }
-.popup-shell { max-height: 600px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-header { flex-shrink: 0; }
+.popup-shell { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
 h1 { font-weight: 650; letter-spacing: -.025em; }
-.toolbar { flex-wrap: wrap; }
-.btn { min-height: 44px; font-weight: 500; white-space: nowrap; }
-.status { font-size: .9rem; }
-#entries { flex: 0 1 auto; min-height: 0; margin: 0; overflow-y: auto; }
-#entries:empty { min-height: 64px; }
-.feedback-row { display: flex; align-items: center; gap: 18px; padding: 14px; }
-.feedback-row > div { flex: 1; min-width: 0; }
-.feedback-row a { display: block; color: var(--bs-body-color); font-weight: 550; text-decoration: none; overflow-wrap: anywhere; }
-.feedback-row a:hover { color: var(--bs-primary); text-decoration: underline; }
-.feedback-row .btn { flex-shrink: 0; }
-.channel { display: block; font-size: .85rem; margin-top: 4px; }
-#page { flex: 1; text-align: center; font-size: .9rem; }
-#confirmation { flex-shrink: 0; max-height: 170px; overflow-y: auto; overflow-wrap: anywhere; }
-.note { font-size: .8rem; line-height: 1.5; }
-footer { flex-shrink: 0; }
-button.btn:focus, a:focus-visible { outline: 3px solid var(--bs-primary); outline-offset: 3px; }
-
+.btn { min-height: 44px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+.note { font-size: .85rem; line-height: 1.5; }
+.btn:focus-visible { outline: 3px solid var(--bs-primary); outline-offset: 3px; }
 [data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: var(--bs-body-color); --bs-btn-border-color: var(--bs-secondary-color); }
-
-.feedback-row > .thumbnail { position: relative; flex: 0 0 112px; height: 63px; overflow: hidden; border-radius: 6px; background: var(--bs-secondary-bg); }
-.thumbnail::before { content: ''; position: absolute; left: calc(50% - 5px); top: calc(50% - 8px); border-left: 12px solid var(--bs-secondary-color); border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
-.thumbnail img { position: relative; display: block; width: 100%; height: 100%; object-fit: cover; }
-.thumbnail img[hidden] { display: none; }
-@media (max-width: 520px) { .feedback-row { gap: 12px; } .feedback-row > .thumbnail { flex-basis: 96px; height: 54px; } }

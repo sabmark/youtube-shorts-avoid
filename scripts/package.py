@@ -20,7 +20,6 @@ FILES = (
     "vendor/bootstrap.min.css",
     "vendor/bootstrap.LICENSE.txt",
     "src/popup.js",
-    "src/feedback.js",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",

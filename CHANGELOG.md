@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.20
+
+- Restore a compact extension menu with Shortcut settings and links to Google Not Interested and liked-video history.
+- Remove the embedded feedback list, deletion automation and Google My Activity permission.
+- Include the heart button and Left/Right Arrow defaults from 0.1.19.
+
 ## 0.1.19
 
 - Add a heart button that likes the current Short and advances after confirmation.

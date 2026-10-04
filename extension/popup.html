@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YouTube feedback</title>
+  <title>YouTube Shorts Avoid</title>
   <link rel="stylesheet" href="vendor/bootstrap.min.css">
   <link rel="stylesheet" href="popup.css">
   <script defer src="src/popup.js"></script>
@@ -12,28 +12,15 @@
   <main class="popup-shell">
     <header class="d-flex align-items-center gap-3">
       <img src="icons/icon48.png" width="40" height="40" alt="">
-      <div><h1 class="h4 mb-1">Not Interested videos</h1><p class="text-body-secondary mb-0">Manage your YouTube feedback</p></div>
+      <h1 class="h5 mb-0">YouTube Shorts Avoid</h1>
     </header>
-    <div class="toolbar d-flex gap-2">
-      <button id="refresh" class="btn btn-primary" type="button">Refresh</button>
-      <button id="google" class="btn btn-outline-secondary" type="button">Open Google history</button>
-      <button id="settings" class="btn btn-outline-secondary ms-auto" type="button">Shortcut settings</button>
-    </div>
-    <p id="status" class="status text-body-secondary mb-0" role="status" aria-live="polite">Loading feedback...</p>
-    <section id="confirmation" class="alert alert-warning mb-0" aria-label="Confirm feedback removal" hidden>
-      <p id="confirm-text"></p>
-      <div class="d-flex gap-2"><button id="confirm-remove" class="btn btn-danger" type="button">Remove feedback</button><button id="cancel" class="btn btn-outline-secondary" type="button">Cancel</button></div>
-    </section>
-    <ul id="entries" class="list-group" aria-label="Loaded video feedback"></ul>
-    <footer>
-      <nav class="d-flex gap-2 align-items-center" aria-label="Feedback pages">
-        <button id="previous" class="btn btn-outline-secondary" type="button" disabled>Previous</button>
-        <span id="page" class="text-body-secondary"></span>
-        <button id="next" class="btn btn-outline-secondary" type="button" disabled>Next</button>
-      </nav>
-      <button id="older" class="btn btn-outline-secondary w-100 mt-2" type="button" disabled>Load older feedback</button>
-      <details class="note text-body-secondary mt-2"><summary>About this list</summary><p class="mb-0 mt-1">Only loaded video feedback is shown. Channel feedback is kept. Google’s bulk controls can also remove channel feedback, so Remove all is unavailable.</p></details>
-    </footer>
+    <nav class="d-grid gap-2" aria-label="Extension menu">
+      <button id="settings" class="btn btn-primary" type="button">Shortcut settings</button>
+      <a class="btn btn-outline-secondary" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_user_feedback" target="_blank" rel="noopener noreferrer">Not Interested history</a>
+      <a class="btn btn-outline-secondary" href="https://myactivity.google.com/page?hl=en&amp;page=youtube_likes" target="_blank" rel="noopener noreferrer">Liked videos history</a>
+    </nav>
+    <p class="note text-body-secondary mb-0">Manage your feedback on Google. History links open in a new tab.</p>
+    <p id="status" class="note text-body-secondary mb-0" role="status" aria-live="polite" hidden></p>
   </main>
 </body>
 </html>

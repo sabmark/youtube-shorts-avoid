@@ -31,15 +31,9 @@ Click **Avoid** or press **Left Arrow** only on a video and channel you want to 
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
-## Browse and remove feedback
+## Extension menu
 
-The toolbar popup uses locally bundled Bootstrap 5.3.8 and opens at roughly one-third of the screen width (480 to 800 pixels). Its height fits the current video page, up to the browser’s 600-pixel popup limit. Longer pages scroll within the list.
-
-Click the extension icon to see a popup of videos marked Not Interested in your Google feedback history, including earlier feedback. Each video has a thumbnail; unavailable images show a placeholder. The popup reuses a My Activity tab or opens one in the background. Use **Open Google history** to sign in or complete account verification, then **Refresh**. The supported page uses English.
-
-Browse 10 videos per page with **Previous** and **Next**. **Load older feedback** asks Google to load more history. The count refers to loaded entries, not your total history. **Remove** asks for confirmation before clicking that video's native deletion control. The extension completes the matching Google confirmation in the background and refreshes the popup after verifying removal. You stay in the popup. Channel feedback is excluded from the list and retained when removing a video.
-
-There is no **Remove all** button: the observed Google bulk controls include channel feedback, and a video-only bulk reset has not been verified. The popup reads history in memory and does not save it to extension storage. **Shortcut settings** opens the shortcut configuration page.
+Click the extension icon to open **Shortcut settings**, **Not Interested history**, or **Liked videos history**. The history links open Google's My Activity pages in a new tab. Sign in to the Google account used for YouTube and manage feedback there. The extension does not read, list or delete your Google history.
 
 ## Limits and verification
 
