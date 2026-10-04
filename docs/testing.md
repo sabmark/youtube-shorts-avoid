@@ -1,5 +1,11 @@
 # Verification record
 
+## Store package and owner acceptance, version 0.1.24
+
+The owner approved the name Shorts Avoid for YouTube and an original minus-and-heart logo. Store assets include a 440x280 promotional tile, light/dark 1280x800 installed settings screenshots and a 128px icon with 16px transparent padding. The package includes the immediate Like fix from v0.1.23. The full suite passes 89 tests with zero failures.
+
+The owner loaded the preview ZIP in Chrome and reported: "Passed: navigation starts immediately and the Like is recorded." This confirms the requested live Like-and-next behavior on the owner's account. The accepted ZIP's SHA-256 is `5613f6a0620f5f999aee0ee0681b0a671616ed01d1adabed93a11b4a3085c775`. It does not establish a new Opera or Avoid retest.
+
 ## Immediate Like navigation, version 0.1.23
 
 The owner reported several seconds between Right Arrow and the next Short. The Like workflow waited for the native Like state to confirm, then reused the four-second automatic-navigation window intended for Avoid feedback.

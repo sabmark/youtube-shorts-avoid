@@ -36,7 +36,7 @@ This is an independent project and is not affiliated with YouTube or Google. You
 
 - Homepage: https://github.com/sabmark/youtube-shorts-avoid
 - Support: https://github.com/sabmark/youtube-shorts-avoid/issues
-- Privacy: https://github.com/sabmark/youtube-shorts-avoid/blob/main/PRIVACY.md
+- Privacy: https://github.com/sabmark/youtube-shorts-avoid/blob/097924b6cd722620e52bd66f62460bda66185dbe/PRIVACY.md
 
 ## Privacy fields
 
@@ -90,7 +90,8 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - The owner signed in and completed the account steps. The developer dashboard is accessible.
 - Chrome draft created: `capdpopadgbflaoklceadlimohpcmopm`. Its initial v0.1.22 ZIP was replaced with v0.1.24; the item remains Draft.
 - Native toolbar-popup verification remains pending in this publishing session. Settings screenshots are not native popup verification.
-- Signed-in YouTube action checks are pending in this publishing session. Installed-extension fixture timing checks for the included Like fix passed: Next was requested 0.7ms after Right Arrow Like and 0.2ms after heart Like. These are not live server acceptance checks.
+- The owner tested the combined v0.1.24 ZIP in Chrome and reported: "Passed: navigation starts immediately and the Like is recorded." This is live owner acceptance of Like-and-next. Installed-extension fixture checks also requested Next 0.7ms after Right Arrow Like and 0.2ms after heart Like. Avoid has prior owner acceptance; it was not retested live in this publishing session.
+- Package SHA-256: `5613f6a0620f5f999aee0ee0681b0a671616ed01d1adabed93a11b4a3085c775`.
 - Confirm developer registration, contact verification, 2-Step Verification and required account declarations in the dashboard. Complete any payment or identity steps as the owner.
 - Prepare the dashboard draft and review package, listing, assets, privacy and distribution fields.
 - Obtain the project's required deployment approval before submitting for review.
