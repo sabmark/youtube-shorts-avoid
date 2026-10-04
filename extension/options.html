@@ -3,24 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YouTube Shorts Avoid settings</title>
+  <title>Shorts Avoid - Settings</title>
+  <link rel="stylesheet" href="material.css">
   <link rel="stylesheet" href="options.css">
   <script defer src="src/shortcut.js"></script>
   <script defer src="src/options.js"></script>
 </head>
 <body>
-  <main>
-    <h1>Avoid shortcut</h1>
-    <p>Choose a shortcut to dismiss the current video and channel, then move to the next Short.</p>
-    <label for="shortcut">Shortcut key</label>
-    <input id="shortcut" type="text" readonly aria-describedby="hint" disabled>
-    <p id="hint">Focus the field and press a key, optionally with Ctrl, Alt, Shift or Meta. Tab moves focus; Escape cancels a change. Browser shortcuts may take priority.</p>
-    <div class="actions">
-      <button id="save" type="button" disabled>Save shortcut</button>
-      <button id="reset" type="button" disabled>Reset to Right Arrow</button>
+  <main class="settings-shell">
+    <header class="settings-header">
+      <div class="brand"><img src="icons/icon48.png" width="40" height="40" alt=""><span class="brand-name">Shorts Avoid</span></div>
+      <h1>Shortcut settings</h1>
+      <p class="lead">Choose a key or mouse button for each action.</p>
+    </header>
+    <div class="shortcut-cards">
+      <section class="shortcut-card" aria-labelledby="shortcut-title">
+        <div class="card-heading"><span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg></span><div><h2 id="shortcut-title">Avoid</h2><span class="default-label">Default: Left Arrow</span></div></div>
+        <p class="action-description">Mark Not Interested, dismiss the channel, and move to the next Short.</p>
+        <div class="outlined-field"><label for="shortcut">Avoid shortcut</label><input id="shortcut" type="text" readonly aria-describedby="hint status" disabled></div>
+        <div class="actions"><button id="save" class="button filled" type="button" disabled>Save Avoid shortcut</button><button id="reset" class="button text" type="button" disabled>Reset to Left Arrow</button></div>
+      </section>
+      <section class="shortcut-card" aria-labelledby="like-shortcut-title">
+        <div class="card-heading"><span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 4 12C-2 5 6-1 12 6 18-1 26 5 20 12Z"/></svg></span><div><h2 id="like-shortcut-title">Like</h2><span class="default-label">Default: Right Arrow</span></div></div>
+        <p class="action-description">Like the current video and move to the next Short.</p>
+        <div class="outlined-field"><label for="like-shortcut">Like shortcut</label><input id="like-shortcut" type="text" readonly aria-describedby="hint status" disabled></div>
+        <div class="actions"><button id="like-save" class="button filled" type="button" disabled>Save Like shortcut</button><button id="like-reset" class="button text" type="button" disabled>Reset to Right Arrow</button></div>
+      </section>
     </div>
-    <button id="retry" type="button" hidden>Retry loading settings</button>
-    <p id="status" role="status" aria-live="polite"></p>
+    <aside class="capture-guide" aria-labelledby="guide-title">
+      <h2 id="guide-title">How to set a shortcut</h2>
+      <p id="hint">Select a shortcut field, then press a key or click a mouse button inside it. Add Ctrl, Alt, Shift or Meta if you want. The first click focuses the field.</p>
+      <p><kbd>Tab</kbd> moves focus. <kbd>Esc</kbd> cancels a change. Give each action a different shortcut.</p>
+      <p class="supporting-text">A saved mouse shortcut replaces that button's normal action on Shorts outside editable fields. Browser or mouse software shortcuts may take priority.</p>
+    </aside>
+    <button id="retry" class="button outlined" type="button" hidden>Retry loading settings</button>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <footer class="settings-footer">Saved on this browser. Changes apply to open Shorts tabs.</footer>
   </main>
 </body>
 </html>

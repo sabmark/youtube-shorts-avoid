@@ -3,12 +3,13 @@ const assert = require('node:assert/strict');
 const { JSDOM } = require('jsdom');
 const { readFileSync, existsSync } = require('node:fs');
 const { join } = require('node:path');
-const { storage } = require('./storage.cjs');
+const { storage, locksFor } = require('./storage.cjs');
 async function options(t, store) {
   const base = join(__dirname, '../extension');
   const dom = new JSDOM(readFileSync(join(base, 'options.html'), 'utf8'), { runScripts: 'outside-only' });
   t.after(() => dom.window.close());
   dom.window.chrome = { storage: store };
+  Object.defineProperty(dom.window.navigator, 'locks', { value: locksFor(store) });
   for (const name of ['shortcut.js', 'options.js']) {
     const path = join(base, 'src', name);
     if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));
@@ -30,7 +31,7 @@ async function click(w, id) {
 test('settings captures, saves and reloads a modified shortcut and resets the default', async t => {
   const store = storage();
   const w = await options(t, store);
-  assert.equal(field(w).value, 'Right');
+  assert.equal(field(w).value, 'Left');
   key(w, 'k', { ctrlKey: true });
   assert.equal(field(w).value, 'Ctrl + k');
   await click(w, '#save');
@@ -39,18 +40,18 @@ test('settings captures, saves and reloads a modified shortcut and resets the de
   assert.equal(field(reopened).value, 'Ctrl + k');
   await click(reopened, '#reset');
   const reset = await options(t, store);
-  assert.equal(field(reset).value, 'Right');
+  assert.equal(field(reset).value, 'Left');
 });
 
 test('Tab moves focus, modifier-only keys are ignored and Escape cancels the pending change', async t => {
   const w = await options(t, storage());
   assert.equal(key(w, 'Tab').defaultPrevented, false);
   key(w, 'Control', { ctrlKey: true });
-  assert.equal(field(w).value, 'Right');
+  assert.equal(field(w).value, 'Left');
   key(w, 'j');
   assert.equal(field(w).value, 'j');
   key(w, 'Escape');
-  assert.equal(field(w).value, 'Right');
+  assert.equal(field(w).value, 'Left');
   assert.equal(w.document.querySelector('#save').disabled, true);
 });
 
@@ -62,7 +63,7 @@ test('failed saving reports an error and does not replace the stored shortcut', 
   await click(w, '#save');
   assert.match(w.document.querySelector('#status').textContent, /could not save/i);
   const reopened = await options(t, store);
-  assert.equal(field(reopened).value, 'Right');
+  assert.equal(field(reopened).value, 'Left');
 });
 
 test('a failed initial settings read can be retried without reopening the page', async t => {
@@ -77,4 +78,106 @@ test('a failed initial settings read can be retried without reopening the page',
   await click(w, '#retry');
   assert.equal(field(w).disabled, false);
   assert.equal(field(w).value, 'j');
+});
+
+function mouse(w, type, button, extra = {}) {
+  const event = new w.MouseEvent(type, { button, bubbles: true, cancelable: true, ...extra });
+  field(w).dispatchEvent(event);
+  return event;
+}
+
+test('mouse capture requires focus and persists a modified mouse binding', async t => {
+  const store = storage();
+  const w = await options(t, store);
+  assert.equal(mouse(w, 'mousedown', 0).defaultPrevented, false);
+  assert.equal(field(w).value, 'Left', 'clicking to focus must not replace the binding');
+  field(w).focus();
+  assert.equal(mouse(w, 'mousedown', 1, { ctrlKey: true }).defaultPrevented, true);
+  assert.equal(field(w).value, 'Ctrl + Middle mouse');
+  assert.equal(mouse(w, 'auxclick', 1).defaultPrevented, true);
+  await click(w, '#save');
+  const reopened = await options(t, store);
+  assert.equal(field(reopened).value, 'Ctrl + Middle mouse');
+  key(reopened, 'j');
+  assert.equal(field(reopened).value, 'j');
+  key(reopened, 'Escape');
+  assert.equal(field(reopened).value, 'Ctrl + Middle mouse');
+  await click(reopened, '#reset');
+  assert.equal(field(reopened).value, 'Left');
+});
+
+test('settings captures all five standard mouse buttons and suppresses the context menu', async t => {
+  const w = await options(t, storage());
+  field(w).focus();
+  for (const [button, label] of ['Left mouse', 'Middle mouse', 'Right mouse', 'Mouse Back', 'Mouse Forward'].entries()) {
+    mouse(w, 'mousedown', button);
+    assert.equal(field(w).value, label);
+  }
+  mouse(w, 'mousedown', 2);
+  assert.equal(mouse(w, 'contextmenu', 2).defaultPrevented, true);
+});
+
+test('Like shortcut saves and reloads independently without replacing Avoid', async t => {
+  const store = storage({ avoidShortcut: { key: 'j' } });
+  const w = await options(t, store);
+  const like = w.document.querySelector('#like-shortcut');
+  assert.ok(like, 'Like shortcut is configurable');
+  assert.equal(like.value, 'Right');
+  like.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'l', ctrlKey: true, bubbles: true, cancelable: true }));
+  await click(w, '#like-save');
+  const reopened = await options(t, store);
+  assert.equal(reopened.document.querySelector('#like-shortcut').value, 'Ctrl + l');
+  assert.equal(field(reopened).value, 'j');
+  await click(reopened, '#like-reset');
+  assert.equal(reopened.document.querySelector('#like-shortcut').value, 'Right');
+  assert.equal(field(reopened).value, 'j');
+});
+
+test('duplicate bindings and conflicting resets are rejected without writing settings', async t => {
+  const store = storage({ avoidShortcut: { key: 'j' }, likeShortcut: { key: 'ArrowLeft' } });
+  const w = await options(t, store);
+  key(w, 'ArrowLeft');
+  await click(w, '#save');
+  assert.match(w.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('avoidShortcut')).avoidShortcut.key, 'j');
+  await click(w, '#reset');
+  assert.match(w.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('avoidShortcut')).avoidShortcut.key, 'j');
+});
+
+test('Like mouse binding captures after focus and persists modifier flags', async t => {
+  const store = storage();const w = await options(t, store);
+  const like = w.document.querySelector('#like-shortcut');
+  assert.ok(like);
+  like.focus();
+  like.dispatchEvent(new w.MouseEvent('mousedown', { button: 1, altKey: true, bubbles: true, cancelable: true }));
+  await click(w, '#like-save');
+  assert.equal((await options(t, store)).document.querySelector('#like-shortcut').value, 'Alt + Middle mouse');
+});
+
+test('an already-open settings page rejects a shortcut saved by another page', async t => {
+  const store = storage();
+  const first = await options(t, store);
+  const second = await options(t, store);
+  key(first, 'k');await click(first, '#save');
+  const like = second.document.querySelector('#like-shortcut');
+  like.dispatchEvent(new second.KeyboardEvent('keydown', { key:'k',bubbles:true,cancelable:true }));
+  await click(second, '#like-save');
+  assert.match(second.document.querySelector('#status').textContent, /different shortcut|already used/i);
+  assert.equal((await store.local.get('likeShortcut')).likeShortcut, undefined);
+});
+
+test('concurrent settings pages cannot save the same new binding', async t => {
+  const store = storage();const first = await options(t, store);const second = await options(t, store);
+  const get=store.local.get;let release;let gate=new Promise(resolve=>{release=resolve});let reads=0;
+  store.local.get=async keys=>{const snapshot=await get(keys);if(reads++===0)await gate;return snapshot;};
+  key(first,'k');first.document.querySelector('#save').click();await new Promise(resolve=>setImmediate(resolve));
+  second.document.querySelector('#like-shortcut').dispatchEvent(new second.KeyboardEvent('keydown',{key:'k',bubbles:true,cancelable:true}));
+  second.document.querySelector('#like-save').click();await new Promise(resolve=>setImmediate(resolve));
+  release();
+  for(let i=0;i<5;i++)await new Promise(resolve=>setImmediate(resolve));
+  const saved=await get(['avoidShortcut','likeShortcut']);
+  assert.equal(saved.avoidShortcut.key,'k');
+  assert.notEqual(saved.likeShortcut?.key,'k');
+  assert.match(second.document.querySelector('#status').textContent,/already used|different shortcut/i);
 });

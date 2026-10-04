@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.1.22
+
+- Redesign the popup and settings with local Material 3 styles, icon rows, shortcut cards and automatic light/dark themes.
+- Include independent Avoid and Like shortcut controls from 0.1.21.
+- Remove Bootstrap and keep keyboard focus,48px buttons and native popup height rounding.
+
+## 0.1.21
+
+- Add independent Like shortcut settings with keyboard and mouse support, save and reset.
+- Apply changes immediately to open Shorts tabs and reject duplicate shortcuts.
+- Preserve existing Avoid bindings and show a warning if old settings overlap.
+
+## 0.1.20
+
+- Restore a compact extension menu with Shortcut settings and links to Google Not Interested and liked-video history.
+- Remove the embedded feedback list, deletion automation and Google My Activity permission.
+- Include the heart button and Left/Right Arrow defaults from 0.1.19.
+
+## 0.1.19
+
+- Add a heart button that likes the current Short and advances after confirmation.
+- Set Left Arrow as the default Avoid shortcut and Right Arrow as like-and-next. Saved Avoid bindings take priority.
+- Preserve an existing like and block overlapping activations.
+
+## 0.1.18
+
+- Consume mouse pointer press and release on Shorts so Back/Forward bindings can override browser history navigation when page handlers suppress compatibility mouse events.
+- Keep normal navigation outside Shorts and ignore touch/pen compatibility mouse input.
+
+## 0.1.17
+
+- Allow mouse buttons with optional modifiers as the Avoid shortcut.
+- Keep keyboard bindings and Right Arrow reset available.
+- Capture mouse bindings only after focusing the shortcut field and suppress matching click defaults on Shorts.
+
 ## 0.1.16
 
 - Close Google's informational deletion receipt inside the popup flow before verifying removal.

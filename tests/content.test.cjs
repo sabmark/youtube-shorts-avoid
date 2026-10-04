@@ -122,13 +122,13 @@ test('replacing the renderer during an operation cannot start another workflow',
 
 function arrow(w, target = w.document, options = {}) {
   const event = new w.KeyboardEvent('keydown', {
-    key: 'ArrowRight', bubbles: true, composed: true, cancelable: true, ...options
+    key: 'ArrowLeft', bubbles: true, composed: true, cancelable: true, ...options
   });
   target.dispatchEvent(event);
   return event;
 }
 
-test('Right Arrow runs the button workflow once and blocks repeated activation', async t => {
+test('Left Arrow runs the button workflow once and blocks repeated activation', async t => {
   const w = fixture(t, player());
   let submissions = 0;
   let advances = 0;
@@ -154,7 +154,7 @@ test('Right Arrow runs the button workflow once and blocks repeated activation',
   assert.equal(button(w).disabled, false);
 });
 
-test('Right Arrow ignores editable fields, modifiers and previously handled events', t => {
+test('Left Arrow ignores editable fields, modifiers and previously handled events', t => {
   const w = fixture(t, player());
   for (const markup of ['<input>', '<textarea></textarea>', '<select><option>A</option></select>',
     '<div contenteditable="true"><span>typing</span></div>']) {
@@ -178,7 +178,7 @@ test('Right Arrow ignores editable fields, modifiers and previously handled even
   assert.equal(button(w).disabled, false);
 });
 
-test('Right Arrow stays inactive outside Shorts or without an active control', t => {
+test('Left Arrow stays inactive outside Shorts or without an active control', t => {
   const w = fixture(t, player(), 'https://www.youtube.com/');
   assert.equal(arrow(w).defaultPrevented, false);
   w.history.pushState({}, '', '/shorts/first-video');
@@ -194,12 +194,12 @@ test('Right Arrow stays inactive outside Shorts or without an active control', t
   assert.equal(arrow(w).defaultPrevented, false);
 });
 
-test('Right Arrow intercepts an earlier page bubble handler before it changes the Short', async t => {
+test('Left Arrow intercepts an earlier page bubble handler before it changes the Short', async t => {
   let nativeCalls = 0;
   const w = fixture(t, player(), 'https://www.youtube.com/shorts/first-video', {
     beforeScripts(window) {
       window.document.addEventListener('keydown', event => {
-        if (event.key === 'ArrowRight') {
+        if (event.key === 'ArrowLeft') {
           nativeCalls++;
           window.history.pushState({}, '', '/shorts/second-video');
         }
@@ -214,7 +214,7 @@ test('Right Arrow intercepts an earlier page bubble handler before it changes th
   await until(() => !button(w).disabled);
 });
 
-test('saved shortcut replaces Right Arrow and updates in an open Shorts tab', async t => {
+test('saved shortcut replaces Left Arrow and updates in an open Shorts tab', async t => {
   const { storage } = require('./storage.cjs');
   const store = storage({ avoidShortcut: { key: 'k', ctrlKey: true } });
   const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
@@ -257,5 +257,153 @@ test('shortcut waits for stored settings and does not overwrite a newer change w
   assert.equal(arrow(w, w.document, { key: 'k' }).defaultPrevented, false);
   installMenu(w, { items: ['Report'] });
   assert.equal(arrow(w, w.document, { key: 'j' }).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+function mouse(w, type, button, target = w.document.body, extra = {}) {
+  const event = new w.MouseEvent(type, { button, bubbles: true, composed: true, cancelable: true, detail: 1, ...extra });
+  target.dispatchEvent(event);
+  return event;
+}
+async function mouseFixture(t, binding = { type: 'mouse', button: 1 }) {
+  const { storage } = require('./storage.cjs');
+  const store = storage({ avoidShortcut: binding });
+  const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+  await new Promise(resolve => setImmediate(resolve));
+  return { w, store };
+}
+
+test('a mouse gesture runs feedback once and suppresses page handlers and follow-on events', async t => {
+  const { w } = await mouseFixture(t);
+  let submissions = 0;
+  let nativeCalls = 0;
+  installMenu(w, { onFeedback: label => {
+    submissions++;
+    w.setTimeout(() => notice(w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel"), 25);
+  } });
+  w.document.querySelector('[aria-label="Next video"]').onclick = () => {
+    w.history.pushState({}, '', '/shorts/second-video');
+    w.document.dispatchEvent(new w.Event('yt-navigate-finish'));
+  };
+  w.document.addEventListener('mousedown', () => nativeCalls++);
+  assert.equal(arrow(w).defaultPrevented, false);
+  assert.equal(mouse(w, 'mousedown', 0).defaultPrevented, false);
+  assert.equal(mouse(w, 'mousedown', 1).defaultPrevented, true);
+  assert.equal(button(w).disabled, true);
+  assert.equal(mouse(w, 'mousedown', 1).defaultPrevented, true, 'busy gestures stay consumed without another run');
+  assert.equal(mouse(w, 'mouseup', 1).defaultPrevented, true);
+  assert.equal(mouse(w, 'auxclick', 1).defaultPrevented, true);
+  assert.equal(nativeCalls, 1);
+  await until(() => !button(w).disabled, 6000);
+  assert.equal(submissions, 2);
+  assert.equal(w.location.pathname, '/shorts/second-video');
+});
+
+test('mouse bindings keep exact modifiers, editable and route guards and update live', async t => {
+  const { w, store } = await mouseFixture(t, { type: 'mouse', button: 2, altKey: true });
+  installMenu(w, { items: ['Report'] });
+  for (const html of ['<input>', '<textarea></textarea>', '<select></select>', '<div contenteditable="true"><span>typing</span></div>']) {
+    const wrapper = w.document.createElement('div');
+    wrapper.innerHTML = html;
+    w.document.body.append(wrapper);
+    assert.equal(mouse(w, 'mousedown', 2, wrapper.querySelector('span') || wrapper.firstChild, { altKey: true }).defaultPrevented, false);
+  }
+  assert.equal(mouse(w, 'mousedown', 2).defaultPrevented, false);
+  w.history.pushState({}, '', '/watch?v=example');
+  assert.equal(mouse(w, 'mousedown', 2, undefined, { altKey: true }).defaultPrevented, false);
+  w.history.pushState({}, '', '/shorts/first-video');
+  assert.equal(mouse(w, 'mousedown', 2, undefined, { altKey: true }).defaultPrevented, true);
+  assert.equal(mouse(w, 'contextmenu', 2).defaultPrevented, true);
+  mouse(w, 'mouseup', 2);
+  assert.equal(mouse(w, 'auxclick', 2).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+  await store.local.set({ avoidShortcut: { key: 'j' } });
+  assert.equal(mouse(w, 'mousedown', 2, undefined, { altKey: true }).defaultPrevented, false);
+  assert.equal(arrow(w, w.document, { key: 'j' }).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('mouse gesture suppression survives navigation but leaves unrelated clicks alone', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 0 });
+  installMenu(w, { items: ['Report'] });
+  const target = w.document.createElement('a');
+  const sibling = w.document.createElement('button');
+  w.document.body.append(target, sibling);
+  assert.equal(mouse(w, 'mousedown', 0, target).defaultPrevented, true);
+  w.history.pushState({}, '', '/watch?v=example');
+  assert.equal(mouse(w, 'click', 0, sibling).defaultPrevented, false);
+  assert.equal(mouse(w, 'click', 0, target, { detail: 0 }).defaultPrevented, false, 'programmatic clicks stay untouched');
+  assert.equal(mouse(w, 'mouseup', 0, target).defaultPrevented, true);
+  assert.equal(mouse(w, 'click', 0, target).defaultPrevented, true);
+  assert.equal(mouse(w, 'click', 0, target).defaultPrevented, false, 'only the captured gesture is consumed');
+  await until(() => !host(w));
+});
+
+test('a mouse press on a child suppresses release and click on its parent', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 0 });
+  installMenu(w, { items: ['Report'] });
+  const link = w.document.createElement('a');
+  const child = w.document.createElement('span');
+  link.append(child);
+  w.document.body.append(link);
+  let nativeCalls = 0;
+  link.addEventListener('click', () => nativeCalls++);
+  assert.equal(mouse(w, 'mousedown', 0, child).defaultPrevented, true);
+  assert.equal(mouse(w, 'mouseup', 0, link).defaultPrevented, true);
+  assert.equal(mouse(w, 'click', 0, link).defaultPrevented, true);
+  assert.equal(nativeCalls, 0);
+  await until(() => !button(w).disabled);
+});
+
+test('mouse Back consumes pointer release when page cancellation suppresses compatibility mouse events', async t => {
+  const { storage } = require('./storage.cjs');
+  const w = fixture(t, player(), undefined, { beforeScripts(w) {
+    w.chrome = { storage: storage({ avoidShortcut: { type: 'mouse', button: 3 } }) };
+    w.addEventListener('pointerdown', event => event.preventDefault(), { capture: true });
+  } });
+  await new Promise(resolve => setImmediate(resolve));
+  installMenu(w, { items: ['Report'] });
+  mouse(w, 'pointerdown', 3);
+  assert.equal(button(w).disabled, true, 'a pointer press must activate even without compatibility mousedown');
+  assert.equal(mouse(w, 'pointerup', 3).defaultPrevented, true, 'consumed release prevents browser Back');
+  assert.equal(mouse(w, 'auxclick', 3).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('pointer shortcut overrides page handlers on Shorts while leaving other routes and typing alone', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 4 });
+  installMenu(w, { items: ['Report'] });
+  let pageCalls = 0;
+  w.document.addEventListener('pointerdown', () => pageCalls++, { capture: true });
+  const input = w.document.createElement('input');
+  w.document.body.append(input);
+  assert.equal(mouse(w, 'pointerdown', 4, input).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerup', 4, input).defaultPrevented, false);
+  w.history.pushState({}, '', '/watch?v=example');
+  assert.equal(mouse(w, 'pointerdown', 4).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerup', 4).defaultPrevented, false);
+  w.history.pushState({}, '', '/shorts/first-video');
+  assert.equal(mouse(w, 'pointerdown', 3).defaultPrevented, false);
+  assert.equal(mouse(w, 'pointerdown', 4).defaultPrevented, true);
+  assert.equal(pageCalls, 3, 'configured pointer event must not reach page capture handlers');
+  assert.equal(mouse(w, 'pointerup', 4).defaultPrevented, true);
+  await until(() => !button(w).disabled);
+});
+
+test('touch and pen compatibility mouse events do not activate a Left mouse shortcut', async t => {
+  const { w } = await mouseFixture(t, { type: 'mouse', button: 0 });
+  installMenu(w, { items: ['Report'] });
+  for (const pointerType of ['touch', 'pen']) {
+    const down = new w.MouseEvent('pointerdown', { button: 0, bubbles: true, composed: true, cancelable: true });
+    Object.defineProperty(down, 'pointerType', { value: pointerType });
+    w.document.body.dispatchEvent(down);
+    assert.equal(down.defaultPrevented, false);
+    assert.equal(mouse(w, 'mousedown', 0).defaultPrevented, false);
+    assert.equal(mouse(w, 'mouseup', 0).defaultPrevented, false);
+    assert.equal(mouse(w, 'click', 0).defaultPrevented, false);
+    assert.equal(button(w).disabled, false);
+  }
+  assert.equal(mouse(w, 'pointerdown', 0).defaultPrevented, true, 'a subsequent real mouse pointer still works');
+  mouse(w, 'pointerup', 0);
   await until(() => !button(w).disabled);
 });

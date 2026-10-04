@@ -195,6 +195,31 @@
       }
     }
 
+    async like(target) {
+      this.assertCurrent(target);
+      this.assertNoReason();
+      const controls = [...target.element.querySelectorAll('button')].filter(element => {
+        const name = normalize(element.getAttribute('aria-label'));
+        return visible(this.window, element) && !element.disabled && element.getAttribute('aria-disabled') !== 'true'
+          && /^(like(?: this video)?(?: along with .* other people)?|unlike(?: this video)?)$/.test(name);
+      });
+      if (controls.length !== 1) throw problem('missing-like', 'This Short does not offer a supported Like control.');
+      const button = controls[0];
+      const isLiked = () => button.getAttribute('aria-pressed') === 'true'
+        || /^unlike(?: this video)?$/.test(normalize(button.getAttribute('aria-label')));
+      if (isLiked()) return;
+      if (button.getAttribute('aria-pressed') !== 'false') {
+        throw problem('unknown-like-state', 'YouTube did not expose whether this video is liked.');
+      }
+      this.assertCurrent(target);
+      button.click();
+      await this.wait(() => {
+        this.assertCurrent(target);
+        this.assertNoReason();
+        return visible(this.window, button) && isLiked();
+      }, 'YouTube did not confirm the like. Check the Like control before trying again.');
+    }
+
     async next(target) {
       this.assertCurrent(target);
       // Feedback confirmation can precede YouTube's queued native navigation.

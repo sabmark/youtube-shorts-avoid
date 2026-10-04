@@ -198,3 +198,69 @@ Three receipt regressions failed before this handling; four now cover two-step c
 The native-browser test initially could not open a popup on WSLg, so the owned signed-in test browser was relaunched under the existing Xvfb/Openbox desktop. Automation's focus emulation also deferred Google's UI processing; disabling that emulation exposed the pending completion receipt. To preserve that existing operation, the final feedback class methods were loaded into the already installed content adapters without adding duplicate message listeners. The live native popup then resumed only the approved video's receipt. It clicked Close once, issued no further Delete click, refreshed the chosen video out and displayed "Video feedback removed. Channel feedback was kept." All 99 other loaded activities remained, including all 51 channel-only entries. Active tab IDs and browser window count stayed unchanged. Reloading Google proved the selected video's deletion persisted and every previously loaded channel entry remained. This was a live Google account mutation authorized for that one named video, not a fixture deletion.
 
 Separately, the clean installed v0.1.16 extension was reloaded and tested through its native toolbar popup and actual message bridge against the observed DOM fixture, including lazy owner-ID assignment and a completion receipt after the final confirmation. Initial Delete, final Delete and receipt Close each received exactly one click. Hidden templates received none, the other video and channel remained, active tabs and window count stayed unchanged, and the popup reported verified removal. This distinguishes the clean installed fixture check from the final-source live receipt continuation. Installed Opera remains untested locally.
+
+## Version 0.1.17 mouse shortcuts
+
+The shortcut setting now accepts Left, Middle, Right, Mouse Back and Mouse Forward, with optional Ctrl, Alt, Shift or Meta. Existing keyboard settings and the Right Arrow default remain compatible. A mouse binding replaces the selected button's normal action on Shorts outside editable fields. Browser Back/Forward behavior may take priority.
+
+Six new behavior tests cover focus before capture, mouse persistence, all five labels, feedback once, modifier/editable/route guards, live setting changes, navigation during a gesture, programmatic clicks and child-to-parent click retargeting. The retargeting regression failed before related-target suppression was added. Existing keyboard regressions also caught and verified the fix for confusing a DOM event's type with the stored binding type. All 102 tests pass, packaging creates `dist/youtube-shorts-avoid-0.1.17.zip`, and independent review found no remaining actionable issues.
+
+The owner approved browser UI/UX verification. An isolated installed Chromium v0.1.17 check verified that the first field click only focuses it, Ctrl+Middle captures and persists through an actual extension-storage save/reload, Right captures, Escape restores the saved mouse binding, keyboard capture still works, and reset restores Right Arrow. Light 1024 by 768 and dark 360 by 640 layouts have no horizontal overflow, all visible controls are at least 44 pixels high and the input focus outline is 3 pixels. Screenshots were inspected. The input gained an explicit 44-pixel minimum after the browser measured its original height at 42.375 pixels.
+
+The installed isolated-world content scripts ran against a synthetic Shorts page with intercepted network responses. Real browser Left, Middle and Right clicks each sent Not interested and Don't recommend channel once, clicked Next once, reached the second Short, and produced zero native click, auxiliary-click or context-menu handlers on the test surface. This was fixture feedback, not a live account mutation. Live signed-in YouTube, Opera and physical Back/Forward buttons remain owner retests.
+
+Reload the extension and YouTube, open Options, focus the shortcut field, click the desired mouse button inside it and save. On a Short you want to dismiss, use that button outside an editable field and confirm the feedback sequence and single advance. Reset to Right Arrow remains available.
+
+## Version 0.1.18 Back/Forward pointer handling
+
+The owner reported that an unmapped Razer Mouse 4 in Opera navigated Back despite the saved binding. An installed Chromium probe reproduced a matching event failure: a page capture handler cancelled pointerdown, which suppressed compatibility mousedown/mouseup. The old mouse-only handler never activated Avoid or consumed the release, and native Back moved from /shorts/current to /shorts/before. Without page cancellation, the same old build handled Back correctly. This reproduces the event conflict, not the owner's exact Opera/hardware session.
+
+The extension now handles mouse pointerdown and pointerup at window capture, while retaining mouse-event fallback and follow-on click suppression. A configured mouse press overrides earlier default prevention on an eligible Short; keyboard handling retains its earlier guards. The accepted release is consumed even if the target changes. Touch and pen presses clear the old gesture and exclude their compatibility mouse events from mouse shortcuts. The next real mouse pointer restores mouse handling.
+
+Three new regressions failed before their fixes and now pass: cancelled-pointer Back release, scoped pointer overrides and touch/pen compatibility exclusion. All 105 tests pass; packaging creates `dist/youtube-shorts-avoid-0.1.18.zip`, whitespace checks pass and independent review has no remaining findings.
+
+With the updated extension installed, Chromium native Back and Forward input through its input protocol each activated Avoid once without traversing browser history on the Shorts fixture, including page pointerdown cancellation. On normal YouTube watch routes, both buttons still traversed history and did not activate Avoid. An unassigned Back button on Shorts also retained normal history navigation. Fixture feedback options were deliberately unavailable, so these checks submitted no recommendation feedback. Opera with the owner's physical Razer Mouse 4 still requires retesting.
+
+Install or reload v0.1.18, then reload the existing YouTube tab. Keep Mouse Back saved and test Mouse 4 on a Short you want to dismiss, outside an editable field. Confirm that it runs Avoid instead of returning to the previous browser page. On another website or a normal YouTube watch page, Mouse 4 should still navigate Back.
+
+
+## Like and arrow defaults, version 0.1.19
+
+The heart button and Right Arrow like the current Short and advance only after YouTube exposes a liked state. An already-liked video remains liked. Left Arrow now defaults to the existing Avoid sequence (Not interested, then Don't recommend channel). Saved Avoid shortcuts take priority, including saved Right Arrow bindings. Reset Avoid to Left Arrow to use both default arrows.
+
+The new regression tests failed before implementation. The full suite passes 113 tests with no failures, and packaging creates version 0.1.19. An isolated Chromium lease ran the content scripts on an intercepted synthetic Shorts page: heart click and Right Arrow each clicked Like once, sent no negative feedback and advanced once; Left Arrow sent both negative feedback actions and advanced once. Light 1024x768 and dark 360x640 checks showed two 48x48 controls, 3px focus rings and no script errors; screenshots were inspected. These were page-script fixture checks, not installed-extension or live account confirmation. Live signed-in YouTube and Opera remain owner checks.
+
+Install or reload the package, reload YouTube, reset Avoid to Left Arrow if desired, then try the heart or Right Arrow on a Short you want to like. Confirm the native Like state and one advance. Try an already-liked Short and confirm its like remains. Test Left Arrow on a Short you want to dismiss.
+
+## Compact menu, version 0.1.20
+
+The extension icon now opens a compact menu with Shortcut settings, Not Interested history and Liked videos history. Both history links open Google My Activity in a new tab. The extension's history list, pagination, removal controls, Google history adapter and My Activity host permission are removed. The package includes 0.1.19's heart button and arrow defaults.
+
+The popup regressions failed before implementation because opening the old popup queried and messaged a Google tab. The final full suite passes 80 tests with no failures, and packaging creates version 0.1.20. Tests for the retired feedback browser were removed with that feature. Independent review found no defects in the menu change.
+
+Owner-approved Chromium checks verified light and dark menu pages at 320px wide with three 44px controls, 3px focus and no horizontal overflow or script errors. The Liked videos link opened a new Google tab and preserved the requested history destination through Google's signed-out redirect. A real installed extension was loaded in a separate private Chromium profile. Its native toolbar popup first measured 320x285 with a 286px document: Chromium truncated the fractional content height. A regression failed before restoring ResizeObserver height rounding. The final native popup measured 320x286 with scrollWidth320 and scrollHeight286; its screenshot was inspected. Signed-in history contents and Opera remain owner checks.
+
+Install or reload **version 0.1.20** and reload YouTube. Click the extension icon and confirm the three-item menu. Open both history links and sign in to the YouTube account if needed. Reset Avoid to Left Arrow to use both new defaults if your saved shortcut is Right Arrow. On Shorts, heart/Right should like and advance once, while Left runs the existing Avoid action. Already-liked videos should remain liked.
+
+## Configurable Like shortcut, version 0.1.21
+
+Owner feedback identified a missing Like control in Options. The root cause was that options.js persisted only avoidShortcut while content.js matched a fixed Like default. Options now saves and resets each action independently, captures keyboard or mouse shortcuts with modifiers, and rejects newly saved duplicate bindings. Existing overlapping settings remain unchanged and show an Avoid-priority warning. Each content-setting read has its own revision guard so a delayed load does not replace newer changes.
+
+New persistence, collision, mouse and live-update tests failed before implementation. The full suite passes 87 tests with no failures and packaging creates version 0.1.21. Independent review found stale collision validation between two open Options pages; failing-first regressions verify settings are re-read before saving and cross-tab writes are serialized with a Web Lock. The next interface change applies Material 3 styling to these controls and the popup; rendered verification will cover the combined package.
+
+
+## Material 3 popup and settings, version 0.1.22
+
+The owner approved local Material 3 styling for the popup and settings, including separate Avoid and Like shortcut cards. A shared local material.css defines light/dark color roles, typography, rounded buttons and visible focus. Settings uses outlined capture fields, independent save/reset controls and shared instructions. The popup uses three icon rows. Bootstrap assets and its unused development dependency are removed.
+
+The packaging regression failed before updating the runtime allowlist. The combined full suite passes 87 tests with no failures and packaging creates version 0.1.22. Independent review found no remaining defects after sequential and concurrent cross-tab collision regressions were fixed using fresh reads and a Web Lock.
+
+Owner-authorized checks loaded the real extension in a private Chromium profile. Like captured Ctrl+l, saved through actual extension storage, reloaded without changing Avoid, accepted Right mouse and reset to Right Arrow. A duplicate Avoid binding was rejected. Two Options pages concurrently requesting K stored Avoid=K while Like remained Right Arrow. Settings at960x1000 light and360x640 dark had no horizontal overflow,56px fields,48px buttons and3px focus; screenshots were inspected.
+
+The installed native popup measured360x386 with scrollWidth360 and scrollHeight386 in light and dark themes; its screenshot was inspected. A previous check used the narrow settings window and Chromium clamped the popup to280px, so the native check now uses a normal desktop window separately from narrow settings verification. WSL window focus also intermittently blocked popup opening; a private headless-new Chromium window provided the final native target. These checks verify rendering and extension settings, not live account feedback. Signed-in YouTube actions and Opera remain owner checks.
+
+Install or reload **version0.1.22**, then reload YouTube. Open Shortcut settings from the extension icon. Save a different key or mouse shortcut for Like, confirm Avoid stays unchanged, and try the binding on a Short you want to like. Reset either action independently. Check the Material popup and settings in your preferred theme.
+
+## Version 0.1.22 owner acceptance
+
+On 2026-10-04, after receiving the packaged ZIP in Windows Downloads, the owner reported: "Looking nice, it works, release it." This is owner-reported local acceptance of the current functionality and design. The browser was not specified; it does not establish a separate Opera retest.

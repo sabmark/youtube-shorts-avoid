@@ -6,7 +6,9 @@
 [![Release](https://img.shields.io/github/v/release/sabmark/youtube-shorts-avoid)](https://github.com/sabmark/youtube-shorts-avoid/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-One button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
+The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
+
+The **Like** heart button likes the current Short and advances when YouTube confirms it. An already-liked video stays liked.
 
 Use a signed-in YouTube account with the interface set to English. The extension needs no separate login. It stores no account data and has no backend or telemetry.
 
@@ -14,7 +16,7 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Download [youtube-shorts-avoid-0.1.16.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.16/youtube-shorts-avoid-0.1.16.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
+Download [youtube-shorts-avoid-0.1.22.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.22/youtube-shorts-avoid-0.1.22.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
@@ -25,19 +27,13 @@ If the source is inside WSL, open the extension folder in Windows File Explorer 
 
 ## Use
 
-Click **Avoid** or press **Right Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save a different key or key combination, or reset to Right Arrow. Saved changes apply to open Shorts tabs. The shortcut ignores editable fields and key combinations that differ from your setting; holding the key does not repeat the action. The button is disabled while feedback is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
+Click **Avoid** or press **Left Arrow** only on a video and channel you want to dismiss. Each activation processes one Short. Open the extension's **Options** from the browser extensions page or its toolbar context menu to choose and save an independent key, mouse button or modifier combination for Avoid and Like, or reset either action to its default. Saved changes apply to open Shorts tabs. To capture a mouse button, focus the shortcut field first, then click that button inside it. A mouse binding replaces that button's normal action on Shorts outside editable fields; a saved Back/Forward mouse binding overrides browser history navigation on Shorts. The shortcut ignores editable fields and combinations that differ from your setting; holding the key does not repeat the action. Press **Right Arrow** or click **Like** to like and advance. Avoid defaults to Left Arrow and Like to Right Arrow. Newly saved shortcuts must differ. If older saved bindings overlap, Avoid takes priority until you change one of them. Both buttons are disabled while an action is pending. The extension shows no progress, completion or error notifications. YouTube's own feedback notices remain visible. Use YouTube's normal menu if a step cannot be completed automatically.
 
 If YouTube opens Tell us why, the extension chooses **Other** when available, otherwise the first supported option. It submits once if the dialog has a confirmation button.
 
-## Browse and remove feedback
+## Extension menu
 
-The toolbar popup uses locally bundled Bootstrap 5.3.8 and opens at roughly one-third of the screen width (480 to 800 pixels). Its height fits the current video page, up to the browser’s 600-pixel popup limit. Longer pages scroll within the list.
-
-Click the extension icon to see a popup of videos marked Not Interested in your Google feedback history, including earlier feedback. Each video has a thumbnail; unavailable images show a placeholder. The popup reuses a My Activity tab or opens one in the background. Use **Open Google history** to sign in or complete account verification, then **Refresh**. The supported page uses English.
-
-Browse 10 videos per page with **Previous** and **Next**. **Load older feedback** asks Google to load more history. The count refers to loaded entries, not your total history. **Remove** asks for confirmation before clicking that video's native deletion control. The extension completes the matching Google confirmation in the background and refreshes the popup after verifying removal. You stay in the popup. Channel feedback is excluded from the list and retained when removing a video.
-
-There is no **Remove all** button: the observed Google bulk controls include channel feedback, and a video-only bulk reset has not been verified. The popup reads history in memory and does not save it to extension storage. **Shortcut settings** opens the keyboard configuration page.
+The Material 3 popup and settings use locally bundled styles and follow your browser's light or dark theme. Click the extension icon to open **Shortcut settings**, **Not Interested history**, or **Liked videos history**. The history links open Google's My Activity pages in a new tab. Sign in to the Google account used for YouTube and manage feedback there. The extension does not read, list or delete your Google history.
 
 ## Limits and verification
 
@@ -66,7 +62,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.16.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.18.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

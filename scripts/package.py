@@ -17,10 +17,8 @@ FILES = (
     "options.css",
     "popup.html",
     "popup.css",
-    "vendor/bootstrap.min.css",
-    "vendor/bootstrap.LICENSE.txt",
+    "material.css",
     "src/popup.js",
-    "src/feedback.js",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",
@@ -39,9 +37,9 @@ def main():
         declared.update(entry.get("css", []))
     declared.add(manifest["options_page"])
     declared.add(manifest["action"]["default_popup"])
-    declared.update({"popup.css", "src/popup.js", "vendor/bootstrap.min.css"})
+    declared.update({"popup.css", "src/popup.js", "material.css"})
     declared.update({"options.css", "src/options.js"})
-    if declared != set(FILES) - {"LICENSE", "vendor/bootstrap.LICENSE.txt"}:
+    if declared != set(FILES) - {"LICENSE"}:
         raise ValueError("Manifest runtime files differ from the packaging allowlist")
     for name in FILES:
         path = extension / name

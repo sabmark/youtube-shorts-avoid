@@ -6,17 +6,31 @@
   const workflow = new api.Workflow(adapter);
   const storage = globalThis.chrome?.storage;
   let shortcut = storage ? null : api.Shortcut.defaultShortcut;
-  let storageRevision = 0;
+  let likeShortcut = storage ? null : api.Shortcut.likeShortcut;
+  const revisions = { avoidShortcut: 0, likeShortcut: 0 };
+  function applySetting(name, value) {
+    if (name === 'avoidShortcut') shortcut = api.Shortcut.normalize(value) || api.Shortcut.defaultShortcut;
+    else likeShortcut = api.Shortcut.normalize(value) || api.Shortcut.likeShortcut;
+  }
   if (storage) {
     storage.onChanged.addListener((changes, area) => {
-      if (area !== 'local' || !changes.avoidShortcut) return;
-      storageRevision++;
-      shortcut = api.Shortcut.normalize(changes.avoidShortcut.newValue) || api.Shortcut.defaultShortcut;
+      if (area !== 'local') return;
+      for (const name of Object.keys(revisions)) {
+        if (!changes[name]) continue;
+        revisions[name]++;
+        applySetting(name, changes[name].newValue);
+      }
     });
-    const revision = storageRevision;
-    storage.local.get('avoidShortcut').then(result => {
-      if (revision === storageRevision) shortcut = api.Shortcut.normalize(result.avoidShortcut) || api.Shortcut.defaultShortcut;
-    }).catch(() => { /* Leave the shortcut inactive if settings cannot be read. */ });
+    const initialRevisions = { ...revisions };
+    storage.local.get(Object.keys(revisions)).then(result => {
+      for (const name of Object.keys(revisions)) {
+        if (initialRevisions[name] === revisions[name]) applySetting(name, result[name]);
+      }
+    }).catch(() => { /* Leave shortcuts inactive if settings cannot be read. */ });
+  }
+  function actionFor(event) {
+    return api.Shortcut.matches(event, shortcut) ? 'avoid'
+      : api.Shortcut.matches(event, likeShortcut) ? 'like' : null;
   }
   const host = document.createElement('shorts-avoid-control');
   const root = host.attachShadow({ mode: 'open' });
@@ -50,11 +64,30 @@
   label.setAttribute('aria-hidden', 'true');
   label.textContent = 'Avoid';
   root.append(style, button, label);
+  const likeButton = document.createElement('button');
+  likeButton.type = 'button';
+  likeButton.setAttribute('aria-label', 'Like video and go to next');
+  likeButton.title = 'Like video and go to next';
+  const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  heart.setAttribute('viewBox', '0 0 28 28');
+  heart.setAttribute('aria-hidden', 'true');
+  const heartPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  heartPath.setAttribute('d', 'M14 24 4 14C-3 6 7-2 14 6 21-2 31 6 24 14Z');
+  heart.append(heartPath);
+  likeButton.append(heart);
+  likeButton.style.marginTop = '12px';
+  const likeLabel = document.createElement('span');
+  likeLabel.className = 'label';
+  likeLabel.setAttribute('aria-hidden', 'true');
+  likeLabel.textContent = 'Like';
+  root.append(likeButton, likeLabel);
   let scheduled = null;
 
   function updateButton(state) {
-    button.disabled = state.status === 'busy';
-    button.setAttribute('aria-busy', String(button.disabled));
+    for (const control of [button, likeButton]) {
+      control.disabled = state.status === 'busy';
+      control.setAttribute('aria-busy', String(control.disabled));
+    }
   }
 
   function refresh() {
@@ -70,7 +103,7 @@
       return;
     }
     if (host.parentElement !== rail) rail.append(host);
-    button.disabled = workflow.busy;
+    updateButton({ status: workflow.busy ? 'busy' : 'idle' });
   }
 
   function schedule() {
@@ -78,22 +111,70 @@
     if (scheduled === null) scheduled = window.setTimeout(refresh, 80);
   }
 
-  function activate() {
-    if (!workflow.busy) void workflow.run(updateButton).then(refresh);
+  function activate(action = 'avoid') {
+    if (!workflow.busy) void workflow.run(updateButton, action).then(refresh);
   }
 
-  button.addEventListener('click', activate);
-  document.addEventListener('keydown', event => {
-    if (!api.Shortcut.matches(event, shortcut) || event.defaultPrevented || event.isComposing) return;
+  button.addEventListener('click', () => activate());
+  likeButton.addEventListener('click', () => activate('like'));
+  function canUseShortcut(event, overrideDefault = false) {
+    if ((!overrideDefault && event.defaultPrevented) || event.isComposing) return false;
     const editable = event.composedPath().some(node => node instanceof Element &&
       (node.matches('input, textarea, select') || node.isContentEditable ||
        node.closest('[contenteditable]:not([contenteditable="false"])')));
     if (editable || !window.location.pathname.startsWith('/shorts/') ||
-        !host.isConnected || !adapter.current()) return;
+        !host.isConnected || !adapter.current()) return false;
+    return true;
+  }
+  function consume(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (!event.repeat) activate();
+  }
+  document.addEventListener('keydown', event => {
+    if (!canUseShortcut(event)) return;
+    const action = actionFor(event);
+    if (!action) return;
+    consume(event);
+    if (!event.repeat) activate(action);
   }, { capture: true });
+  let mouseGesture = null;
+  let ignoreCompatibilityMouse = false;
+  window.addEventListener('pointerdown', event => {
+    mouseGesture = null;
+    ignoreCompatibilityMouse = !!event.pointerType && event.pointerType !== 'mouse';
+    if (ignoreCompatibilityMouse) return;
+    const action = actionFor(event);
+    if (!action || !canUseShortcut(event, true)) return;
+    mouseGesture = { button: event.button, target: event.composedPath()[0], pointer: true };
+    consume(event);
+    activate(action);
+  }, { capture: true });
+  window.addEventListener('mousedown', event => {
+    if (ignoreCompatibilityMouse) return;
+    if (mouseGesture?.pointer && mouseGesture.button === event.button) {
+      consume(event);
+      return;
+    }
+    mouseGesture = null;
+    const action = actionFor(event);
+    if (!action || !canUseShortcut(event)) return;
+    mouseGesture = { button: event.button, target: event.composedPath()[0] };
+    consume(event);
+    activate(action);
+  }, { capture: true });
+  for (const type of ['pointerup', 'mouseup', 'click', 'auxclick', 'contextmenu']) {
+    window.addEventListener(type, event => {
+      if (type === 'pointerup' && event.pointerType && event.pointerType !== 'mouse') return;
+      if (!mouseGesture || event.button !== mouseGesture.button ||
+          ((type === 'click' || type === 'auxclick') && event.detail === 0)) return;
+      const target = event.composedPath()[0];
+      const related = target === mouseGesture.target || (target instanceof Node && mouseGesture.target instanceof Node &&
+        (target.contains(mouseGesture.target) || mouseGesture.target.contains(target)));
+      if (type !== 'pointerup' && type !== 'mouseup' && !related) return;
+      consume(event);
+      if (type === 'click' || type === 'auxclick') mouseGesture = null;
+    }, { capture: true });
+  }
   document.addEventListener('yt-navigate-finish', refresh);
   window.addEventListener('popstate', refresh);
   window.addEventListener('resize', refresh);

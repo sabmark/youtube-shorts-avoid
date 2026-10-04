@@ -3,7 +3,7 @@ function storage(initial = {}) {
   const listeners = [];
   return {
     local: {
-      async get(key) { return { [key]: structuredClone(data[key]) }; },
+      async get(key) { return Object.fromEntries((Array.isArray(key) ? key : [key]).map(name => [name, structuredClone(data[name])])); },
       async set(values) {
         const changes = {};
         for (const [key, value] of Object.entries(values)) {
@@ -17,3 +17,17 @@ function storage(initial = {}) {
   };
 }
 module.exports = { storage };
+
+const lockQueues = new WeakMap();
+function locksFor(store) {
+  if (!lockQueues.has(store)) {
+    let tail = Promise.resolve();
+    lockQueues.set(store, { request(name, work) {
+      const result = tail.then(work);
+      tail = result.catch(() => {});
+      return result;
+    } });
+  }
+  return lockQueues.get(store);
+}
+module.exports.locksFor = locksFor;
