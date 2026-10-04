@@ -17,3 +17,17 @@ function storage(initial = {}) {
   };
 }
 module.exports = { storage };
+
+const lockQueues = new WeakMap();
+function locksFor(store) {
+  if (!lockQueues.has(store)) {
+    let tail = Promise.resolve();
+    lockQueues.set(store, { request(name, work) {
+      const result = tail.then(work);
+      tail = result.catch(() => {});
+      return result;
+    } });
+  }
+  return lockQueues.get(store);
+}
+module.exports.locksFor = locksFor;

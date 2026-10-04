@@ -23,24 +23,26 @@
     busy = true;
     render();
     try {
-      // Another Options tab may have saved since this page was opened.
-      const current = await chrome.storage.local.get(controls.map(item => item.name));
-      for (const item of controls) {
-        const unchanged = same(item.pending, item.saved);
-        item.saved = shortcut.normalize(current[item.name]) || item.fallback;
-        if (unchanged) item.pending = item.saved;
-      }
-      const other = controls.find(item => item !== control);
-      if (same(value, other.saved)) {
-        status.textContent = 'This shortcut is already used by the other action. Choose a different shortcut.';
-        control.field.setAttribute('aria-invalid', 'true');
-        return;
-      }
-      await chrome.storage.local.set({ [control.name]: value });
-      control.saved = value;
-      control.pending = value;
-      status.textContent = 'Shortcut saved. Open Shorts tabs will use it immediately.';
-      control.field.removeAttribute('aria-invalid');
+      await navigator.locks.request('shorts-avoid-shortcut-settings', async () => {
+        // Another Options tab may have saved since this page was opened.
+        const current = await chrome.storage.local.get(controls.map(item => item.name));
+        for (const item of controls) {
+          const unchanged = same(item.pending, item.saved);
+          item.saved = shortcut.normalize(current[item.name]) || item.fallback;
+          if (unchanged) item.pending = item.saved;
+        }
+        const other = controls.find(item => item !== control);
+        if (same(value, other.saved)) {
+          status.textContent = 'This shortcut is already used by the other action. Choose a different shortcut.';
+          control.field.setAttribute('aria-invalid', 'true');
+          return;
+        }
+        await chrome.storage.local.set({ [control.name]: value });
+        control.saved = value;
+        control.pending = value;
+        status.textContent = 'Shortcut saved. Open Shorts tabs will use it immediately.';
+        control.field.removeAttribute('aria-invalid');
+      });
     } catch {
       status.textContent = 'Could not save the shortcut. Try again.';
     } finally {

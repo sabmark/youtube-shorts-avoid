@@ -3,12 +3,13 @@ const assert = require('node:assert/strict');
 const { JSDOM } = require('jsdom');
 const { readFileSync, existsSync } = require('node:fs');
 const { join } = require('node:path');
-const { storage } = require('./storage.cjs');
+const { storage, locksFor } = require('./storage.cjs');
 async function options(t, store) {
   const base = join(__dirname, '../extension');
   const dom = new JSDOM(readFileSync(join(base, 'options.html'), 'utf8'), { runScripts: 'outside-only' });
   t.after(() => dom.window.close());
   dom.window.chrome = { storage: store };
+  Object.defineProperty(dom.window.navigator, 'locks', { value: locksFor(store) });
   for (const name of ['shortcut.js', 'options.js']) {
     const path = join(base, 'src', name);
     if (existsSync(path)) dom.window.eval(readFileSync(path, 'utf8'));
@@ -164,4 +165,19 @@ test('an already-open settings page rejects a shortcut saved by another page', a
   await click(second, '#like-save');
   assert.match(second.document.querySelector('#status').textContent, /different shortcut|already used/i);
   assert.equal((await store.local.get('likeShortcut')).likeShortcut, undefined);
+});
+
+test('concurrent settings pages cannot save the same new binding', async t => {
+  const store = storage();const first = await options(t, store);const second = await options(t, store);
+  const get=store.local.get;let release;let gate=new Promise(resolve=>{release=resolve});let reads=0;
+  store.local.get=async keys=>{const snapshot=await get(keys);if(reads++===0)await gate;return snapshot;};
+  key(first,'k');first.document.querySelector('#save').click();await new Promise(resolve=>setImmediate(resolve));
+  second.document.querySelector('#like-shortcut').dispatchEvent(new second.KeyboardEvent('keydown',{key:'k',bubbles:true,cancelable:true}));
+  second.document.querySelector('#like-save').click();await new Promise(resolve=>setImmediate(resolve));
+  release();
+  for(let i=0;i<5;i++)await new Promise(resolve=>setImmediate(resolve));
+  const saved=await get(['avoidShortcut','likeShortcut']);
+  assert.equal(saved.avoidShortcut.key,'k');
+  assert.notEqual(saved.likeShortcut?.key,'k');
+  assert.match(second.document.querySelector('#status').textContent,/already used|different shortcut/i);
 });
