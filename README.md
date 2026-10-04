@@ -8,7 +8,7 @@
 
 The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed.
 
-The **Like** heart button likes the current Short and advances when YouTube confirms it. An already-liked video stays liked.
+The **Like** heart button requests Like and then Next immediately, without waiting for Like confirmation or automatic navigation. An already-liked video stays liked.
 
 Use a signed-in YouTube account with the interface set to English. The extension needs no separate login. It stores no account data and has no backend or telemetry.
 
@@ -62,7 +62,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.18.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.23.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

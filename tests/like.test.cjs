@@ -22,7 +22,7 @@ function setup(t, { liked = false, confirm = true, missing = false } = {}) {
   return { w, native, flow, clicks: () => clicks, advances: () => advances };
 }
 
-test('like workflow confirms the current video like and advances once without negative feedback', async t => {
+test('like workflow requests the current video like and advances once without negative feedback', async t => {
   const env = setup(t);
   installMenu(env.w, { onFeedback: () => assert.fail('like must not send negative feedback') });
   const result = await env.flow.run(() => {}, 'like');
@@ -39,20 +39,46 @@ test('like workflow keeps an existing like while advancing', async t => {
   assert.equal(env.advances(), 1);
 });
 
-for (const [name, options] of [['unconfirmed', { confirm: false }], ['missing', { missing: true }]]) {
-  test(`${name} like never advances`, async t => {
-    const env = setup(t, options);
+test('like requests Next before any confirmation or automatic-navigation wait', async t => {
+  const env = setup(t, { confirm: false });
+  const adapter = new env.w.ShortsAvoid.YoutubeAdapter(env.w, { timeoutMs: 4000 });
+  const originalWait = adapter.wait.bind(adapter);
+  adapter.wait = (...args) => {
+    assert.equal(env.advances(), 1, 'Next must be clicked before waiting');
+    return originalWait(...args);
+  };
+  const result = await new env.w.ShortsAvoid.Workflow(adapter).run(() => {}, 'like');
+  assert.equal(result.status, 'complete');
+  assert.equal(env.clicks(), 1);
+  assert.equal(env.advances(), 1);
+  assert.equal(env.native.getAttribute('aria-pressed'), 'false', 'Like confirmation is not required before Next');
+});
+
+test('missing like never advances', async t => {
+    const env = setup(t, { missing: true });
     const result = await env.flow.run(() => {}, 'like');
     assert.equal(result.status, 'stopped');
     assert.equal(env.advances(), 0);
-    assert.equal(env.clicks(), options.missing ? 0 : 1);
+    assert.equal(env.clicks(), 0);
+});
+
+for (const state of [null, 'mixed']) {
+  test(`indeterminate Like state ${state} never clicks or advances`, async t => {
+    const env = setup(t);
+    if (state === null) env.native.removeAttribute('aria-pressed');
+    else env.native.setAttribute('aria-pressed', state);
+    const result = await env.flow.run(() => {}, 'like');
+    assert.equal(result.status, 'stopped');
+    assert.equal(result.code, 'unknown-like-state');
+    assert.equal(env.clicks(), 0);
+    assert.equal(env.advances(), 0);
   });
 }
 
-test('navigation during like confirmation does not click or skip the successor', async t => {
+test('navigation during the Like request does not click or skip the successor', async t => {
   const env = setup(t, { confirm: false });
   env.native.onclick = () => env.w.history.pushState({}, '', '/shorts/second-video');
-  assert.equal((await env.flow.run(() => {}, 'like')).code, 'changed-short');
+  assert.equal((await env.flow.run(() => {}, 'like')).status, 'complete');
   assert.equal(env.advances(), 0);
 });
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.23
+
+- Request the next Short immediately after Like, without waiting for Like confirmation or the four-second negative-feedback navigation window.
+- Preserve existing likes, successor guards and the Avoid confirmation sequence.
+
 ## 0.1.22
 
 - Redesign the popup and settings with local Material 3 styles, icon rows, shortcut cards and automatic light/dark themes.

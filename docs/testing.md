@@ -1,5 +1,17 @@
 # Verification record
 
+## Immediate Like navigation, version 0.1.23
+
+The owner reported several seconds between Right Arrow and the next Short. The Like workflow waited for the native Like state to confirm, then reused the four-second automatic-navigation window intended for Avoid feedback.
+
+Like now requests the native action and Next without either pre-navigation wait. It still leaves an already-liked video liked, stops on a missing or indeterminate Like control, and does not click Next if the original Short has changed. The post-Next navigation check keeps repeated activations from processing the same video twice. Avoid retains its confirmation and automatic-navigation observation path.
+
+The immediate-navigation and changed-successor regressions failed before the fix. The full suite passes 89 tests with zero failures, and packaging produces v0.1.23. Independent review found no functional defect; regressions were added for absent and mixed Like states.
+
+Owner-authorized Chromium checks installed the real extension and intercepted a controlled Shorts page. Right Arrow requested Next 0.7 ms after Like; the heart button requested Next 0.2 ms after Like. Both advanced before any Like confirmation. Already-liked, repeated activation and changed-successor cases passed with no page errors. These are installed-extension fixture checks, not live signed-in YouTube timing or server acceptance.
+
+For a live check, install or reload the package and reload YouTube. On a Short you intend to like, press Right Arrow or click the heart. Confirm navigation starts immediately and the intended Like appears in YouTube's liked-video history. An already-liked Short should advance without being unliked.
+
 ## Automated tests
 
 The version 0.1.2 suite contained 48 tests, including a check that the installable package retains the repository MIT license notice. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.

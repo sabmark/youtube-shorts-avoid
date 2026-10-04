@@ -28,7 +28,9 @@
           }
         }
         const current = this.adapter.current();
-        if (!current || current.id === target.id) await this.adapter.next(target);
+        if (!current || current.id === target.id) {
+          await this.adapter.next(target, { immediate: action === 'like' });
+        }
         result = { status: 'complete', completed: [...completed], message: 'Feedback sent.' };
       } catch (error) {
         result = {

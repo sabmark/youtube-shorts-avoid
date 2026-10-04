@@ -195,7 +195,7 @@
       }
     }
 
-    async like(target) {
+    like(target) {
       this.assertCurrent(target);
       this.assertNoReason();
       const controls = [...target.element.querySelectorAll('button')].filter(element => {
@@ -213,31 +213,30 @@
       }
       this.assertCurrent(target);
       button.click();
-      await this.wait(() => {
-        this.assertCurrent(target);
-        this.assertNoReason();
-        return visible(this.window, button) && isLiked();
-      }, 'YouTube did not confirm the like. Check the Like control before trying again.');
     }
 
-    async next(target) {
+    async next(target, { immediate = false } = {}) {
       this.assertCurrent(target);
       // Feedback confirmation can precede YouTube's queued native navigation.
-      // Give that navigation the same bounded observation window as feedback.
-      try {
-        await this.wait(async () => {
-          await this.resolveReason(target);
-          const current = this.current();
-          if (!current) throw problem('changed-short', 'You left the Shorts player.');
-          if (current.id !== target.id) return true;
-          this.assertCurrent(target);
-          return false;
-        });
-        return;
-      } catch (error) {
-        if (error.code !== 'timeout') throw error;
+      // Like does not use that feedback observation window.
+      if (!immediate) {
+        try {
+          await this.wait(async () => {
+            await this.resolveReason(target);
+            const current = this.current();
+            if (!current) throw problem('changed-short', 'You left the Shorts player.');
+            if (current.id !== target.id) return true;
+            this.assertCurrent(target);
+            return false;
+          });
+          return;
+        } catch (error) {
+          if (error.code !== 'timeout') throw error;
+        }
+        await this.resolveReason(target);
+      } else {
+        this.assertNoReason();
       }
-      await this.resolveReason(target);
       this.assertCurrent(target);
       const button = [...this.document.querySelectorAll('button[aria-label="Next video"]')]
         .find(element => visible(this.window, element) && !element.disabled);
