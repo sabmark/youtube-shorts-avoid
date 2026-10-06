@@ -1,10 +1,10 @@
-# Opera Add-ons submission draft
+# Opera Add-ons submission
 
 ## Status
 
-Opera publication is pending. The owner signed in on October 6, 2026, and Opera accepted the v0.1.25 ZIP as draft `307234`, extension ID `lgbbfbjhoalamalmfajkfpolefnmjklc`. Dashboard: https://addons.opera.com/developer/package/307234/. Review submission remains pending.
+Opera publication is pending. The owner signed in on October 6, 2026, and Opera accepted the v0.1.25 ZIP as item `307234`, extension ID `lgbbfbjhoalamalmfajkfpolefnmjklc`. The owner approved submission, and Opera confirmed `submitted_for_moderation: true` on October 6. Dashboard: https://addons.opera.com/developer/package/307234/.
 
-The saved draft contains the English summary, description and changelog, support and public source-code links, build instructions, MIT license URL, privacy policy URL, 64x64 icon and two Opera screenshots. Opera returned no package or dependency warnings. The dashboard still reports changes not submitted for moderator review.
+The submission contains the English summary, description and changelog, support and public source-code links, build instructions, MIT license URL, privacy policy URL, 64x64 icon and two Opera screenshots. Opera returned no package or dependency warnings. The dashboard now directs the owner to the conversation with moderators for the current review status. Approval and a public installation link remain pending.
 
 Chrome Web Store version 0.1.25 is already public: https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm.
 
@@ -38,13 +38,13 @@ Privacy policy: https://github.com/sabmark/youtube-shorts-avoid/blob/885e254bc82
 
 The extension stores shortcut and feedback preferences locally. It has no backend, analytics, telemetry or remote JavaScript. YouTube receives the viewer's feedback and Like actions through its own interface. Use the permission explanations and reviewer steps in [the Chrome submission notes](chrome-web-store.md#privacy-fields), adapting only the browser-specific installation instructions.
 
-## Before submission
+## Verification and next step
 
-1. Complete and verify the draft listing fields and assets in the owner's Opera developer account. The General category is Fun.
-2. Verify that the uploaded icon, screenshots and listing fields persist in the draft.
+1. Saved listing fields and assets were verified in the owner's Opera developer account. The General category is Fun; automatic moderation is disabled.
+2. Both screenshots, the 64x64 icon, support/source links, build instructions, MIT license URL and privacy policy URL were confirmed in the saved submission.
 3. Review the exact package and listing fields. Installed Opera Options loaded successfully, saved the channel-only feedback preference and retained it after reload, then restored Both for the screenshots. Left and Right defaults were confirmed. Existing owner acceptance covers Chrome and Opera behavior; this session did not retest signed-in Shorts feedback or native popup behavior.
-4. Obtain Relayframe deployment approval for the concrete Opera submission before submitting for review.
-5. Record the item ID and review outcome. Add a public installation link to README only after publication is verified.
+4. The owner approved the concrete Opera submission through Relayframe, and Submit changes completed successfully on October 6.
+5. Check the conversation with moderators for the review outcome. Address feedback if required, and add a public installation link to README only after publication is verified.
 
 ## Requirements checked
 
