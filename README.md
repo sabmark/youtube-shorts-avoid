@@ -16,7 +16,11 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Download [youtube-shorts-avoid-0.1.22.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.22/youtube-shorts-avoid-0.1.22.zip) from the [latest release](https://github.com/sabmark/youtube-shorts-avoid/releases/latest). The release includes a SHA-256 checksum file. Installation uses the browser's Load unpacked feature; a store installation is not available.
+Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The published version is 0.1.25. Opera Add-ons publication is pending.
+
+### Unpacked installation
+
+For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.22.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.22/youtube-shorts-avoid-0.1.22.zip). That release predates the selectable Avoid feedback in v0.1.25 and includes a SHA-256 checksum file.
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
@@ -48,7 +52,7 @@ For the first local check, pick a Short you actually want to dismiss. Confirm bo
 
 ## Remove or update
 
-To remove it, open the browser's extensions page and choose **Remove** on Shorts Avoid for YouTube. For an update, replace the files in the same permanent folder, click the extension's **Reload** button and reload YouTube.
+To remove it, open the browser's extensions page and choose **Remove** on Shorts Avoid for YouTube. Chrome Web Store installations receive store updates automatically. For an unpacked update, replace the files in the same permanent folder, click the extension's **Reload** button and reload YouTube.
 
 ## Development and packaging
 

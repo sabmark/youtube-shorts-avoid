@@ -1,5 +1,11 @@
 # Chrome Web Store submission
 
+## Publication status: October 6, 2026
+
+Version 0.1.25 is publicly available at https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm. The public listing shows Add to Chrome, the approved name and logo, both settings screenshots, the selectable Avoid feedback description, the privacy policy, and an October 6, 2026 update date. This confirms public availability after the October 4 submission; the private review decision was not inspected.
+
+The full suite on source commit `884dda0` passed on October 6: 103 tests, zero failures. The draft and verification notes below describe earlier preparation stages.
+
 ## Package
 
 - Source: public v0.1.22 at a97a677a, immediate Like fix e522f64, and approved store branding in this publishing branch.
@@ -82,7 +88,9 @@ Testing Avoid and Like changes feedback on the reviewer's YouTube account. Use v
 - Screenshots show the real installed v0.1.25 settings page in Chromium, rendered at 65% scale to fit both action cards and instructions. They contain no account information.
 - A live Shorts screenshot can be added after account access; it has not been captured yet.
 
-## Verification and remaining steps
+## Historical pre-submission notes: October 4, 2026
+
+These notes were superseded by the October 4 submission and October 6 public listing. Email verification and draft replacement were completed before submission. The pending Opera listing and unperformed native popup checks remain separate from Chrome publication.
 
 - Full v0.1.24 suite: 89 passed, zero failed; package created successfully.
 - Installed Chromium settings: Shift+j was captured, saved to extension storage and retained after reload; Reset restored Left.
@@ -110,9 +118,9 @@ Checked against official Chrome documentation on 2026-10-04:
 - https://developer.chrome.com/docs/webstore/register
 - https://developer.chrome.com/docs/webstore/set-up-account
 
-## v0.1.25 update before submission
+## Historical v0.1.25 preparation: before the October 4 submission
 
-The new package adds selectable Avoid feedback. The dashboard still contains v0.1.24; replace its ZIP, description, settings screenshots, storage justification and privacy link after reviewing v0.1.25. No submission has been made. The prior owner acceptance applies to v0.1.24 Like-and-next, not the new feedback modes.
+The v0.1.25 package added selectable Avoid feedback. During preparation, the dashboard still contained v0.1.24, so its ZIP, description, settings screenshots, storage justification and privacy link needed replacement. The owner subsequently accepted the new feedback modes, and v0.1.25 was submitted on October 4 and published by October 6.
 
-- v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. Live owner acceptance of the new modes remains pending.
+- v0.1.25 validation: full suite 103 passed, zero failed. Installed Chromium controlled-page checks passed all three modes, Options persistence, open-tab updates and one advance per activation. Right Arrow requested Next 0.2ms after Like. Live owner acceptance of the new modes was recorded before submission on October 4.
 - v0.1.25 ZIP SHA-256: `5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347`.
