@@ -16,11 +16,11 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The published version is 0.1.25. Opera Add-ons publication is pending.
+Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The Chrome Web Store listing reports version **0.1.25**, checked October 10, 2026. Store installations receive updates automatically. Opera Add-ons was submitted for review on October 6, 2026; a public listing has not yet been verified.
 
 ### Unpacked installation
 
-For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.22.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.22/youtube-shorts-avoid-0.1.22.zip). That release predates the selectable Avoid feedback in v0.1.25 and includes a SHA-256 checksum file.
+For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.25.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.25/youtube-shorts-avoid-0.1.25.zip). This release includes immediate Like-and-next, the new name and logo, and selectable Avoid feedback. See the [release notes](https://github.com/sabmark/youtube-shorts-avoid/releases/tag/v0.1.25) and [SHA-256 checksum](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.25/SHA256SUMS.txt).
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
