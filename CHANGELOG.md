@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.25
+
+- Choose which feedback Avoid sends: Not interested, Don't recommend channel, or both. Both remains the default.
+- Apply saved feedback choices to open Shorts tabs and check only the selected menu options.
+
+## 0.1.24
+
+- Rename the extension to Shorts Avoid for YouTube for store publishing.
+- Use an original minus-and-heart logo with transparent icon padding.
+- Prepare Chrome Web Store listing text, reviewer instructions and store images.
+- Include immediate Like-and-next from 0.1.23.
+
+## 0.1.23
+
+- Request the next Short immediately after Like, without waiting for Like confirmation or the four-second negative-feedback navigation window.
+- Preserve existing likes, successor guards and the Avoid confirmation sequence.
+
 ## 0.1.22
 
 - Redesign the popup and settings with local Material 3 styles, icon rows, shortcut cards and automatic light/dark themes.

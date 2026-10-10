@@ -3,6 +3,8 @@
   const shortcut = globalThis.ShortsAvoid.Shortcut;
   const status = document.querySelector('#status');
   const retry = document.querySelector('#retry');
+  const feedback = document.querySelector('#avoid-feedback');
+  let savedFeedback = 'both';
   let busy = true;
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const controls = [
@@ -11,6 +13,8 @@
   ].map(config => ({ ...config, field: document.querySelector(config.field), save: document.querySelector(config.save),
     reset: document.querySelector(config.reset), saved: config.fallback, pending: config.fallback }));
   function render() {
+    feedback.disabled = busy;
+    feedback.value = savedFeedback;
     for (const control of controls) {
       control.field.value = shortcut.label(control.pending);
       control.field.disabled = busy;
@@ -81,11 +85,28 @@
     control.save.addEventListener('click', () => void persist(control, control.pending));
     control.reset.addEventListener('click', () => void persist(control, control.fallback));
   }
+  feedback.addEventListener('change', async () => {
+    if (busy) return;
+    const value = globalThis.ShortsAvoid.Feedback.normalize(feedback.value);
+    busy = true;
+    feedback.disabled = true;
+    try {
+      await chrome.storage.local.set({ avoidFeedback: value });
+      savedFeedback = value;
+      status.textContent = 'Feedback saved. Open Shorts tabs will use it immediately.';
+    } catch {
+      status.textContent = 'Could not save feedback. Try again.';
+    } finally {
+      busy = false;
+      render();
+    }
+  });
   async function loadSettings() {
     retry.hidden = true;
     status.textContent = '';
     try {
-      const result = await chrome.storage.local.get(controls.map(control => control.name));
+      const result = await chrome.storage.local.get([...controls.map(control => control.name), 'avoidFeedback']);
+      savedFeedback = globalThis.ShortsAvoid.Feedback.normalize(result.avoidFeedback);
       for (const control of controls) {
         control.saved = shortcut.normalize(result[control.name]) || control.fallback;
         control.pending = control.saved;

@@ -1,5 +1,23 @@
 # Verification record
 
+## Store package and owner acceptance, version 0.1.24
+
+The owner approved the name Shorts Avoid for YouTube and an original minus-and-heart logo. Store assets include a 440x280 promotional tile, light/dark 1280x800 installed settings screenshots and a 128px icon with 16px transparent padding. The package includes the immediate Like fix from v0.1.23. The full suite passes 89 tests with zero failures.
+
+The owner loaded the preview ZIP in Chrome and reported: "Passed: navigation starts immediately and the Like is recorded." This confirms the requested live Like-and-next behavior on the owner's account. The accepted ZIP's SHA-256 is `5613f6a0620f5f999aee0ee0681b0a671616ed01d1adabed93a11b4a3085c775`. It does not establish a new Opera or Avoid retest.
+
+## Immediate Like navigation, version 0.1.23
+
+The owner reported several seconds between Right Arrow and the next Short. The Like workflow waited for the native Like state to confirm, then reused the four-second automatic-navigation window intended for Avoid feedback.
+
+Like now requests the native action and Next without either pre-navigation wait. It still leaves an already-liked video liked, stops on a missing or indeterminate Like control, and does not click Next if the original Short has changed. The post-Next navigation check keeps repeated activations from processing the same video twice. Avoid retains its confirmation and automatic-navigation observation path.
+
+The immediate-navigation and changed-successor regressions failed before the fix. The full suite passes 89 tests with zero failures, and packaging produces v0.1.23. Independent review found no functional defect; regressions were added for absent and mixed Like states.
+
+Owner-authorized Chromium checks installed the real extension and intercepted a controlled Shorts page. Right Arrow requested Next 0.7 ms after Like; the heart button requested Next 0.2 ms after Like. Both advanced before any Like confirmation. Already-liked, repeated activation and changed-successor cases passed with no page errors. These are installed-extension fixture checks, not live signed-in YouTube timing or server acceptance.
+
+For a live check, install or reload the package and reload YouTube. On a Short you intend to like, press Right Arrow or click the heart. Confirm navigation starts immediately and the intended Like appears in YouTube's liked-video history. An already-liked Short should advance without being unliked.
+
 ## Automated tests
 
 The version 0.1.2 suite contained 48 tests, including a check that the installable package retains the repository MIT license notice. The behavior tests execute the real content scripts against synthetic DOM fixtures, including feedback confirmations, stale notices, unavailable options, supported and unsupported reason prompts, optional reason links, duplicate clicks, changed routes and renderers, automatic advancement and next-video timeouts.
@@ -264,3 +282,17 @@ Install or reload **version0.1.22**, then reload YouTube. Open Shortcut settings
 ## Version 0.1.22 owner acceptance
 
 On 2026-10-04, after receiving the packaged ZIP in Windows Downloads, the owner reported: "Looking nice, it works, release it." This is owner-reported local acceptance of the current functionality and design. The browser was not specified; it does not establish a separate Opera retest.
+
+## v0.1.25 selectable Avoid feedback - 2026-10-04
+
+- Ticket: EP10-FT01-US01-TSK01. New and existing installs default to both actions. Options saves Not interested only, Don't recommend channel only, or both locally. All Avoid activations use the saved choice.
+- Test-first: the new single-action tests failed because preflight required both menu options and the workflow always sent both. Settings persistence and content propagation tests also failed before implementation.
+- Full automated suite: 103 passed, zero failed. Package allowlist test confirms the new settings module is included and development files remain excluded.
+- Installed Chromium extension on a controlled English Shorts fixture: each mode sent exactly its selected feedback and advanced once; single-action menus contained only the selected option. The choice persisted after reloading Options, and changing it affected the existing Shorts tab's Avoid button.
+- Right Arrow requested Next 0.2ms after Like in the fixture despite delayed native Like confirmation. No page errors. At 360px the settings page had no horizontal overflow. Light and dark screenshots show the installed v0.1.25 settings page at 65% scale in a 1280x800 viewport.
+- ZIP SHA-256: 5fdf440bdc4e96f5a37693c90280b90450916408776c73d15ee80d092122a347.
+- New feedback modes have not yet been accepted on live YouTube. Prior live owner acceptance of immediate Like-and-next applies to v0.1.24. No native toolbar popup layout changes are included in this ticket.
+
+Live retest: extract Downloads\youtube-shorts-avoid-0.1.25.zip, reload the unpacked extension and YouTube, then choose each feedback mode in Options. On videos for which you intend the feedback, press Left Arrow and confirm only the selected feedback and one advance. Reload Options to check persistence. Confirm Right Arrow still advances immediately and records the Like.
+
+Review found an enabled Avoid button when feedback settings were unreadable. A failing-first regression test reproduced it. Avoid now stays disabled until the saved choice is known, including on read failure; a newer successful settings event restores it. Like remains available. Independent review found no remaining defects after this correction. Final suite: 103 passed, zero failed; installed browser checks reran successfully.

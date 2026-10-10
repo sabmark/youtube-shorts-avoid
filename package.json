@@ -1,6 +1,6 @@
 {
   "name": "youtube-shorts-avoid",
-  "version": "0.1.22",
+  "version": "0.1.25",
   "private": true,
   "description": "One-click recommendation feedback for desktop YouTube Shorts.",
   "scripts": {

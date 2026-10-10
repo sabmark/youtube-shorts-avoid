@@ -407,3 +407,54 @@ test('touch and pen compatibility mouse events do not activate a Left mouse shor
   mouse(w, 'pointerup', 0);
   await until(() => !button(w).disabled);
 });
+
+for (const mode of ['not-interested', 'channel']) {
+  test(`Left Arrow uses persisted ${mode} feedback and responds to live setting changes`, async t => {
+    const { storage } = require('./storage.cjs');
+    const store = storage({ avoidFeedback: mode });
+    const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+    const calls = [];
+    w.ShortsAvoid.Workflow.prototype.run = async function(onState, action, feedback) {
+      calls.push({ action, feedback });
+      return { status: 'complete' };
+    };
+    await new Promise(resolve => setImmediate(resolve));
+    w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }));
+    assert.deepEqual(calls, [{ action: 'avoid', feedback: mode }]);
+    await store.local.set({ avoidFeedback: 'both' });
+    button(w).click();
+    assert.deepEqual(calls[1], { action: 'avoid', feedback: 'both' });
+    assert.equal(button(w).getAttribute('aria-label'), 'Avoid video and channel');
+  });
+}
+
+test('a stale initial read cannot overwrite a newer feedback selection', async t => {
+  const { storage } = require('./storage.cjs');
+  const store = storage({ avoidFeedback: 'both' });
+  const get = store.local.get;
+  let release;
+  store.local.get = async keys => { const result = await get(keys); await new Promise(resolve => { release = resolve; }); return result; };
+  const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+  let received;
+  w.ShortsAvoid.Workflow.prototype.run = async function(onState, action, feedback) { received = feedback; };
+  await new Promise(resolve => setImmediate(resolve));
+  await store.local.set({ avoidFeedback: 'channel' });
+  release();
+  await new Promise(resolve => setImmediate(resolve));
+  button(w).click();
+  assert.equal(received, 'channel');
+});
+
+test('Avoid stays disabled while feedback settings are unreadable instead of sending unintended feedback', async t => {
+  const { storage } = require('./storage.cjs');
+  const store = storage({ avoidFeedback: 'channel' });
+  store.local.get = async () => { throw new Error('storage unavailable'); };
+  const w = fixture(t, player(), undefined, { beforeScripts(w) { w.chrome = { storage: store }; } });
+  assert.equal(button(w).disabled, true, 'pending settings must disable Avoid');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(button(w).disabled, true, 'failed settings must not use unrequested feedback');
+  assert.equal(host(w).shadowRoot.querySelectorAll('button')[1].disabled, false);
+  await store.local.set({ avoidFeedback: 'channel' });
+  assert.equal(button(w).disabled, false);
+  assert.equal(button(w).getAttribute('aria-label'), "Don't recommend this channel");
+});

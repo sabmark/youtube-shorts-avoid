@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Shorts Avoid",
-  "version": "0.1.22",
-  "description": "Request video and channel recommendation feedback for a Short with one click.",
+  "name": "Shorts Avoid for YouTube",
+  "version": "0.1.25",
+  "description": "Avoid or Like desktop Shorts and move on, using buttons or custom keyboard and mouse shortcuts.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -15,6 +15,7 @@
         "https://www.youtube.com/*"
       ],
       "js": [
+        "src/settings.js",
         "src/youtube.js",
         "src/workflow.js",
         "src/shortcut.js",
@@ -31,7 +32,7 @@
   ],
   "options_page": "options.html",
   "action": {
-    "default_title": "YouTube Shorts Avoid",
+    "default_title": "Shorts Avoid for YouTube",
     "default_popup": "popup.html"
   }
 }

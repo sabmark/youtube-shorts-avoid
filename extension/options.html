@@ -6,6 +6,7 @@
   <title>Shorts Avoid - Settings</title>
   <link rel="stylesheet" href="material.css">
   <link rel="stylesheet" href="options.css">
+  <script defer src="src/settings.js"></script>
   <script defer src="src/shortcut.js"></script>
   <script defer src="src/options.js"></script>
 </head>
@@ -13,13 +14,15 @@
   <main class="settings-shell">
     <header class="settings-header">
       <div class="brand"><img src="icons/icon48.png" width="40" height="40" alt=""><span class="brand-name">Shorts Avoid</span></div>
-      <h1>Shortcut settings</h1>
-      <p class="lead">Choose a key or mouse button for each action.</p>
+      <h1>Action settings</h1>
+      <p class="lead">Choose your feedback and a key or mouse button for each action.</p>
     </header>
     <div class="shortcut-cards">
       <section class="shortcut-card" aria-labelledby="shortcut-title">
         <div class="card-heading"><span class="action-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg></span><div><h2 id="shortcut-title">Avoid</h2><span class="default-label">Default: Left Arrow</span></div></div>
-        <p class="action-description">Mark Not Interested, dismiss the channel, and move to the next Short.</p>
+        <p class="action-description">Send your selected feedback and move to the next Short.</p>
+        <div class="outlined-field feedback-field"><label for="avoid-feedback">Feedback sent by Avoid</label><select id="avoid-feedback" aria-describedby="feedback-hint status" disabled><option value="both">Both (default)</option><option value="not-interested">Not interested only</option><option value="channel">Don't recommend channel only</option></select></div>
+        <p id="feedback-hint" class="feedback-hint">Both sends Not interested, then Don't recommend channel. Changes save automatically.</p>
         <div class="outlined-field"><label for="shortcut">Avoid shortcut</label><input id="shortcut" type="text" readonly aria-describedby="hint status" disabled></div>
         <div class="actions"><button id="save" class="button filled" type="button" disabled>Save Avoid shortcut</button><button id="reset" class="button text" type="button" disabled>Reset to Left Arrow</button></div>
       </section>

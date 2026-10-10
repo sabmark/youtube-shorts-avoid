@@ -20,7 +20,7 @@ test('package contains declared runtime files only, excluding development and se
   const checked = spawnSync('python3', ['-c', `
 import json, sys, zipfile, struct
 with zipfile.ZipFile(sys.argv[1]) as archive:
-    expected = {'manifest.json', 'control.css', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
+    expected = {'manifest.json', 'control.css', 'src/settings.js', 'src/youtube.js', 'src/workflow.js', 'src/content.js',
                 'popup.html', 'popup.css', 'src/popup.js',
                 'material.css',
                 'src/shortcut.js', 'src/options.js', 'options.html', 'options.css',
