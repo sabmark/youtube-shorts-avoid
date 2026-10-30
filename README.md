@@ -20,7 +20,7 @@ Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebst
 
 ### Unpacked installation
 
-For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.25.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.25/youtube-shorts-avoid-0.1.25.zip). This release includes immediate Like-and-next, the new name and logo, and selectable Avoid feedback. See the [release notes](https://github.com/sabmark/youtube-shorts-avoid/releases/tag/v0.1.25) and [SHA-256 checksum](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.25/SHA256SUMS.txt).
+For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.27.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.27/youtube-shorts-avoid-0.1.27.zip). This release fixes Both so it sends both feedback actions, confirms feedback on Shorts layouts without a notice, and matches the Avoid and Like buttons to YouTube's own buttons. See the [release notes](https://github.com/sabmark/youtube-shorts-avoid/releases/tag/v0.1.27) and [SHA-256 checksum](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.27/SHA256SUMS.txt).
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
@@ -67,7 +67,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.25.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.27.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 
