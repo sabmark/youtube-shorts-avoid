@@ -1,5 +1,14 @@
 # Chrome Web Store submission
 
+## v0.1.27 submission: October 30, 2026
+
+The owner approved the submission. Version 0.1.27 was uploaded to item `capdpopadgbflaoklceadlimohpcmopm` and submitted for review with automatic publishing after it passes. The dashboard showed "Pending review". Version 0.1.25 stays public until then. Permissions are unchanged: storage and YouTube host access.
+
+- Package: `youtube-shorts-avoid-0.1.27.zip`, SHA-256 `6d5bd1d1958b4911300ccfeb767bf3e25d632bd8cc123a27ffc11cebe9ad09a6`, the same file as GitHub release v0.1.27 at `37bc4bd`.
+- Full suite: 113 passed, zero failed.
+- The YouTube site access justification now also says: "On layouts without a notice, it checks the browser's request timing records for whether YouTube's own feedback request succeeded; only the request address and status are checked, never request or response contents."
+- Privacy policy link: https://github.com/sabmark/youtube-shorts-avoid/blob/37bc4bd992ec22ef5cc9311e3b8776d94c36a0d9/PRIVACY.md
+
 ## Publication status: October 6, 2026
 
 Version 0.1.25 is publicly available at https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm. The public listing shows Add to Chrome, the approved name and logo, both settings screenshots, the selectable Avoid feedback description, the privacy policy, and an October 6, 2026 update date. This confirms public availability after the October 4 submission; the private review decision was not inspected.

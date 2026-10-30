@@ -16,7 +16,7 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The Chrome Web Store listing reports version **0.1.25**, checked October 10, 2026. Store installations receive updates automatically. Opera Add-ons was submitted for review on October 6, 2026; a public listing has not yet been verified.
+Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The Chrome Web Store listing reports version **0.1.25**; version 0.1.27 was submitted for review on October 30, 2026. Store installations receive updates automatically. Opera Add-ons has v0.1.27 awaiting moderation since October 30, 2026; a public listing has not yet been verified.
 
 ### Unpacked installation
 

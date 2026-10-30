@@ -2,6 +2,10 @@
 
 ## Status
 
+On October 30, 2026, the owner approved submitting v0.1.27. It was uploaded as a new version of item `307234`, with metadata copied from 0.1.25. The changelog, source, license and privacy links, and build instructions were updated for `37bc4bd`. Opera shows "Shorts Avoid for YouTube v0.1.27 was submitted. Awaiting moderation." The package is the same ZIP as GitHub release v0.1.27 (SHA-256 `6d5bd1d1958b4911300ccfeb767bf3e25d632bd8cc123a27ffc11cebe9ad09a6`). No Opera version is public yet.
+
+Earlier history:
+
 Opera publication is pending. The owner signed in on October 6, 2026, and Opera accepted the v0.1.25 ZIP as item `307234`, extension ID `lgbbfbjhoalamalmfajkfpolefnmjklc`. The owner approved submission, and Opera confirmed `submitted_for_moderation: true` on October 6. Dashboard: https://addons.opera.com/developer/package/307234/.
 
 The submission contains the English summary, description and changelog, support and public source-code links, build instructions, MIT license URL, privacy policy URL, 64x64 icon and two Opera screenshots. Opera returned no package or dependency warnings. The dashboard now directs the owner to the conversation with moderators for the current review status. Approval and a public installation link remain pending.
