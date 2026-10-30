@@ -45,15 +45,15 @@
   const root = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
   style.textContent = `
-      :host { display: flex; flex-direction: column; align-items: center; flex: none; font: 12px/1.4 Arial, sans-serif; }
+      :host { display: flex; flex-direction: column; align-items: center; flex: none; }
       button { box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px;
-        padding: 10px; border: 1px solid var(--sa-border, #767676); border-radius: 50%; cursor: pointer;
-        background: var(--sa-bg, #f1f1f1); color: var(--sa-fg, #171717); }
-      button:hover { filter: brightness(.92); }
+        padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+        background: var(--sa-bg, rgba(0, 0, 0, 0.05)); color: var(--sa-fg, #0f0f0f); }
+      button:hover { background: var(--sa-hover, rgba(0, 0, 0, 0.1)); }
       button:focus-visible { outline: 3px solid var(--sa-focus, #0958b9); outline-offset: 3px; }
       button:disabled { cursor: wait; opacity: .6; }
-      svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; }
-      .label { margin-top: 5px; color: var(--sa-fg, #171717); }
+      svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; }
+      .label { margin-top: 4px; font: 400 12px/18px Roboto, Arial, sans-serif; color: var(--sa-fg, #0f0f0f); }
 `;
   const button = document.createElement('button');
   button.type = 'button';
@@ -84,7 +84,7 @@
   heartPath.setAttribute('d', 'M14 24 4 14C-3 6 7-2 14 6 21-2 31 6 24 14Z');
   heart.append(heartPath);
   likeButton.append(heart);
-  likeButton.style.marginTop = '12px';
+  likeButton.style.marginTop = '8px';
   const likeLabel = document.createElement('span');
   likeLabel.className = 'label';
   likeLabel.setAttribute('aria-hidden', 'true');
