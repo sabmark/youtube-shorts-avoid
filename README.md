@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/sabmark/youtube-shorts-avoid)](https://github.com/sabmark/youtube-shorts-avoid/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The **Avoid** button beside the desktop Shorts controls requests **Not interested**, then **Don't recommend channel**, then advances to the next Short when both actions are confirmed by default. In Options, choose **Both (default)**, **Not interested only**, or **Don't recommend channel only** under **Feedback sent by Avoid**. The choice applies to the Avoid button and your Avoid shortcut, including Left Arrow.
+The **Avoid** button beside the desktop Shorts controls requests **Don't recommend channel**, then **Not interested**, then advances to the next Short when both actions are confirmed by default. In Options, choose **Both (default)**, **Not interested only**, or **Don't recommend channel only** under **Feedback sent by Avoid**. The choice applies to the Avoid button and your Avoid shortcut, including Left Arrow.
 
 The **Like** heart button requests Like and then Next immediately, without waiting for Like confirmation or automatic navigation. An already-liked video stays liked.
 
@@ -42,7 +42,8 @@ The Material 3 popup and settings use locally bundled styles and follow your bro
 ## Limits and verification
 
 - During this activation's Not interested step, an opened reason dialog selects **Other** if available, otherwise the first supported choice, then submits if needed. Optional Tell us why links are left alone. A pre-existing or later dialog, unsupported choice or request for extra typed input stops automation.
-- Missing options, unconfirmed feedback or a changed Short stop the sequence. If YouTube advances after the first action, the extension stops before applying channel feedback to the next video.
+- Missing options, unconfirmed feedback or a changed Short stop the sequence. Not interested goes last because YouTube may move to the next Short after it. If YouTube advances after the channel action, the extension stops before applying Not interested to the next video.
+- An action counts as confirmed when YouTube shows its feedback notice or its own feedback request succeeds. Some Shorts layouts show no notice. The extension reads only the status of that request from the browser's request timing records; it does not read or change the request or response.
 - If the button becomes enabled without advancing, YouTube may have received feedback without showing a recognized confirmation. Check YouTube's native feedback notices and the current Short before trying again.
 - After the selected feedback is confirmed, the extension waits up to four seconds for YouTube to advance before using Next. Unusually late native navigation could still cause an extra skip; check this timing in your normal browser.
 - Feedback influences recommendations; it cannot guarantee that similar videos will never appear.
