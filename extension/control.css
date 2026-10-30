@@ -1,15 +1,19 @@
+/* Match YouTube's tonal Shorts action buttons. */
 shorts-avoid-control {
-  --sa-bg: #f1f1f1;
-  --sa-fg: #171717;
-  --sa-border: #767676;
+  --sa-bg: rgba(0, 0, 0, 0.05);
+  --sa-hover: rgba(0, 0, 0, 0.1);
+  --sa-fg: #0f0f0f;
   --sa-focus: #0958b9;
 }
 
-shorts-avoid-control { margin: 12px 0 8px; }
+shorts-avoid-control { margin: 0 0 8px; }
 
 html[dark] shorts-avoid-control {
-  --sa-bg: #272727;
-  --sa-fg: #ffffff;
-  --sa-border: #a0a0a0;
+  --sa-bg: rgba(255, 255, 255, 0.1);
+  --sa-hover: rgba(255, 255, 255, 0.2);
+  --sa-fg: #f1f1f1;
   --sa-focus: #8bbaff;
 }
+
+/* YouTube gives every action-rail child a 16px top margin and resets it on its own buttons. */
+.ytwReelActionBarViewModelHost > shorts-avoid-control { margin-top: 0; }

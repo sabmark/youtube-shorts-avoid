@@ -458,3 +458,49 @@ test('Avoid stays disabled while feedback settings are unreadable instead of sen
   assert.equal(button(w).disabled, false);
   assert.equal(button(w).getAttribute('aria-label'), "Don't recommend this channel");
 });
+
+function declarations(css) {
+  const rules = {};
+  for (const [, selector, body] of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const entries = body.split(';').map(part => part.split(':')).filter(pair => pair.length >= 2)
+      .map(([name, ...value]) => [name.trim(), value.join(':').trim()]);
+    rules[selector.trim()] = { ...rules[selector.trim()], ...Object.fromEntries(entries) };
+  }
+  return rules;
+}
+
+test('Avoid and Like buttons use the native Shorts action button shape and spacing', t => {
+  const w = fixture(t, player());
+  const root = host(w).shadowRoot;
+  const rules = declarations(root.querySelector('style').textContent);
+  assert.equal(rules.button.border, '0', 'native action buttons have no border');
+  assert.equal(rules.button.width, '48px');
+  assert.equal(rules.button.height, '48px');
+  assert.equal(rules.button['border-radius'], '50%');
+  assert.equal(rules.button.background, 'var(--sa-bg, rgba(0, 0, 0, 0.05))');
+  assert.equal(rules['button:hover'].background, 'var(--sa-hover, rgba(0, 0, 0, 0.1))');
+  assert.equal(rules['button:hover'].filter, undefined);
+  assert.equal(rules.svg.width, '24px');
+  assert.equal(rules.svg.height, '24px');
+  assert.match(rules['.label'].font, /^400 12px\/18px Roboto, Arial, sans-serif$/);
+  assert.equal(rules['.label']['margin-top'], '4px');
+  assert.ok(rules['button:focus-visible'].outline, 'keyboard focus stays visible');
+  assert.ok(rules['button:disabled'].opacity, 'busy state stays visible');
+  const like = root.querySelectorAll('button')[1];
+  assert.equal(like.style.marginTop, '8px', 'items are 8px apart like the native rail');
+});
+
+test('page tokens follow YouTube light and dark action button colors without a border', () => {
+  const css = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'extension', 'control.css'), 'utf8');
+  const rules = declarations(css);
+  assert.deepEqual(
+    [rules['shorts-avoid-control']['--sa-bg'], rules['shorts-avoid-control']['--sa-hover'], rules['shorts-avoid-control']['--sa-fg']],
+    ['rgba(0, 0, 0, 0.05)', 'rgba(0, 0, 0, 0.1)', '#0f0f0f']);
+  assert.deepEqual(
+    [rules['html[dark] shorts-avoid-control']['--sa-bg'], rules['html[dark] shorts-avoid-control']['--sa-hover'], rules['html[dark] shorts-avoid-control']['--sa-fg']],
+    ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.2)', '#f1f1f1']);
+  assert.equal(rules['shorts-avoid-control']['--sa-border'], undefined);
+  assert.equal(rules['shorts-avoid-control'].margin, '0 0 8px');
+  assert.equal(rules['.ytwReelActionBarViewModelHost > shorts-avoid-control']?.['margin-top'], '0',
+    "YouTube's 16px rail-child margin must not separate the control from the native buttons");
+});

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.27
+
+- Match the Avoid and Like buttons to YouTube's own Shorts action buttons: no border, the same tonal background and hover in light and dark themes, 24px icons, YouTube's label font and 8px spacing.
+
 ## 0.1.26
 
 - Fix Both sending only Not interested when YouTube moves to the next Short after it. Avoid now sends Don't recommend channel first and Not interested last.
