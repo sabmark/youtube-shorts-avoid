@@ -27,6 +27,10 @@ function fixture(t, html, url = 'https://www.youtube.com/shorts/first-video', { 
     const top = Number(this.dataset.top || 0);
     return { x: 0, y: top, top, bottom: top + 400, left: 0, right: 300, width: 300, height: 400 };
   };
+  // jsdom has no Resource Timing. Tests record YouTube feedback requests with feedbackRequest().
+  const resources = [];
+  dom.window.performance.getEntriesByType = type => type === 'resource' ? [...resources] : [];
+  dom.window.__resources = resources;
   beforeScripts?.(dom.window);
   for (const script of ['settings.js', 'youtube.js', 'workflow.js', 'shortcut.js', 'content.js']) {
     const path = join(__dirname, '..', 'extension', 'src', script);
@@ -72,4 +76,11 @@ function notice(window, text) {
   return el;
 }
 
-module.exports = { fixture, player, installMenu, notice };
+function feedbackRequest(window, { status = 200, path = '/youtubei/v1/feedback?prettyPrint=false', startTime } = {}) {
+  const entry = { entryType: 'resource', initiatorType: 'fetch', name: `https://www.youtube.com${path}`,
+    startTime: startTime ?? window.performance.now(), responseStatus: status };
+  window.__resources.push(entry);
+  return entry;
+}
+
+module.exports = { fixture, player, installMenu, notice, feedbackRequest };

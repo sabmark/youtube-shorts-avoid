@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { fixture, player, installMenu, notice } = require('./helpers.cjs');
+const { fixture, player, installMenu, notice, feedbackRequest } = require('./helpers.cjs');
 
 test('binds the visible Shorts renderer to the route identity', t => {
   const w = fixture(t, player());
@@ -92,6 +92,70 @@ test('a stale success toast cannot confirm a new feedback request', async t => {
   const target = adapter.current();
   await adapter.preflight(target);
   await assert.rejects(adapter.feedback(target, 'not-interested'), { code: 'timeout' });
+});
+
+test('a successful feedback request confirms an action when YouTube shows no notice', async t => {
+  const w = fixture(t, player());
+  const sent = [];
+  installMenu(w, { items: ['Not interested', "Don't recommend this channel"], onFeedback: label => {
+    sent.push(label);
+    w.setTimeout(() => feedbackRequest(w), 5);
+  } });
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 60 });
+  const target = adapter.current();
+  await adapter.preflight(target);
+  await adapter.feedback(target, 'channel');
+  await adapter.feedback(target, 'not-interested');
+  assert.deepEqual(sent, ["Don't recommend this channel", 'Not interested']);
+});
+
+test('a failed feedback request is not confirmation', async t => {
+  const w = fixture(t, player());
+  installMenu(w, { onFeedback: () => feedbackRequest(w, { status: 500 }) });
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 30 });
+  const target = adapter.current();
+  await adapter.preflight(target);
+  await assert.rejects(adapter.feedback(target, 'channel'), { code: 'timeout' });
+});
+
+test('a feedback request started before the click cannot confirm it', async t => {
+  const w = fixture(t, player());
+  feedbackRequest(w, { startTime: w.performance.now() - 1000 });
+  installMenu(w, { onFeedback: () => {} });
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 30 });
+  const target = adapter.current();
+  await adapter.preflight(target);
+  await assert.rejects(adapter.feedback(target, 'channel'), { code: 'timeout' });
+});
+
+test('other YouTube requests cannot confirm feedback', async t => {
+  const w = fixture(t, player());
+  installMenu(w, { onFeedback: () => feedbackRequest(w, { path: '/youtubei/v1/next?prettyPrint=false' }) });
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 30 });
+  const target = adapter.current();
+  await adapter.preflight(target);
+  await assert.rejects(adapter.feedback(target, 'channel'), { code: 'timeout' });
+});
+
+test('feedback requests delivered only to a performance observer still confirm', async t => {
+  const observers = [];
+  const w = fixture(t, player(), undefined, { beforeScripts: win => {
+    win.PerformanceObserver = class {
+      constructor(callback) { this.callback = callback; observers.push(this); }
+      observe(options) { this.options = options; }
+      disconnect() { observers.splice(observers.indexOf(this), 1); }
+    };
+  } });
+  installMenu(w, { onFeedback: () => {
+    const entry = { entryType: 'resource', name: 'https://www.youtube.com/youtubei/v1/feedback?prettyPrint=false',
+      startTime: w.performance.now(), responseStatus: 200 };
+    for (const observer of [...observers]) observer.callback({ getEntries: () => [entry] });
+  } });
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 40 });
+  const target = adapter.current();
+  await adapter.preflight(target);
+  await adapter.feedback(target, 'channel');
+  assert.equal(observers.length, 0, 'the request observer is disconnected after the action');
 });
 
 test('unsupported reason prompts remain for the viewer to answer', async t => {

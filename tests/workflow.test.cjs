@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { fixture, player, installMenu, notice } = require('./helpers.cjs');
+const { fixture, player, installMenu, notice, feedbackRequest } = require('./helpers.cjs');
 
 function setup(t, options) {
   const w = fixture(t, player());
@@ -15,7 +15,7 @@ function setup(t, options) {
   return { w, flow, advances: () => advances };
 }
 
-test('one activation submits both actions in order then advances once', async t => {
+test('one activation submits channel then Not interested and advances once', async t => {
   const sent = [];
   let w;
   const env = setup(t, { onFeedback: label => {
@@ -26,8 +26,8 @@ test('one activation submits both actions in order then advances once', async t 
   const states = [];
   const result = await env.flow.run(state => states.push(state.status));
   assert.equal(result.status, 'complete');
-  assert.deepEqual(Array.from(result.completed), ['not-interested', 'channel']);
-  assert.deepEqual(sent, ['Not interested', "Don't recommend channel"]);
+  assert.deepEqual(Array.from(result.completed), ['channel', 'not-interested']);
+  assert.deepEqual(sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances(), 1);
   assert.equal(w.location.pathname, '/shorts/second-video');
   assert.deepEqual(states, ['busy', 'complete']);
@@ -47,13 +47,13 @@ test('a vanished second option reports partial completion without advancing', as
   let w;
   const items = ['Not interested', "Don't recommend channel"];
   const env = setup(t, { items, onFeedback: () => {
-    notice(w, 'Video removed');
-    items.pop();
+    notice(w, "We won't recommend videos from this channel");
+    items.shift();
   } });
   w = env.w;
   const result = await env.flow.run();
   assert.equal(result.status, 'partial');
-  assert.deepEqual(Array.from(result.completed), ['not-interested']);
+  assert.deepEqual(Array.from(result.completed), ['channel']);
   assert.equal(result.code, 'missing-options');
   assert.equal(env.advances(), 0);
 });
@@ -63,15 +63,15 @@ test('automatic advancement after the first action never dismisses the next Shor
   const sent = [];
   const env = setup(t, { onFeedback: label => {
     sent.push(label);
-    notice(w, 'Video removed');
+    notice(w, "We won't recommend videos from this channel");
     w.history.pushState({}, '', '/shorts/second-video');
   } });
   w = env.w;
   const result = await env.flow.run();
   assert.equal(result.status, 'partial');
   assert.equal(result.code, 'changed-short');
-  assert.deepEqual(Array.from(result.completed), ['not-interested']);
-  assert.deepEqual(sent, ['Not interested']);
+  assert.deepEqual(Array.from(result.completed), ['channel']);
+  assert.deepEqual(sent, ["Don't recommend channel"]);
   assert.equal(env.advances(), 0);
 });
 
@@ -79,7 +79,7 @@ test('automatic advancement after both actions is not followed by an extra skip'
   let w;
   const env = setup(t, { onFeedback: label => {
     notice(w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
-    if (label !== 'Not interested') w.history.pushState({}, '', '/shorts/second-video');
+    if (label === 'Not interested') w.history.pushState({}, '', '/shorts/second-video');
   } });
   w = env.w;
   const result = await env.flow.run();
@@ -91,7 +91,7 @@ test('automatic advancement after both actions is not followed by an extra skip'
 test('delayed automatic advancement after both confirmations avoids a second skip', async t => {
   const env = setup(t, { onFeedback: label => {
     notice(env.w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
-    if (label !== 'Not interested') env.w.setTimeout(() => {
+    if (label === 'Not interested') env.w.setTimeout(() => {
       env.w.history.pushState({}, '', env.w.location.pathname === '/shorts/first-video'
         ? '/shorts/second-video' : '/shorts/third-video');
     }, 30);
@@ -145,11 +145,11 @@ test('unconfirmed feedback is reported honestly without continuing', async t => 
   assert.equal(env.advances(), 0);
 });
 
-test('an unsupported reason appearing while the second menu opens blocks channel feedback', async t => {
+test('an unsupported reason appearing while the second menu opens blocks Not interested', async t => {
   const sent = [];
   const env = setup(t, { onFeedback: label => {
     sent.push(label);
-    notice(env.w, 'Video removed');
+    notice(env.w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
   } });
   let openings = 0;
   env.w.document.querySelector('[aria-label="More actions"]').addEventListener('click', () => {
@@ -161,8 +161,8 @@ test('an unsupported reason appearing while the second menu opens blocks channel
   });
   const result = await env.flow.run();
   assert.equal(result.code, 'required-reason');
-  assert.deepEqual(sent, ['Not interested']);
-  assert.deepEqual(Array.from(result.completed), ['not-interested']);
+  assert.deepEqual(sent, ["Don't recommend channel"]);
+  assert.deepEqual(Array.from(result.completed), ['channel']);
   assert.equal(env.advances(), 0);
 });
 
@@ -197,6 +197,53 @@ for (const [mode, label, kind] of [
 test('invalid Avoid mode safely falls back to both actions', async t => {
   const env = setup(t);
   const result = await env.flow.run(undefined, 'avoid', 'unknown');
-  assert.deepEqual(Array.from(result.completed), ['not-interested', 'channel']);
+  assert.deepEqual(Array.from(result.completed), ['channel', 'not-interested']);
+  assert.equal(env.advances(), 1);
+});
+
+test('Both sends the channel action even when Not interested makes YouTube advance', async t => {
+  const sent = [];
+  const env = setup(t, { onFeedback: label => {
+    sent.push(label);
+    if (label === 'Not interested') {
+      notice(env.w, 'Video removed');
+      env.w.history.pushState({}, '', '/shorts/second-video');
+    } else notice(env.w, "We won't recommend videos from this channel");
+  } });
+  const result = await env.flow.run();
+  assert.equal(result.status, 'complete');
+  assert.deepEqual(Array.from(result.completed), ['channel', 'not-interested']);
+  assert.deepEqual(sent, ["Don't recommend channel", 'Not interested']);
+  assert.equal(env.advances(), 0);
+  assert.equal(env.w.location.pathname, '/shorts/second-video');
+});
+
+test('Both completes on layouts without notices when YouTube accepts each request', async t => {
+  const sent = [];
+  const env = setup(t, { items: ['Not interested', "Don't recommend this channel"], onFeedback: label => {
+    sent.push(label);
+    env.w.setTimeout(() => feedbackRequest(env.w), 5);
+  } });
+  const result = await env.flow.run();
+  assert.equal(result.status, 'complete');
+  assert.deepEqual(Array.from(result.completed), ['channel', 'not-interested']);
+  assert.deepEqual(sent, ["Don't recommend this channel", 'Not interested']);
+  assert.equal(env.advances(), 1);
+});
+
+test('a reason picker that follows an accepted Not interested request is answered before advancing', async t => {
+  const env = setup(t, { onFeedback: label => {
+    feedbackRequest(env.w);
+    if (label !== 'Not interested') return;
+    env.w.setTimeout(() => {
+      const sheet = env.w.document.createElement('yt-contextual-sheet-layout');
+      sheet.innerHTML = "<div>Tell us why you're not interested</div><button>Boring</button><button>Other</button>";
+      sheet.querySelectorAll('button').forEach(button => { button.onclick = () => { sheet.remove(); feedbackRequest(env.w); }; });
+      env.w.document.body.append(sheet);
+    }, 20);
+  } });
+  const result = await env.flow.run();
+  assert.equal(result.status, 'complete');
+  assert.equal(env.w.document.querySelector('yt-contextual-sheet-layout'), null);
   assert.equal(env.advances(), 1);
 });

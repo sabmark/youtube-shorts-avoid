@@ -1,6 +1,6 @@
 # Privacy
 
-Shorts Avoid for YouTube runs locally on `https://www.youtube.com/`. Its content scripts inspect the visible Shorts controls and feedback notices, and click YouTube's own controls when you activate Avoid or Like.
+Shorts Avoid for YouTube runs locally on `https://www.youtube.com/`. Its content scripts inspect the visible Shorts controls and feedback notices, and click YouTube's own controls when you activate Avoid or Like. To confirm Avoid feedback on layouts without a notice, they check the browser's request timing records for whether YouTube's own feedback request succeeded. Only the request address and status are checked; request and response contents are not read, changed or stored.
 
 The extension has no backend, analytics, telemetry or persistent account-data storage. It does not read or export login cookies, passwords or authentication tokens. Workflow state stays in page memory. Your chosen Avoid and Like shortcuts are saved locally in extension storage; each contains only the key or mouse button and modifier settings. Your choice of Avoid feedback (Not interested, Don't recommend channel, or both) is also saved locally. The storage permission allows these settings to persist across browser restarts.
 

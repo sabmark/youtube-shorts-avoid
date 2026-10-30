@@ -86,7 +86,7 @@ test('an opened reason dialog prefers Other, submits once, then continues and ad
   assert.equal(env.result.status, 'complete');
   assert.deepEqual(env.dialog.selected, ['Other']);
   assert.equal(env.dialog.submissions(), 1);
-  assert.deepEqual(env.sent, ['Not interested', "Don't recommend channel"]);
+  assert.deepEqual(env.sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances, 1);
 });
 
@@ -112,13 +112,12 @@ test('signed-in YouTube contextual reason sheet selects Other and recognizes its
   assert.equal(env.result.status, 'complete');
 });
 
-test('a reason sheet that advances natively records Not interested and never rejects the next channel', async t => {
+test('a reason sheet that advances natively completes both actions without an extra skip', async t => {
   const env = await processReason(t, { sheet: true, buttons: true, submit: false, choices: liveChoices, advance: true });
   assert.deepEqual(env.dialog.selected, ['Other']);
-  assert.equal(env.result.status, 'partial');
-  assert.equal(env.result.code, 'changed-short');
-  assert.deepEqual([...env.result.completed], ['not-interested']);
-  assert.deepEqual(env.sent, ['Not interested']);
+  assert.equal(env.result.status, 'complete');
+  assert.deepEqual([...env.result.completed], ['channel', 'not-interested']);
+  assert.deepEqual(env.sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances, 0);
 });
 
@@ -140,11 +139,12 @@ test('a pre-existing reason prompt is not answered by a new activation', async t
 
 test('an unclosed reason dialog times out without repeating selection or submission', async t => {
   const env = await processReason(t, { close: false });
-  assert.equal(env.result.status, 'stopped');
+  assert.equal(env.result.status, 'partial');
   assert.equal(env.result.code, 'timeout');
+  assert.deepEqual([...env.result.completed], ['channel']);
   assert.deepEqual(env.dialog.selected, ['Other']);
   assert.equal(env.dialog.submissions(), 1);
-  assert.deepEqual(env.sent, ['Not interested']);
+  assert.deepEqual(env.sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances, 0);
 });
 
@@ -162,13 +162,12 @@ test('a reason prompt on a changed Short remains untouched', async t => {
   assert.equal(dialog.submissions(), 0);
 });
 
-test('a later reason after Not interested confirmation stays untouched and stops channel feedback', async t => {
+test('a reason appearing as the second menu opens stays untouched and stops Not interested', async t => {
   const w = fixture(t, player());
   let dialog;
   const sent = [];
   installMenu(w, { onFeedback: label => {
     sent.push(label);
-    if (label !== 'Not interested') assert.equal(dialog.dialog.isConnected, false);
     notice(w, label === 'Not interested' ? 'Video removed' : "We won't recommend videos from this channel");
   } });
   let openings = 0;
@@ -180,9 +179,10 @@ test('a later reason after Not interested confirmation stays untouched and stops
   const result = await new w.ShortsAvoid.Workflow(adapter).run();
   assert.equal(result.status, 'partial');
   assert.equal(result.code, 'required-reason');
+  assert.deepEqual([...result.completed], ['channel']);
   assert.deepEqual(dialog.selected, []);
   assert.equal(dialog.submissions(), 0);
-  assert.deepEqual(sent, ['Not interested']);
+  assert.deepEqual(sent, ["Don't recommend channel"]);
 });
 
 test('a reason dialog with an enabled text field is not selected or submitted', async t => {
@@ -190,7 +190,7 @@ test('a reason dialog with an enabled text field is not selected or submitted', 
   assert.equal(env.result.code, 'required-reason');
   assert.deepEqual(env.dialog.selected, []);
   assert.equal(env.dialog.submissions(), 0);
-  assert.deepEqual(env.sent, ['Not interested']);
+  assert.deepEqual(env.sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances, 0);
 });
 
@@ -199,6 +199,6 @@ test('a text field revealed by choosing Other prevents reason submission', async
   assert.equal(env.result.code, 'required-reason');
   assert.deepEqual(env.dialog.selected, ['Other']);
   assert.equal(env.dialog.submissions(), 0);
-  assert.deepEqual(env.sent, ['Not interested']);
+  assert.deepEqual(env.sent, ["Don't recommend channel", 'Not interested']);
   assert.equal(env.advances, 0);
 });

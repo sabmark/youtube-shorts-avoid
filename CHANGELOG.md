@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.26
+
+- Fix Both sending only Not interested when YouTube moves to the next Short after it. Avoid now sends Don't recommend channel first and Not interested last.
+- Accept YouTube's own feedback request succeeding as confirmation on Shorts layouts that show no feedback notice.
+
 ## 0.1.25
 
 - Choose which feedback Avoid sends: Not interested, Don't recommend channel, or both. Both remains the default.

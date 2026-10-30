@@ -4,6 +4,7 @@
   const normalize = text => (text || '').replace(/[‘’]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
   const labels = { 'not-interested': ['not interested'], channel: ["don't recommend channel", "don't recommend this channel"] };
   const noticeSelector = '[role="status"], [role="alert"], tp-yt-paper-toast, ytd-notification-action-renderer, yt-notification-action-renderer';
+  const feedbackEndpoint = /^https:\/\/www\.youtube\.com\/youtubei\/v1\/feedback(?:\?|$)/;
   function problem(code, message) {
     return Object.assign(new Error(message), { code });
   }
@@ -154,7 +155,7 @@
           && labels[kind]?.includes(normalize(element.getAttribute('aria-label') || element.textContent)));
     }
 
-    async preflight(target, kinds = ['not-interested', 'channel']) {
+    async preflight(target, kinds = ['channel', 'not-interested']) {
       const menu = await this.menu(target);
       if (kinds.some(kind => !this.item(menu, kind))) {
         throw problem('missing-options', 'This Short does not offer the selected feedback options. Sign in and check the YouTube menu.');
@@ -163,6 +164,32 @@
 
     notices() {
       return [...this.document.querySelectorAll(noticeSelector)].filter(element => visible(this.window, element));
+    }
+
+    // Some Shorts layouts show no notice. Resource Timing reports YouTube's own
+    // feedback request status without reading or changing the request.
+    watchFeedbackRequests() {
+      const performance = this.window.performance;
+      const since = performance.now();
+      let accepted = false;
+      const matches = entry => entry.startTime >= since && feedbackEndpoint.test(entry.name)
+        && entry.responseStatus >= 200 && entry.responseStatus < 300;
+      let observer = null;
+      if (typeof this.window.PerformanceObserver === 'function') {
+        try {
+          observer = new this.window.PerformanceObserver(list => {
+            if (list.getEntries().some(matches)) accepted = true;
+          });
+          observer.observe({ type: 'resource' });
+        } catch {
+          observer = null;
+        }
+      }
+      return {
+        accepted: () => accepted || (typeof performance.getEntriesByType === 'function'
+          && performance.getEntriesByType('resource').some(matches)),
+        stop: () => observer?.disconnect()
+      };
     }
 
     async feedback(target, kind) {
@@ -174,6 +201,7 @@
       await this.resolveReason(target);
       this.assertCurrent(target);
       if (kind === 'not-interested') this.reasonOwner = target;
+      const requests = this.watchFeedbackRequests();
       try {
         item.click();
         this.openedMenu = null;
@@ -186,12 +214,17 @@
               ? /video removed|we'll tune your recommendations|got it|won't see this video|you'll see fewer videos like this/.test(text)
               : /won't recommend.*channel|will not recommend.*channel|channel.*won't.*recommend/.test(text);
           });
-          if (confirmed) return true;
+          if (confirmed || requests.accepted()) return true;
           this.assertCurrent(target);
           return false;
         }, 'YouTube did not confirm the feedback. It may have been sent; check before trying again.');
-      } finally {
+      } catch (error) {
+        // On success ownership stays: a reason picker can follow an accepted
+        // request, and next() still answers it for this Short.
         if (kind === 'not-interested') this.reasonOwner = null;
+        throw error;
+      } finally {
+        requests.stop();
       }
     }
 
