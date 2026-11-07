@@ -148,3 +148,44 @@ for (const binding of [{ key: 'l', ctrlKey: true }, { type: 'mouse', button: 1, 
     await new Promise(resolve=>setTimeout(resolve,70));assert.equal(likes,2);
   });
 }
+
+// Narrow windows (shorts-layout=2) hide YouTube's navigation buttons with display: none.
+function hideNavigation(w, count = 1) {
+  const next = w.document.querySelector('[aria-label="Next video"]');
+  const shorts = w.document.createElement('ytd-shorts');
+  for (let i = 0; i < count; i++) {
+    const nav = w.document.createElement('div');
+    nav.id = 'navigation-button-down';
+    nav.style.display = 'none';
+    nav.append(i === 0 ? next : next.cloneNode(true));
+    shorts.append(nav);
+  }
+  w.document.body.append(shorts);
+}
+
+test('like advances through the hidden Shorts Next button in the narrow layout', async t => {
+  const env = setup(t);
+  hideNavigation(env.w);
+  const result = await env.flow.run(() => {}, 'like');
+  assert.equal(result.status, 'complete', result.message);
+  assert.equal(env.clicks(), 1);
+  assert.equal(env.advances(), 1);
+  assert.equal(env.w.location.pathname, '/shorts/second-video');
+});
+
+test('an ambiguous hidden Next control is not clicked', async t => {
+  const env = setup(t);
+  hideNavigation(env.w, 2);
+  const result = await env.flow.run(() => {}, 'like');
+  assert.equal(result.status, 'partial');
+  assert.equal(result.code, 'missing-next');
+  assert.equal(env.advances(), 0);
+});
+
+test('a hidden Next button outside the Shorts player is not clicked', async t => {
+  const env = setup(t);
+  env.w.document.querySelector('[aria-label="Next video"]').style.display = 'none';
+  const result = await env.flow.run(() => {}, 'like');
+  assert.equal(result.code, 'missing-next');
+  assert.equal(env.advances(), 0);
+});

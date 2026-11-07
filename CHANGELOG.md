@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.29
+
+- Fix Like not moving to the next Short in narrow windows, where YouTube hides its Next button. Avoid also uses this when YouTube does not advance by itself.
+
 ## 0.1.28
 
 - Match the Avoid and Like buttons to YouTube's in-video style when a narrow window places the Shorts actions over the video: white icons and labels on a dark translucent background in both themes.
