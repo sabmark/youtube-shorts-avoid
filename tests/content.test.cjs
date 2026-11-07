@@ -504,3 +504,37 @@ test('page tokens follow YouTube light and dark action button colors without a b
   assert.equal(rules['.ytwReelActionBarViewModelHost > shorts-avoid-control']?.['margin-top'], '0',
     "YouTube's 16px rail-child margin must not separate the control from the native buttons");
 });
+
+test('control follows the native in-video overlay style and switches back when the rail leaves the video', async t => {
+  const w = fixture(t, player().replace('<reel-action-bar-view-model></reel-action-bar-view-model>',
+    '<reel-action-bar-view-model><button class="ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlayDark" aria-label="Share">Share</button></reel-action-bar-view-model>'));
+  assert.equal(host(w).hasAttribute('overlay'), true, 'narrow layout puts the actions over the video');
+  w.document.querySelector('[aria-label="Share"]').className = 'ytSpecButtonShapeNextTonal ytSpecButtonShapeNextMono';
+  await until(() => !host(w).hasAttribute('overlay'));
+  w.document.querySelector('[aria-label="Share"]').className = 'ytSpecButtonShapeNextTonal ytSpecButtonShapeNextOverlayDark';
+  await until(() => host(w).hasAttribute('overlay'));
+});
+
+test('control has no overlay style beside the video', t => {
+  const w = fixture(t, player());
+  assert.equal(host(w).hasAttribute('overlay'), false);
+});
+
+test('overlay tokens match YouTube in-video action buttons in light and dark themes', () => {
+  const css = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'extension', 'control.css'), 'utf8');
+  const rules = declarations(css);
+  const overlay = rules['html shorts-avoid-control[overlay]'];
+  assert.ok(overlay, 'overlay rule must outrank html[dark] by order at equal specificity');
+  assert.ok(css.indexOf('html shorts-avoid-control[overlay]') > css.indexOf('html[dark] shorts-avoid-control'));
+  assert.deepEqual([overlay['--sa-bg'], overlay['--sa-hover'], overlay['--sa-fg'], overlay['--sa-focus']],
+    ['rgba(0, 0, 0, 0.3)', 'rgba(40, 40, 40, 0.6)', '#fff', '#fff']);
+  assert.equal(overlay['--sa-backdrop'], 'blur(8px)');
+  assert.equal(overlay['--sa-icon-filter'], 'drop-shadow(rgba(0, 0, 0, 0.8) 0 0 1px)');
+});
+
+test('shadow styles apply the overlay backdrop and icon shadow tokens', t => {
+  const w = fixture(t, player());
+  const rules = declarations(host(w).shadowRoot.querySelector('style').textContent);
+  assert.equal(rules.button['backdrop-filter'], 'var(--sa-backdrop, none)');
+  assert.equal(rules.svg.filter, 'var(--sa-icon-filter, none)');
+});

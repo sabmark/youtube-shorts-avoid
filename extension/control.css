@@ -15,5 +15,15 @@ html[dark] shorts-avoid-control {
   --sa-focus: #8bbaff;
 }
 
+/* Narrow windows place the actions over the video, where YouTube uses a dark overlay in both themes. */
+html shorts-avoid-control[overlay] {
+  --sa-bg: rgba(0, 0, 0, 0.3);
+  --sa-hover: rgba(40, 40, 40, 0.6);
+  --sa-fg: #fff;
+  --sa-focus: #fff;
+  --sa-backdrop: blur(8px);
+  --sa-icon-filter: drop-shadow(rgba(0, 0, 0, 0.8) 0 0 1px);
+}
+
 /* YouTube gives every action-rail child a 16px top margin and resets it on its own buttons. */
 .ytwReelActionBarViewModelHost > shorts-avoid-control { margin-top: 0; }

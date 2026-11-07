@@ -48,11 +48,13 @@
       :host { display: flex; flex-direction: column; align-items: center; flex: none; }
       button { box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px;
         padding: 0; border: 0; border-radius: 50%; cursor: pointer;
-        background: var(--sa-bg, rgba(0, 0, 0, 0.05)); color: var(--sa-fg, #0f0f0f); }
+        background: var(--sa-bg, rgba(0, 0, 0, 0.05)); color: var(--sa-fg, #0f0f0f);
+        backdrop-filter: var(--sa-backdrop, none); }
       button:hover { background: var(--sa-hover, rgba(0, 0, 0, 0.1)); }
       button:focus-visible { outline: 3px solid var(--sa-focus, #0958b9); outline-offset: 3px; }
       button:disabled { cursor: wait; opacity: .6; }
-      svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; }
+      svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2;
+        filter: var(--sa-icon-filter, none); }
       .label { margin-top: 4px; font: 400 12px/18px Roboto, Arial, sans-serif; color: var(--sa-fg, #0f0f0f); }
 `;
   const button = document.createElement('button');
@@ -112,6 +114,10 @@
       return;
     }
     if (host.parentElement !== rail) rail.append(host);
+    // In narrow windows YouTube moves the rail over the video and gives its own
+    // buttons the dark overlay style. Follow the native buttons, not the page theme.
+    host.toggleAttribute('overlay', [...rail.querySelectorAll('button')]
+      .some(native => /\bytSpecButtonShapeNextOverlay(?:Dark)?\b/.test(native.className)));
     updateButton({ status: workflow.busy ? 'busy' : 'idle' });
   }
 

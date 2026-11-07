@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.28
+
+- Match the Avoid and Like buttons to YouTube's in-video style when a narrow window places the Shorts actions over the video: white icons and labels on a dark translucent background in both themes.
+
 ## 0.1.27
 
 - Match the Avoid and Like buttons to YouTube's own Shorts action buttons: no border, the same tonal background and hover in light and dark themes, 24px icons, YouTube's label font and 8px spacing.
