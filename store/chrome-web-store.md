@@ -1,5 +1,12 @@
 # Chrome Web Store submission
 
+## v0.1.29 submission: November 8, 2026
+
+The owner approved the submission. Before upload the dashboard showed version 0.1.27 published and public, with no review pending. Version 0.1.29 was uploaded to item `capdpopadgbflaoklceadlimohpcmopm` and submitted for review with automatic publishing after it passes. The dashboard showed "Pending review". Version 0.1.27 stays public until then. Permissions are unchanged: storage and YouTube host access.
+
+- Package: `youtube-shorts-avoid-0.1.29.zip`, SHA-256 `b221e1587217cc3bd6b46876584ec96e0b74f7254e038483c5b86dbcbfc19447`, the same file as GitHub release v0.1.29 at `fab8be1`.
+- Full suite: 123 passed, zero failed.
+
 ## v0.1.27 submission: October 30, 2026
 
 The owner approved the submission. Version 0.1.27 was uploaded to item `capdpopadgbflaoklceadlimohpcmopm` and submitted for review with automatic publishing after it passes. The dashboard showed "Pending review". Version 0.1.25 stays public until then. Permissions are unchanged: storage and YouTube host access.

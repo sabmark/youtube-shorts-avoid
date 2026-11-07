@@ -1,5 +1,7 @@
 # Opera Add-ons submission
 
+On November 8, 2026, the owner approved submitting v0.1.29. Before upload, Opera still showed 0.1.25 (October 6) and 0.1.27 (October 30) awaiting moderation, and the conversation held only those two system messages. v0.1.29 was uploaded as a new version of item `307234` with metadata copied from 0.1.27. The source, license and privacy links and build instructions now point to `fab8be17eb876480f187ac393db3d9bee7e6db9d`, the build notes name the 0.1.29 package and 123 passing tests, and the changelog lists the changes since 0.1.25. Opera shows "Shorts Avoid for YouTube v0.1.29 was submitted. Awaiting moderation." The package is the same ZIP as GitHub release v0.1.29 (SHA-256 `b221e1587217cc3bd6b46876584ec96e0b74f7254e038483c5b86dbcbfc19447`). No Opera version is public yet.
+
 ## Status
 
 On October 30, 2026, the owner approved submitting v0.1.27. It was uploaded as a new version of item `307234`, with metadata copied from 0.1.25. The changelog, source, license and privacy links, and build instructions were updated for `37bc4bd`. Opera shows "Shorts Avoid for YouTube v0.1.27 was submitted. Awaiting moderation." The package is the same ZIP as GitHub release v0.1.27 (SHA-256 `6d5bd1d1958b4911300ccfeb767bf3e25d632bd8cc123a27ffc11cebe9ad09a6`). No Opera version is public yet.
