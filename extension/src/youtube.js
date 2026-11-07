@@ -275,9 +275,9 @@
         .filter(element => !element.disabled && element.getAttribute('aria-disabled') !== 'true');
       // Narrow windows hide the Shorts navigation buttons with display: none, but
       // the single Next button in the player still advances when clicked.
-      const hidden = nextButtons.filter(element => element.isConnected && element.closest('ytd-shorts'));
+      const inPlayer = nextButtons.filter(element => element.closest('ytd-shorts'));
       const button = nextButtons.find(element => visible(this.window, element))
-        || (hidden.length === 1 ? hidden[0] : null);
+        || (inPlayer.length === 1 ? inPlayer[0] : null);
       if (!button) throw problem('missing-next', 'Feedback was sent, but the next-video control is unavailable.');
       button.click();
       await this.wait(() => {

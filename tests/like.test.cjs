@@ -171,6 +171,7 @@ test('like advances through the hidden Shorts Next button in the narrow layout',
   assert.equal(env.clicks(), 1);
   assert.equal(env.advances(), 1);
   assert.equal(env.w.location.pathname, '/shorts/second-video');
+  assert.equal(env.native.getAttribute('aria-pressed'), 'true', 'the like stays applied');
 });
 
 test('an ambiguous hidden Next control is not clicked', async t => {
@@ -188,4 +189,25 @@ test('a hidden Next button outside the Shorts player is not clicked', async t =>
   const result = await env.flow.run(() => {}, 'like');
   assert.equal(result.code, 'missing-next');
   assert.equal(env.advances(), 0);
+});
+
+for (const disable of [b => { b.disabled = true; }, b => b.setAttribute('aria-disabled', 'true')]) {
+  test(`a disabled hidden Next button is not clicked (${disable.toString()})`, async t => {
+    const env = setup(t);
+    hideNavigation(env.w);
+    disable(env.w.document.querySelector('[aria-label="Next video"]'));
+    const result = await env.flow.run(() => {}, 'like');
+    assert.equal(result.code, 'missing-next');
+    assert.equal(env.advances(), 0);
+  });
+}
+
+test('Avoid uses the hidden Next button when YouTube does not advance after feedback in the narrow layout', async t => {
+  const env = setup(t);
+  hideNavigation(env.w);
+  installMenu(env.w);
+  const result = await env.flow.run(() => {}, 'avoid');
+  assert.equal(result.status, 'complete', result.message);
+  assert.deepEqual([...result.completed], ['channel', 'not-interested']);
+  assert.equal(env.advances(), 1);
 });
