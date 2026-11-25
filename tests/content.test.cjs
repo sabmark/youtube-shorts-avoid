@@ -538,3 +538,33 @@ test('shadow styles apply the overlay backdrop and icon shadow tokens', t => {
   assert.equal(rules.button['backdrop-filter'], 'var(--sa-backdrop, none)');
   assert.equal(rules.svg.filter, 'var(--sa-icon-filter, none)');
 });
+
+test('mounts the controls before the channel avatar at the end of the action rail', t => {
+  const w = fixture(t, player().replace('<reel-action-bar-view-model></reel-action-bar-view-model>',
+    '<reel-action-bar-view-model><button-view-model><button aria-label="Share">Share</button></button-view-model>'
+    + '<pivot-button-view-model><a role="button" aria-label="See more videos using this sound">Channel</a></pivot-button-view-model>'
+    + '</reel-action-bar-view-model>'));
+  assert.equal(host(w).parentElement.tagName, 'REEL-ACTION-BAR-VIEW-MODEL');
+  assert.equal(host(w).nextElementSibling?.tagName, 'PIVOT-BUTTON-VIEW-MODEL', 'controls sit just before the channel avatar');
+  assert.equal(host(w).previousElementSibling?.tagName, 'BUTTON-VIEW-MODEL');
+});
+
+test('moves the controls back next to the channel avatar when YouTube adds an action later', async t => {
+  const w = fixture(t, player().replace('<reel-action-bar-view-model></reel-action-bar-view-model>',
+    '<reel-action-bar-view-model><pivot-button-view-model><a role="button">Channel</a></pivot-button-view-model></reel-action-bar-view-model>'));
+  const pivot = w.document.querySelector('pivot-button-view-model');
+  assert.equal(host(w).nextElementSibling, pivot);
+  const remix = w.document.createElement('button-view-model');
+  pivot.before(remix);
+  await until(() => host(w).nextElementSibling === pivot && host(w).previousElementSibling === remix);
+});
+
+test('mounts on the signed-in layout that renames the Short renderer', t => {
+  const cow = player().replaceAll('ytd-reel-video-renderer', 'ytd-reel-video-renderer-cow')
+    .replace('<reel-action-bar-view-model></reel-action-bar-view-model>',
+      '<reel-action-bar-view-model><button-view-model><button aria-label="Share">Share</button></button-view-model>'
+      + '<pivot-button-view-model><a role="button">Channel</a></pivot-button-view-model></reel-action-bar-view-model>');
+  const w = fixture(t, cow);
+  assert.ok(button(w), 'controls mount inside ytd-reel-video-renderer-cow');
+  assert.equal(host(w).nextElementSibling?.tagName, 'PIVOT-BUTTON-VIEW-MODEL');
+});

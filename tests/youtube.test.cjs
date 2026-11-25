@@ -229,3 +229,11 @@ test('a next button that does not navigate cannot report completion', async t =>
   const adapter = new w.ShortsAvoid.YoutubeAdapter(w, { timeoutMs: 30 });
   await assert.rejects(adapter.next(adapter.current()), { code: 'timeout' });
 });
+
+test('current Short is found in the renamed signed-in renderer', t => {
+  const w = fixture(t, player().replaceAll('ytd-reel-video-renderer', 'ytd-reel-video-renderer-cow'));
+  const adapter = new w.ShortsAvoid.YoutubeAdapter(w);
+  const current = adapter.current();
+  assert.equal(current?.id, 'first-video');
+  assert.equal(current.element.tagName, 'YTD-REEL-VIDEO-RENDERER-COW');
+});

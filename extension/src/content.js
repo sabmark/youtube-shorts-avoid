@@ -113,7 +113,9 @@
       host.remove();
       return;
     }
-    if (host.parentElement !== rail) rail.append(host);
+    // Sit just before the channel avatar that ends the rail, or last when it is absent.
+    const avatar = [...rail.children].find(child => child.matches('pivot-button-view-model')) || null;
+    if (host.parentElement !== rail || host.nextElementSibling !== avatar) rail.insertBefore(host, avatar);
     // In narrow windows YouTube moves the rail over the video and gives its own
     // buttons the dark overlay style. Follow the native buttons, not the page theme.
     host.toggleAttribute('overlay', [...rail.querySelectorAll('button')]

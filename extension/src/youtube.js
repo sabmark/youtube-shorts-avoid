@@ -31,7 +31,8 @@
     current() {
       const match = this.window.location.pathname.match(/^\/shorts\/([\w-]+)\/?$/);
       if (!match) return null;
-      const candidates = [...this.document.querySelectorAll('ytd-reel-video-renderer')]
+      // Signed-in YouTube renamed the renderer to ytd-reel-video-renderer-cow in late 2026.
+      const candidates = [...this.document.querySelectorAll('ytd-reel-video-renderer, ytd-reel-video-renderer-cow')]
         .filter(element => visible(this.window, element))
         .map(element => ({ element, box: element.getBoundingClientRect() }))
         .filter(({ box }) => box.bottom > 0 && box.top < this.window.innerHeight)
