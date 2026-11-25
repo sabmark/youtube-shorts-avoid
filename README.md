@@ -16,11 +16,11 @@ Works in **Chrome and Opera**, confirmed by the project owner. Desktop YouTube S
 
 ## Download and install
 
-Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The Chrome Web Store listing has version **0.1.27**; version 0.1.29 was submitted for review on November 8, 2026. Store installations receive updates automatically. Opera Add-ons has v0.1.29 awaiting moderation since November 8, 2026; a public listing has not yet been verified.
+Install [Shorts Avoid for YouTube from the Chrome Web Store](https://chromewebstore.google.com/detail/shorts-avoid-for-youtube/capdpopadgbflaoklceadlimohpcmopm). The Chrome Web Store listing has version **0.1.27**; version 0.1.30 is being prepared for submission. Store installations receive updates automatically. Opera Add-ons has v0.1.29 awaiting moderation since November 8, 2026; v0.1.30 is being prepared and a public listing has not yet been verified.
 
 ### Unpacked installation
 
-For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.29.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.29/youtube-shorts-avoid-0.1.29.zip). This release makes Like move to the next Short in narrow windows and matches the Avoid and Like buttons to YouTube's buttons when they sit on top of the video. See the [release notes](https://github.com/sabmark/youtube-shorts-avoid/releases/tag/v0.1.29) and [SHA-256 checksum](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.29/SHA256SUMS.txt).
+For manual installation, use the `extension` folder from this repository or download [youtube-shorts-avoid-0.1.30.zip](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.30/youtube-shorts-avoid-0.1.30.zip). This release makes the Avoid and Like buttons appear again on the latest signed-in YouTube layout and places them just above the channel avatar. See the [release notes](https://github.com/sabmark/youtube-shorts-avoid/releases/tag/v0.1.30) and [SHA-256 checksum](https://github.com/sabmark/youtube-shorts-avoid/releases/download/v0.1.30/SHA256SUMS.txt).
 
 1. Keep the `extension` folder somewhere permanent. If using the ZIP, extract it first; choose the extracted folder that contains `manifest.json`.
 2. In Chrome, open `chrome://extensions`. In Opera, open `opera://extensions`.
@@ -67,7 +67,7 @@ npm test
 npm run package
 ```
 
-The package command creates `dist/youtube-shorts-avoid-0.1.29.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
+The package command creates `dist/youtube-shorts-avoid-0.1.30.zip` containing the runtime files, settings page and MIT license notice. No build step is needed to load the `extension` folder.
 
 The DOM adapter lives in `extension/src/youtube.js`, the guarded sequence in `workflow.js`, and the button in `content.js`. Tests run the real scripts against synthetic DOM fixtures. GitHub Actions runs the full suite and verifies packaging on pushes and pull requests.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.30
+
+- Fix the Avoid and Like buttons not appearing on the latest signed-in YouTube layout, which renamed the Shorts player element.
+- Place Avoid and Like just above the channel avatar at the bottom of the Shorts actions.
+
 ## 0.1.29
 
 - Fix Like not moving to the next Short in narrow windows, where YouTube hides its Next button. Avoid also uses this when YouTube does not advance by itself.
